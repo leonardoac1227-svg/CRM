@@ -8,6 +8,8 @@ import { SESSION_COOKIE, verifySession } from "./src/lib/session-token";
 import { tick } from "./src/lib/services/automations";
 
 const dev = process.env.NODE_ENV !== "production";
+// No Render a URL pública vem em RENDER_EXTERNAL_URL
+if (!process.env.APP_URL && process.env.RENDER_EXTERNAL_URL) process.env.APP_URL = process.env.RENDER_EXTERNAL_URL;
 const port = Number(process.env.PORT || 3000);
 const app = next({ dev });
 const handle = app.getRequestHandler();

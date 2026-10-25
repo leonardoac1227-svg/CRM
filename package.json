@@ -15,7 +15,8 @@
     "db:seed": "prisma db seed",
     "db:reset": "prisma db push --force-reset && prisma db seed",
     "postinstall": "prisma generate",
-    "build:server": "node scripts/build-server.mjs"
+    "build:server": "node scripts/build-server.mjs",
+    "start:render": "prisma db push --skip-generate && tsx prisma/seed-if-empty.ts && NODE_ENV=production node --enable-source-maps dist/server.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -67,5 +68,8 @@
     "tailwindcss": "3.4.14",
     "tailwindcss-animate": "1.0.7",
     "typescript": "5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

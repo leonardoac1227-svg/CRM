@@ -1,0 +1,38 @@
+# Deploy gratuito no Render (Blueprint): web service + PostgreSQL, ambos no plano free.
+# Render → New → Blueprint → selecione este repositório.
+services:
+  - type: web
+    name: teo-crm
+    runtime: node
+    plan: free
+    branch: claude/focused-heisenberg-wo4i29
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:render
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: teo-crm-db
+          property: connectionString
+      - key: DIRECT_URL
+        fromDatabase:
+          name: teo-crm-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DEMO_MODE
+        value: "true"
+      - key: AI_PROVIDER
+        value: gemini
+      # Opcional e gratuito: chave do Google AI Studio (aistudio.google.com/apikey).
+      # Em branco, o Téo usa o motor de regras embutido.
+      - key: GEMINI_API_KEY
+        sync: false
+
+databases:
+  - name: teo-crm-db
+    plan: free
+    databaseName: crm
+    user: crm

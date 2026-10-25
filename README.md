@@ -21,6 +21,17 @@ Plataforma SaaS **multi-tenant e white-label** (Agência de SEO → Empresas cli
 | IA | OpenAI (Structured Outputs / JSON Schema, Whisper, visão) ou Gemini — com **motor de regras pt-BR embutido** quando não há chave |
 | WhatsApp | Adaptadores `META_OFFICIAL` (Graph API) e `EVOLUTION_QR` (Evolution API) atrás da mesma interface |
 
+## Deploy gratuito (Render)
+
+O arquivo `render.yaml` cria tudo no plano gratuito do Render: o web service e um PostgreSQL.
+
+1. Crie uma conta em [render.com](https://render.com) entrando com o GitHub.
+2. **New → Blueprint** → escolha o repositório `CRM` (branch `claude/focused-heisenberg-wo4i29`) → **Apply**.
+3. Quando pedir `GEMINI_API_KEY`, cole uma chave gratuita do [Google AI Studio](https://aistudio.google.com/apikey) ou deixe em branco (o Téo usa o motor de regras).
+4. Aguarde o build (~5 min) e abra a URL `https://teo-crm-xxxx.onrender.com`. O banco é populado com os dados de demonstração no primeiro start.
+
+Limites do plano gratuito: o serviço "dorme" após 15 min sem acesso (o primeiro acesso depois disso leva ~1 min), o PostgreSQL gratuito expira em 30 dias e arquivos enviados no chat não são permanentes.
+
 ## Como rodar
 
 Pré-requisitos: Node 20+, PostgreSQL 14+ (ou `docker compose up db`).
