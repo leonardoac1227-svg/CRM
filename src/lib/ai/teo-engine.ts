@@ -350,7 +350,7 @@ function runRules(input: EngineInput): EngineOutput {
     replies: pack(cfg, parts),
     state: st,
     contactPatch,
-    handoff: st.step === "DONE" ? "COMPLETED" : null,
+    handoff: (st.step as TeoState["step"]) === "DONE" ? "COMPLETED" : null,
     usedFaq,
     recommended,
     mode: "rules",

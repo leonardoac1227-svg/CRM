@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // Seed de demonstração: agência white-label, 2 workspaces, equipe com RBAC, WhatsApp, funil de 7 etapas,
 // conversas com o Téo, contatos com origem SEO, catálogo, agenda, modelos Meta e campanhas.
-import { PrismaClient, type LeadOrigin, type Prisma } from "@prisma/client";
+import { PrismaClient, type Contact, type LeadOrigin, type Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AI_PRESET_QUESTIONS, AUTOMATION_DEFS, DEFAULT_FAQS, DEFAULT_STAGES, META_PRICING } from "../src/lib/constants";
 
@@ -198,7 +198,7 @@ async function main() {
   // ---------------------------------------------------------------- Contatos
   const stageWeights = [14, 10, 7, 5, 4, 3, 7]; // distribuição por etapa
   const originPool: LeadOrigin[] = ["SEO_ORGANICO", "SEO_ORGANICO", "SEO_ORGANICO", "SEO_ORGANICO", "FACEBOOK_ADS", "FACEBOOK_ADS", "GOOGLE_ADS", "INDICACAO", "OLX", "PORTAIS", "SITE_DIRETO", "MANUAL"];
-  const contacts = [];
+  const contacts: Contact[] = [];
   let idx = 0;
   for (const [si, count] of stageWeights.entries()) {
     for (let k = 0; k < count; k++) {

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { ZodError, type ZodSchema } from "zod";
+import { ZodError, type ZodTypeAny, type output } from "zod";
 import { Prisma } from "@prisma/client";
 import { HttpError, requireSession, type Session } from "./auth";
 import { requireModule } from "./rbac";
@@ -41,7 +41,7 @@ export function route<P = Record<string, string>>(
   };
 }
 
-export async function body<T>(req: NextRequest, schema: ZodSchema<T>): Promise<T> {
+export async function body<S extends ZodTypeAny>(req: NextRequest, schema: S): Promise<output<S>> {
   let raw: unknown = {};
   try {
     raw = await req.json();
