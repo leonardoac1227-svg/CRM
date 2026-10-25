@@ -70,7 +70,7 @@ function VideoDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: 
             <Icon key={slide} className="mb-4 h-14 w-14 animate-fade-in" />
             <p key={`t${slide}`} className="animate-fade-in text-2xl font-semibold">{s.title}</p>
             <p key={`d${slide}`} className="mt-2 max-w-lg animate-fade-in px-6 text-center text-sm text-white/80">{s.text}</p>
-            <div className="absolute bottom-0 left-0 h-1 bg-white/70 transition-all duration-[4000ms] ease-linear" style={{ width: `${((slide + 1) / TOUR.length) * 100}%` }} />
+            <div className="absolute bottom-0 left-0 h-1 bg-white/70 transition-all ease-linear" style={{ width: `${((slide + 1) / TOUR.length) * 100}%`, transitionDuration: "4000ms" }} />
           </div>
         )}
       </DialogContent>

@@ -13,6 +13,9 @@ export function json(data: unknown, init?: number | ResponseInit) {
 }
 
 export function errorResponse(e: unknown) {
+  // Sinais internos do Next (renderização dinâmica, redirect, notFound) precisam propagar
+  const digest = (e as { digest?: string } | null)?.digest;
+  if (typeof digest === "string" && (digest === "DYNAMIC_SERVER_USAGE" || digest.startsWith("NEXT_"))) throw e;
   if (e instanceof HttpError) return NextResponse.json({ error: e.message }, { status: e.status });
   if (e instanceof ZodError) return NextResponse.json({ error: "Dados inválidos", issues: e.issues }, { status: 422 });
   if (e instanceof Prisma.PrismaClientKnownRequestError) {

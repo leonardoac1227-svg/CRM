@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { hexToRgbTriplet } from "@/lib/utils";
 import { Topbar } from "@/components/layout/topbar";
-import { AppShell } from "@/components/layout/app-shell";
+import { AppShell, ModuleGuard } from "@/components/layout/app-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <AppShell>
         <Topbar />
-        <main className="min-h-app">{children}</main>
+        <main className="min-h-app">
+          <ModuleGuard>{children}</ModuleGuard>
+        </main>
       </AppShell>
     </>
   );
