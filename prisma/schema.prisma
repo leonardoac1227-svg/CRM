@@ -1,0 +1,806 @@
+// =============================================================================
+//  Téo CRM — Schema multi-tenant (Agência White-Label -> Workspace) com RBAC
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+enum Niche {
+  IMOBILIARIO
+  SERVICOS
+  CLINICA
+  ECOMMERCE
+  OUTROS
+}
+
+enum Role {
+  SUPER_ADMIN
+  AGENCY_ADMIN
+  MANAGER
+  ASSISTANT
+  BROKER
+}
+
+enum WhatsAppProvider {
+  META_OFFICIAL
+  EVOLUTION_QR
+}
+
+enum ChannelAccountType {
+  COMPANY
+  BROKER
+}
+
+enum ChannelStatus {
+  CONNECTED
+  ATTENTION
+  DISCONNECTED
+}
+
+enum PersonType {
+  PF
+  PJ
+}
+
+enum EmploymentType {
+  CLT
+  AUTONOMO
+  EMPRESARIO
+  APOSENTADO
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+}
+
+enum LeadOrigin {
+  SEO_ORGANICO
+  GOOGLE_ADS
+  FACEBOOK_ADS
+  INDICACAO
+  PORTAIS
+  OLX
+  SITE_DIRETO
+  MANUAL
+}
+
+enum ConversationStatus {
+  UNREAD
+  NEEDS_REPLY
+  WITH_AI
+  OPEN
+  CLOSED
+}
+
+enum SenderType {
+  CONTACT
+  USER
+  AI_AGENT
+  SYSTEM
+}
+
+enum MediaType {
+  TEXT
+  AUDIO
+  IMAGE
+  DOCUMENT
+  TEMPLATE
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum AiPreset {
+  MCMV_ECONOMICO
+  MEDIO_PADRAO
+  ALTO_PADRAO
+  LOCACAO
+  LANCAMENTO
+  TERRENO
+  VENDA_E_LOCACAO
+  SERVICOS_SEO
+  DO_ZERO
+}
+
+enum AiFocus {
+  VENDAS
+  LOCACAO
+  AMBOS
+}
+
+enum AiTone {
+  INFORMAL
+  NO_MEIO
+  FORMAL
+}
+
+enum EmojiLevel {
+  NENHUM
+  POUCOS
+  MUITOS
+}
+
+enum MessageLength {
+  CURTAS_UMA_A_UMA
+  MEDIAS
+  LONGAS
+}
+
+enum DistributionMode {
+  ROULETTE
+  MANAGER_MANUAL
+  FIXED_USER
+}
+
+enum RequirementMode {
+  SE_DER
+  OBRIGATORIA
+}
+
+enum AutomationType {
+  WHATSAPP_QUALIFICATION
+  VISIT_REMINDER
+  BROKER_FOLLOWUP
+  POST_VISIT
+  LEAD_REENGAGEMENT
+  ANNUAL_DATES
+}
+
+enum TemplateCategory {
+  MARKETING
+  UTILITY
+  AUTHENTICATION
+}
+
+enum TemplateHeaderType {
+  NONE
+  TEXT
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+enum TemplateStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SendScheduleType {
+  NOW
+  SCHEDULED
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  COMPLETED
+}
+
+enum RecipientStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  REPLIED
+  FAILED
+  SKIPPED
+}
+
+enum CatalogStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  RENTED
+  INACTIVE
+}
+
+enum TaskType {
+  VISIT
+  CALL
+  FOLLOW_UP
+  DOCUMENTATION
+}
+
+enum ActivityType {
+  NOTE
+  STAGE_CHANGE
+  ASSIGNMENT
+  AI_QUALIFICATION
+  INTERACTION
+  CAMPAIGN
+  SYSTEM
+}
+
+enum IntegrationType {
+  FACEBOOK_LEAD_ADS
+  GOOGLE_ADS
+  PORTAL_OLX
+  PORTAL_CHAVES_NA_MAO
+  PORTAL_IMOVELWEB
+  CUSTOM_WEBHOOK
+}
+
+// -----------------------------------------------------------------------------
+// Tenancy
+// -----------------------------------------------------------------------------
+
+model Agency {
+  id                   String      @id @default(cuid())
+  name                 String
+  slug                 String      @unique
+  customDomain         String?     @unique
+  logoUrl              String?
+  primaryColor         String      @default("#2563EB")
+  secondaryColor       String      @default("#4F46E5")
+  assistantDefaultName String      @default("Téo")
+  createdAt            DateTime    @default(now())
+  workspaces           Workspace[]
+  users                User[]
+}
+
+model Workspace {
+  id                 String   @id @default(cuid())
+  agencyId           String
+  agency             Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  name               String
+  niche              Niche    @default(IMOBILIARIO)
+  city               String?
+  state              String?
+  /// { whatsapp, catalog, team, contact, seoScript } -> boolean
+  onboardingProgress Json     @default("{}")
+  /// Chave pública usada pelo tracker.js instalado no site do cliente
+  trackerKey         String   @unique @default(cuid())
+  siteUrl            String?
+  createdAt          DateTime @default(now())
+
+  users            User[]
+  channels         WhatsAppChannel[]
+  contacts         Contact[]
+  pipelines        Pipeline[]
+  conversations    Conversation[]
+  aiConfig         AiAssistantConfig?
+  automationRules  AiAutomationRule[]
+  templates        MessageTemplate[]
+  campaigns        Campaign[]
+  catalogItems     CatalogItem[]
+  tasks            Task[]
+  activities       Activity[]
+  notifications    Notification[]
+  quickReplies     QuickReply[]
+  trackingSessions TrackingSession[]
+  integrations     Integration[]
+  forms            LeadForm[]
+  copilotChats     CopilotMessage[]
+}
+
+model User {
+  id             String     @id @default(cuid())
+  workspaceId    String?
+  workspace      Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  /// Preenchido para AGENCY_ADMIN (enxerga todos os workspaces da agência)
+  agencyId       String?
+  agency         Agency?    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  name           String
+  email          String     @unique
+  passwordHash   String
+  role           Role       @default(BROKER)
+  phone          String?
+  avatarUrl      String?
+  isActive       Boolean    @default(true)
+  /// Permissões granulares do ASSISTANT: { atendimento: true, contatos: true, campanhas: false, ... }
+  permissions    Json       @default("{}")
+  inRoulette     Boolean    @default(false)
+  rouletteWeight Int        @default(1)
+  lastAssignedAt DateTime?
+  createdAt      DateTime   @default(now())
+
+  channels              WhatsAppChannel[]
+  assignedContacts      Contact[]          @relation("ContactAssignee")
+  assignedConversations Conversation[]     @relation("ConversationAssignee")
+  tasks                 Task[]
+  activities            Activity[]
+  notifications         Notification[]
+  fixedAiConfigs        AiAssistantConfig[] @relation("AiFixedUser")
+  sentMessages          Message[]
+  copilotMessages       CopilotMessage[]
+
+  @@index([workspaceId, role])
+}
+
+// -----------------------------------------------------------------------------
+// WhatsApp
+// -----------------------------------------------------------------------------
+
+model WhatsAppChannel {
+  id                String             @id @default(cuid())
+  workspaceId       String
+  workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId            String?
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name              String
+  phoneNumber       String
+  provider          WhatsAppProvider   @default(META_OFFICIAL)
+  accountType       ChannelAccountType @default(COMPANY)
+  status            ChannelStatus      @default(DISCONNECTED)
+  metaWabaId        String?
+  metaPhoneNumberId String?            @unique
+  metaAccessToken   String?
+  /// Evolution API
+  evolutionInstance String?            @unique
+  evolutionApiUrl   String?
+  evolutionApiKey   String?
+  qrCode            String?
+  lastActivityAt    DateTime?
+  createdAt         DateTime           @default(now())
+
+  conversations Conversation[]
+  templates     MessageTemplate[]
+  campaigns     Campaign[]
+
+  @@index([workspaceId])
+}
+
+// -----------------------------------------------------------------------------
+// CRM
+// -----------------------------------------------------------------------------
+
+model Contact {
+  id                     String          @id @default(cuid())
+  workspaceId            String
+  workspace              Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assignedToId           String?
+  assignedTo             User?           @relation("ContactAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  pipelineId             String?
+  pipeline               Pipeline?       @relation(fields: [pipelineId], references: [id], onDelete: SetNull)
+  stageId                String?
+  stage                  Stage?          @relation(fields: [stageId], references: [id], onDelete: SetNull)
+  stageChangedAt         DateTime        @default(now())
+  name                   String?
+  phone                  String
+  email                  String?
+  personType             PersonType      @default(PF)
+  cpfCnpj                String?
+  birthDate              DateTime?
+  address                String?
+  city                   String?
+  state                  String?
+  neighborhood           String?
+  profession             String?
+  maritalStatus          String?
+  monthlyIncome          Decimal?        @db.Decimal(14, 2)
+  downPaymentAvailable   Decimal?        @db.Decimal(14, 2)
+  fgtsBalance            Decimal?        @db.Decimal(14, 2)
+  hasProperty            Boolean?
+  employmentType         EmploymentType?
+  /// Tempo de carteira assinada (texto livre coletado pela IA)
+  employmentYears        String?
+  buyingAlone            String?
+  interest               String?
+  dealValue              Decimal?        @db.Decimal(14, 2)
+  status                 DealStatus      @default(OPEN)
+  aiQualificationEnabled Boolean         @default(true)
+  aiQualificationSummary String?         @db.Text
+  aiQualifiedAt          DateTime?
+  tags                   String[]        @default([])
+  origin                 LeadOrigin      @default(MANUAL)
+  seoLandingPage         String?
+  seoReferrer            String?
+  seoKeyword             String?
+  utmSource              String?
+  utmMedium              String?
+  utmCampaign            String?
+  trackingCode           String?
+  lastInteractionAt      DateTime?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  conversations      Conversation[]
+  tasks              Task[]
+  activities         Activity[]
+  campaignRecipients CampaignRecipient[]
+  interestedItems    CatalogItem[]       @relation("ContactInterests")
+
+  @@unique([workspaceId, phone])
+  @@index([workspaceId, stageId])
+  @@index([workspaceId, assignedToId])
+  @@index([workspaceId, origin])
+  @@index([trackingCode])
+}
+
+model Pipeline {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  isDefault   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  stages      Stage[]
+  contacts    Contact[]
+}
+
+model Stage {
+  id         String   @id @default(cuid())
+  pipelineId String
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  name       String
+  order      Int
+  color      String   @default("#2563EB")
+  isWonStage Boolean  @default(false)
+  contacts   Contact[]
+
+  @@index([pipelineId, order])
+}
+
+// -----------------------------------------------------------------------------
+// Chat
+// -----------------------------------------------------------------------------
+
+model Conversation {
+  id                  String             @id @default(cuid())
+  workspaceId         String
+  workspace           Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contactId           String
+  contact             Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  channelId           String?
+  channel             WhatsAppChannel?   @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  assignedToId        String?
+  assignedTo          User?              @relation("ConversationAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  status              ConversationStatus @default(UNREAD)
+  aiActive            Boolean            @default(false)
+  /// Estado da máquina de qualificação do Téo (perguntas feitas, respondidas, tentativas…)
+  aiState             Json               @default("{}")
+  metaWindowExpiresAt DateTime?
+  lastContactMessageAt DateTime?
+  lastMessagePreview  String?
+  lastMessageAt       DateTime?
+  unreadCount         Int                @default(0)
+  createdAt           DateTime           @default(now())
+  messages            Message[]
+
+  @@unique([contactId, channelId])
+  @@index([workspaceId, lastMessageAt])
+}
+
+model Message {
+  id             String        @id @default(cuid())
+  conversationId String
+  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderType     SenderType
+  senderUserId   String?
+  senderUser     User?         @relation(fields: [senderUserId], references: [id], onDelete: SetNull)
+  senderName     String?
+  content        String        @db.Text
+  mediaUrl       String?
+  mediaType      MediaType     @default(TEXT)
+  metaMessageId  String?       @unique
+  status         MessageStatus @default(SENT)
+  createdAt      DateTime      @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model QuickReply {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  shortcut    String
+  content     String    @db.Text
+}
+
+// -----------------------------------------------------------------------------
+// Téo ✨ (IA)
+// -----------------------------------------------------------------------------
+
+model AiAssistantConfig {
+  id                       String           @id @default(cuid())
+  workspaceId              String           @unique
+  workspace                Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  isActive                 Boolean          @default(true)
+  preset                   AiPreset         @default(MCMV_ECONOMICO)
+  focus                    AiFocus          @default(VENDAS)
+  assistantName            String           @default("Téo")
+  roleTitle                String           @default("Assistente virtual")
+  tone                     AiTone           @default(NO_MEIO)
+  emojiLevel               EmojiLevel       @default(POUCOS)
+  messageLength            MessageLength    @default(CURTAS_UMA_A_UMA)
+  regionCity               String?
+  initialGreeting          String           @default("Olá! Aqui é o {{nome_assistente}} da equipe {{nome_empresa}}. Tudo bem?")
+  enableAudioTranscription Boolean          @default(true)
+  enableImageAnalysis      Boolean          @default(true)
+  enableCatalogSend        Boolean          @default(true)
+  qualificationObjective   String           @default("COMPRA")
+  customPromptContext      String?          @db.VarChar(500)
+  handoffMessage           String           @default("Perfeito! Já passei suas informações para um dos nossos corretores, que vai continuar seu atendimento por aqui em instantes. 😊")
+  inactivityTimeoutHours   Int              @default(24)
+  targetPipelineId         String?
+  targetStageId            String?
+  /// Etapa para onde o lead vai quando a qualificação termina
+  qualifiedStageId         String?
+  distributionMode         DistributionMode @default(ROULETTE)
+  fixedUserId              String?
+  fixedUser                User?            @relation("AiFixedUser", fields: [fixedUserId], references: [id], onDelete: SetNull)
+  notifyBrokerOnWhatsApp   Boolean          @default(true)
+  updatedAt                DateTime         @updatedAt
+
+  questions AiQuestion[]
+  faqs      AiFaq[]
+}
+
+model AiQuestion {
+  id              String            @id @default(cuid())
+  configId        String
+  config          AiAssistantConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  order           Int
+  questionText    String
+  requirementMode RequirementMode   @default(SE_DER)
+  /// monthlyIncome | downPaymentAvailable | hasProperty | employmentType | employmentYears | buyingAlone | fgtsBalance | neighborhood | interest | profession | maritalStatus | null
+  targetField     String?
+
+  @@index([configId, order])
+}
+
+model AiFaq {
+  id            String            @id @default(cuid())
+  configId      String
+  config        AiAssistantConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  questionTitle String
+  answerText    String            @db.Text
+  /// Palavras-chave que disparam a resposta no motor sem LLM
+  keywords      String[]          @default([])
+  isEnabled     Boolean           @default(true)
+}
+
+model AiAutomationRule {
+  id          String         @id @default(cuid())
+  workspaceId String
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  type        AutomationType
+  isEnabled   Boolean        @default(false)
+  configJson  Json           @default("{}")
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([workspaceId, type])
+}
+
+model CopilotMessage {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  threadId    String
+  role        String
+  content     String    @db.Text
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, threadId])
+}
+
+// -----------------------------------------------------------------------------
+// Meta: Templates & Campanhas
+// -----------------------------------------------------------------------------
+
+model MessageTemplate {
+  id               String             @id @default(cuid())
+  workspaceId      String
+  workspace        Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  channelId        String?
+  channel          WhatsAppChannel?   @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  name             String
+  category         TemplateCategory   @default(MARKETING)
+  language         String             @default("pt_BR")
+  headerType       TemplateHeaderType @default(NONE)
+  headerContent    String?
+  bodyText         String             @db.VarChar(1024)
+  /// { "1": "contact.firstName", "2": "user.name" }
+  variableMappings Json               @default("{}")
+  footerText       String?
+  /// [{ type: "QUICK_REPLY" | "URL" | "PHONE_NUMBER", text, value? }]
+  buttonsJson      Json               @default("[]")
+  metaStatus       TemplateStatus     @default(DRAFT)
+  metaTemplateId   String?
+  rejectionReason  String?
+  createdAt        DateTime           @default(now())
+  campaigns        Campaign[]         @relation("CampaignTemplate")
+  campaignsVariantB Campaign[]        @relation("CampaignTemplateB")
+
+  @@unique([workspaceId, name, language])
+}
+
+model Campaign {
+  id                   String           @id @default(cuid())
+  workspaceId          String
+  workspace            Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name                 String
+  channelId            String?
+  channel              WhatsAppChannel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  templateId           String?
+  template             MessageTemplate? @relation("CampaignTemplate", fields: [templateId], references: [id], onDelete: SetNull)
+  abTestEnabled        Boolean          @default(false)
+  templateBId          String?
+  templateB            MessageTemplate? @relation("CampaignTemplateB", fields: [templateBId], references: [id], onDelete: SetNull)
+  sendScheduleType     SendScheduleType @default(NOW)
+  scheduledAt          DateTime?
+  allowedSendUntilHour String?
+  routeRepliesToAi     Boolean          @default(true)
+  /// { pipelineId, stageIds[], assignedToIds[], origins[], tags[], contactIds[] }
+  filtersJson          Json             @default("{}")
+  totalRecipients      Int              @default(0)
+  estimatedCost        Decimal          @default(0) @db.Decimal(12, 4)
+  sentCount            Int              @default(0)
+  deliveredCount       Int              @default(0)
+  readCount            Int              @default(0)
+  repliedCount         Int              @default(0)
+  failedCount          Int              @default(0)
+  status               CampaignStatus   @default(DRAFT)
+  startedAt            DateTime?
+  completedAt          DateTime?
+  createdAt            DateTime         @default(now())
+  recipients           CampaignRecipient[]
+}
+
+model CampaignRecipient {
+  id         String          @id @default(cuid())
+  campaignId String
+  campaign   Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contactId  String
+  contact    Contact         @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  variant    String          @default("A")
+  status     RecipientStatus @default(PENDING)
+  renderedBody String?       @db.Text
+  error      String?
+  sentAt     DateTime?
+  repliedAt  DateTime?
+
+  @@unique([campaignId, contactId])
+}
+
+model LeadForm {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  /// [{ key, label, type, required }]
+  fieldsJson  Json      @default("[]")
+  pipelineId  String?
+  stageId     String?
+  submissions Int       @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+// -----------------------------------------------------------------------------
+// Catálogo, Agenda e Timeline
+// -----------------------------------------------------------------------------
+
+model CatalogItem {
+  id          String        @id @default(cuid())
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  title       String
+  code        String
+  category    String
+  price       Decimal?      @db.Decimal(14, 2)
+  neighborhood String?
+  city        String?
+  bedrooms    Int?
+  areaM2      Int?
+  description String?       @db.Text
+  images      String[]      @default([])
+  status      CatalogStatus @default(AVAILABLE)
+  createdAt   DateTime      @default(now())
+  interestedContacts Contact[] @relation("ContactInterests")
+
+  @@unique([workspaceId, code])
+}
+
+model Task {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contactId    String?
+  contact      Contact?  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  assignedToId String?
+  assignedTo   User?     @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  title        String
+  type         TaskType  @default(FOLLOW_UP)
+  dueDate      DateTime
+  isCompleted  Boolean   @default(false)
+  completedAt  DateTime?
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now())
+
+  @@index([workspaceId, dueDate])
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  workspaceId String
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contactId   String
+  contact     Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type        ActivityType
+  title       String
+  body        String?      @db.Text
+  metaJson    Json         @default("{}")
+  createdAt   DateTime     @default(now())
+
+  @@index([contactId, createdAt])
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  body        String?
+  link        String?
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, isRead])
+}
+
+// -----------------------------------------------------------------------------
+// SEO Tracking & Integrações
+// -----------------------------------------------------------------------------
+
+model TrackingSession {
+  id          String     @id @default(cuid())
+  workspaceId String
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  /// Código curto injetado na mensagem do WhatsApp: SEO-8492
+  code        String     @unique
+  origin      LeadOrigin
+  landingPage String
+  referrer    String?
+  keyword     String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  event       String     @default("pageview")
+  contactId   String?
+  createdAt   DateTime   @default(now())
+
+  @@index([workspaceId, createdAt])
+}
+
+model Integration {
+  id           String          @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  type         IntegrationType
+  name         String
+  isEnabled    Boolean         @default(false)
+  webhookToken String          @unique @default(cuid())
+  /// mapeamento de campos (ex.: formulário FB -> campos do contato), pipeline/etapa destino, etc.
+  configJson   Json            @default("{}")
+  leadsReceived Int            @default(0)
+  lastEventAt  DateTime?
+  createdAt    DateTime        @default(now())
+
+  @@unique([workspaceId, type, name])
+}
