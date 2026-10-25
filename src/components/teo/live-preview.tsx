@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Bot, Play, RotateCcw, Send, Sparkles, FileText } from "lucide-react";
+import { Play, RotateCcw, Send, Sparkles, FileText } from "lucide-react";
 import { api } from "@/lib/client";
 import { cn } from "@/lib/utils";
 import type { AiConfig } from "@/lib/types";
@@ -38,7 +38,9 @@ export function LivePreview({ config, company }: { config: AiConfig; company: st
   const [done, setDone] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [msgs.length, loading]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs.length, loading]);
 
   async function turn(incoming: string | null, hist: SimMsg[], st: unknown, display: SimMsg[]) {
     setLoading(true);
@@ -111,7 +113,7 @@ export function LivePreview({ config, company }: { config: AiConfig; company: st
         {list.map((m, i) => (
           <div key={i} className={cn("flex", m.from === "contact" ? "justify-start" : "justify-end")}>
             <div className={cn("max-w-[85%] rounded-2xl px-3 py-2 text-[13px] shadow-sm", m.from === "contact" ? "rounded-tl-sm bg-white" : "rounded-tr-sm bg-gradient-to-br from-indigo-50 to-blue-50 ring-1 ring-secondary/15")}>
-              {m.from === "assistant" && <p className="mb-0.5 flex items-center gap-1 text-[10px] font-semibold text-secondary"><Bot className="h-3 w-3" /> 🤖 IA: {config.assistantName}</p>}
+              {m.from === "assistant" && <p className="mb-0.5 flex items-center gap-1 text-[10px] font-semibold text-secondary">🤖 IA: {config.assistantName}</p>}
               <p className="whitespace-pre-wrap">{m.text}</p>
             </div>
           </div>

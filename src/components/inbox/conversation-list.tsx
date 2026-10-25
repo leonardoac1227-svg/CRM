@@ -77,7 +77,7 @@ export function ConversationList({
           </PopoverContent>
         </Popover>
       </div>
-      <div className="flex gap-1 border-b px-3 py-2">
+      <div className="flex gap-1 overflow-x-auto border-b px-3 py-2 scrollbar-thin">
         {tabs.map((t) => (
           <button key={t.key} onClick={() => onTab(t.key)} className={cn("flex items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-[11px] font-medium transition-colors", tab === t.key ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted")}>
             {t.label}

@@ -50,6 +50,7 @@ export function TemplatePicker({
               body={renderTemplate(t.bodyText, t.variableMappings, ctx)}
               footer={t.footerText}
               buttons={t.buttonsJson}
+              businessName={workspaceName}
             />
           )}
         </DialogBody>

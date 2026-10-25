@@ -66,7 +66,9 @@ function Copilot() {
     }
   }, [sp, ask]);
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [data?.messages.length, pending]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [data?.messages.length, pending]);
 
   const messages = data?.messages ?? [];
   const empty = !messages.length && !pending;

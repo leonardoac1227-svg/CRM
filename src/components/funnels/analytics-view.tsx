@@ -69,7 +69,7 @@ export function AnalyticsView({ pipelineId, filters, canCampaign }: { pipelineId
                 return (
                   <tr key={r.userId ?? "none"} className={cn("border-t", isTotal && "bg-slate-50 font-semibold")}>
                     <td className="whitespace-nowrap px-4 py-2">
-                      <span className="flex items-center gap-2">{!isTotal && <Avatar name={r.name} size={22} />} <span className={cn(r.userId === null && "italic text-muted-foreground")}>{r.name}</span></span>
+                      <span className="flex items-center gap-2">{!isTotal && r.userId !== null && <Avatar name={r.name} size={22} />} <span className={cn(r.userId === null && "italic text-muted-foreground")}>{r.name}</span></span>
                     </td>
                     {r.cells.map((v, i) => (
                       <td key={i} className="px-1 py-1 text-center">

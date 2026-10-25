@@ -1,4 +1,4 @@
-import { Bot, Check, CheckCheck, FileText, Megaphone, AlertCircle, Mic } from "lucide-react";
+import { Check, CheckCheck, FileText, Megaphone, AlertCircle, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/lib/types";
 
@@ -31,7 +31,7 @@ export function MessageBubble({ m, assistantName }: { m: Message; assistantName:
       >
         {ai && (
           <p className="mb-1 flex items-center gap-1 text-[11px] font-semibold text-secondary">
-            <Bot className="h-3.5 w-3.5" /> 🤖 IA: {aiLabel}
+            🤖 IA: {aiLabel}
           </p>
         )}
         {!inbound && !ai && !system && m.senderName && <p className="mb-0.5 text-[11px] font-semibold text-primary">{m.senderName}</p>}

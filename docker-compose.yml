@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: crm
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/crm?schema=public
+      DIRECT_URL: postgresql://postgres:postgres@db:5432/crm?schema=public
+      JWT_SECRET: ${JWT_SECRET:-troque-este-segredo-com-mais-de-32-caracteres}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN:-teo-verify-token}
+      META_APP_SECRET: ${META_APP_SECRET:-}
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL:-}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
+    volumes: [uploads:/app/uploads]
+
+volumes:
+  pgdata:
+  uploads:

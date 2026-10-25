@@ -278,10 +278,10 @@ async function main() {
   type M = { from: "c" | "ai" | "u" | "sys"; text: string; ago: number; user?: typeof marcio; mediaType?: "TEXT" | "AUDIO" | "IMAGE" | "TEMPLATE" };
   async function conversation(opts: {
     contactIdx: number; channel: typeof company; status: "UNREAD" | "NEEDS_REPLY" | "WITH_AI" | "OPEN" | "CLOSED"; aiActive?: boolean; aiState?: Prisma.InputJsonValue;
-    messages: M[]; unread?: number; name?: string; summary?: string; assignTo?: typeof marcio | null; stageIdx?: number;
+    messages: M[]; unread?: number; name?: string; summary?: string; assignTo?: typeof marcio | null; stageIdx?: number; contact?: Prisma.ContactUpdateInput;
   }) {
     const ct = contacts[opts.contactIdx];
-    const patch: Prisma.ContactUpdateInput = {};
+    const patch: Prisma.ContactUpdateInput = { ...(opts.contact ?? {}) };
     if (opts.name) patch.name = opts.name;
     if (opts.summary) { patch.aiQualificationSummary = opts.summary; patch.aiQualifiedAt = minutesAgo(opts.messages[opts.messages.length - 1].ago); }
     if (opts.assignTo !== undefined) patch.assignedTo = opts.assignTo ? { connect: { id: opts.assignTo.id } } : { disconnect: true };
@@ -316,6 +316,8 @@ async function main() {
   // 1) Téo qualificando agora (em andamento)
   await conversation({
     contactIdx: 0, channel: company, status: "WITH_AI", aiActive: true, name: "Mariana Cerqueira", assignTo: null,
+    contact: { origin: "SEO_ORGANICO", seoLandingPage: SEO_PAGES[1], seoReferrer: "https://www.google.com/", seoKeyword: SEO_KEYWORDS[1], trackingCode: "#SEO-1037", utmSource: null, utmMedium: null, utmCampaign: null, employmentType: "CLT", monthlyIncome: 3800, profession: "Auxiliar administrativa", tags: ["mcmv", "seo"], stage: { connect: { id: S[0].id } } },
+    
     aiState: { step: "QUALIFYING", currentQuestionId: Q[2].id, answered: { [Q[0].id]: "CLT", [Q[1].id]: "R$ 3.800,00" }, skipped: [], attempts: {}, collected: { employmentType: "CLT", monthlyIncome: 3800 } },
     messages: [
       { from: "c", text: "Oi, vi no Google o apartamento de 2 quartos no Santa Mônica. Ainda tem?\n\n[Ref: #SEO-1037]", ago: 14 },
@@ -350,6 +352,8 @@ ORIGEM: SEO / Busca Orgânica — página https://horizonteimoveis.com.br/blog/m
 Encerramento: qualificação concluída`;
   await conversation({
     contactIdx: 1, channel: company, status: "NEEDS_REPLY", unread: 1, name: "João Pedro Almeida", assignTo: marcio, stageIdx: 1, summary: summary2,
+    contact: { origin: "SEO_ORGANICO", seoLandingPage: SEO_PAGES[0], seoReferrer: "https://www.google.com/", seoKeyword: SEO_KEYWORDS[0], trackingCode: "#SEO-1074", utmSource: null, utmMedium: null, utmCampaign: null, employmentType: "CLT", employmentYears: "Sim (5 anos)", monthlyIncome: 4500, hasProperty: false, downPaymentAvailable: 15000, fgtsBalance: 12000, buyingAlone: "Com cônjuge/parceiro(a)", dealValue: 189000, maritalStatus: "Casado(a)", tags: ["mcmv", "fgts", "seo"] },
+    
     aiState: { step: "DONE", handoffReason: "COMPLETED", answered: Object.fromEntries(Q.map((q) => [q.id, "ok"])), skipped: [], attempts: {}, collected: { employmentType: "CLT", monthlyIncome: 4500 } },
     messages: [
       { from: "c", text: "Boa tarde! Li o artigo de vocês sobre Minha Casa Minha Vida e queria saber se me encaixo\n\n[Ref: #SEO-1074]", ago: 95 },
@@ -396,6 +400,7 @@ Encerramento: qualificação concluída`;
   // 5) Áudio transcrito
   await conversation({
     contactIdx: 5, channel: company, status: "WITH_AI", aiActive: true, name: "Larissa Moreira", assignTo: null,
+    contact: { employmentType: "AUTONOMO", profession: "Cabeleireira", monthlyIncome: null, interest: "Lançamento Residencial Jardim Papagaio", stage: { connect: { id: S[0].id } } },
     aiState: { step: "QUALIFYING", currentQuestionId: Q[1].id, answered: { [Q[0].id]: "Autônomo" }, skipped: [], attempts: {}, collected: { employmentType: "AUTONOMO" } },
     messages: [
       { from: "c", text: "Olá, quero saber do lançamento no Papagaio", ago: 33 },
