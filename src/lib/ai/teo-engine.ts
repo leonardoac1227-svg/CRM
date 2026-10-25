@@ -217,7 +217,8 @@ function catalogText(cfg: EngineConfig, items: EngineCatalogItem[]) {
 
 function finishParts(cfg: EngineConfig, st: TeoState, i: number) {
   const parts: string[] = [];
-  parts.push(cfg.tone === "FORMAL" ? "Muito obrigado pelas informações!" : `${ack(cfg, i)} Obrigado pelas informações${emoji(cfg, i + 1, true)}`);
+  void i;
+  parts.push(cfg.tone === "FORMAL" ? "Muito obrigado pelas informações!" : cfg.tone === "INFORMAL" ? "Valeu demais pelas informações!" : "Obrigado pelas informações!");
   parts.push(cfg.handoffMessage);
   st.step = "DONE";
   st.handoffReason = "COMPLETED";

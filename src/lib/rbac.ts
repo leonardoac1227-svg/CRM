@@ -1,6 +1,7 @@
 import type { Prisma, Role, User } from "@prisma/client";
 import { BROKER_MODULES, DEFAULT_ASSISTANT_PERMISSIONS, type ModuleKey } from "./constants";
-import { HttpError, type Session } from "./auth";
+import { HttpError } from "./errors";
+import type { Session } from "./auth";
 
 const FULL_ACCESS: Role[] = ["SUPER_ADMIN", "AGENCY_ADMIN", "MANAGER"];
 

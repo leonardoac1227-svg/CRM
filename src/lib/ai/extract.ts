@@ -30,6 +30,11 @@ export function parseMoney(text: string): number | null {
     if (unit === "mil" || unit === "k") n *= 1000;
     if (unit === "milhao" || unit === "milhoes" || unit === "mi") n *= 1_000_000;
     if (m[4] && unit) n += Number(m[4]) * (Number(m[4]) < 10 ? 100 : 1);
+    if (unit && !m[4]) {
+      // "4 mil e quinhentos"
+      const tail = t.slice((m.index ?? 0) + m[0].length).match(/^\s*e\s+([a-z]+)(?:\s+e\s+([a-z]+))?/);
+      if (tail) for (const w of [tail[1], tail[2]]) if (w && w in WORD_NUMBERS && WORD_NUMBERS[w] < 1000) n += WORD_NUMBERS[w];
+    }
     if (n > 0) return Math.round(n * 100) / 100;
   }
   // números por extenso ("quatro mil e quinhentos")
@@ -112,6 +117,16 @@ function freeText(text: string): string | null {
 
 export type ExtractedValue = string | number | boolean;
 
+/** Valor em reais respondido a uma pergunta financeira ("uns 20" = R$ 20 mil; "6 anos" não é dinheiro). */
+function moneyAnswer(text: string): number | null {
+  const t = norm(text);
+  if (/\b(anos?|mes|meses|dias?|quartos?)\b/.test(t) && !/(r\$|mil|reais|\bk\b)/.test(t)) return null;
+  const v = parseMoney(text);
+  if (v === null) return null;
+  if (v < 100 && !/(r\$|reais|real|mil|\bk\b)/.test(t)) return v * 1000;
+  return v;
+}
+
 /** Extrai a resposta de uma pergunta para o campo-alvo. */
 export function extractForField(field: string | null, text: string): ExtractedValue | null {
   switch (field) {
@@ -119,13 +134,11 @@ export function extractForField(field: string | null, text: string): ExtractedVa
       return parseEmploymentType(text);
     case "monthlyIncome":
     case "fgtsBalance":
-    case "dealValue": {
-      if (isNegative(text) && field === "fgtsBalance") return 0;
-      return parseMoney(text);
+    case "dealValue":
+    case "downPaymentAvailable": {
+      if (isNegative(text) && (field === "fgtsBalance" || field === "downPaymentAvailable")) return 0;
+      return moneyAnswer(text);
     }
-    case "downPaymentAvailable":
-      if (isNegative(text)) return 0;
-      return parseMoney(text);
     case "hasProperty":
       return parseYesNo(text);
     case "employmentYears":

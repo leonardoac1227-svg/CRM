@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import type { Agency, User, Workspace } from "@prisma/client";
 import { prisma } from "./prisma";
 import { SESSION_COOKIE, signSession, verifySession } from "./session-token";
+import { HttpError } from "./errors";
 
 export type Session = {
   user: User;
@@ -9,11 +10,7 @@ export type Session = {
   agency: Agency;
 };
 
-export class HttpError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
-  }
-}
+export { HttpError } from "./errors";
 
 export async function getSession(): Promise<Session | null> {
   const token = cookies().get(SESSION_COOKIE)?.value;

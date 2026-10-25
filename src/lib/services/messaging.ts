@@ -1,7 +1,7 @@
 // Envio e recebimento de mensagens (com regra da janela de 24h da Meta) + vínculo de rastreio SEO.
 import type { MediaType, Prisma, SenderType, User } from "@prisma/client";
 import { prisma } from "../prisma";
-import { HttpError } from "../auth";
+import { HttpError } from "../errors";
 import { emitWorkspace } from "../realtime";
 import { adapterFor } from "../whatsapp";
 import { buildVarContext, renderTemplate, resolveTemplateParams } from "../templates";
