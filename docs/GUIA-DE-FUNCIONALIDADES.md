@@ -1,10 +1,7 @@
 # Guia de Funcionalidades — Ápice
 
-> **Sobre este guia.** O Ápice ainda é um **projeto de demonstração**: os dados vêm do seed
-> (imobiliária fictícia *Horizonte Imóveis*, agência fictícia *CRAP Digital*) e as integrações
-> externas rodam em **modo simulado**. Este documento descreve **o comportamento esperado** de
-> cada funcionalidade — o que o sistema foi construído para fazer — e, no fim, o que já funciona
-> de ponta a ponta na demo e o que depende de credenciais reais.
+> **Sobre este guia.** Descreve cada funcionalidade do Ápice (by CRAP Digital) e como ela funciona
+> em uso real. Para publicar o sistema, veja o [guia Colocar no ar](COLOCAR-NO-AR.md).
 
 ---
 
@@ -28,8 +25,8 @@
 16. [Notificações](#16-notificações)
 17. [Fluxos de ponta a ponta](#17-fluxos-de-ponta-a-ponta)
 18. [Endpoints públicos e API](#18-endpoints-públicos-e-api)
-19. [O que é simulado × o que fica real com credenciais](#19-o-que-é-simulado--o-que-fica-real-com-credenciais)
-20. [Dados e contas de demonstração](#20-dados-e-contas-de-demonstração)
+19. [Funcionamento real (sem simulação)](#19-funcionamento-real-sem-simulação)
+20. [Primeiro acesso e contas](#20-primeiro-acesso-e-contas)
 
 ---
 
@@ -98,7 +95,7 @@ desativar membros, editar a roleta.
   (nova conversa, contato, tarefa, imóvel ou campanha a partir de qualquer tela).
 - **Tema claro/escuro** (escuro é o padrão; a escolha fica salva no navegador).
 - **Sino de notificações**, ajuda (primeiros passos e tour) e **menu do avatar**: troca de cliente
-  (perfil Agência), troca de tema, sair e, no modo demonstração, **“Testar visão como…”**.
+  (perfil Agência), **Minha conta e senha**, troca de tema e sair.
 
 **Central (`/central`) — a tela inicial**
 - Saudação com o resumo das pendências, campo para **perguntar à Zeni** com atalhos prontos e
@@ -121,8 +118,8 @@ desativar membros, editar a roleta.
   trocar as cores em *Site & SEO → Configuração White-Label*.
 
 **Login**
-- E-mail e senha com sessão JWT em cookie httpOnly. A tela de login lista as contas de
-  demonstração (senha `teo123456`).
+- E-mail e senha com sessão JWT em cookie httpOnly. Quem entra com senha provisória é obrigado a
+  criar uma senha própria no primeiro acesso.
 
 ---
 
@@ -180,11 +177,6 @@ Página `/atendimento`. É a tela principal do dia a dia.
 ### Nova conversa
 - Escolha o número remetente (API Oficial ou QR Code), um contato existente ou um número novo.
 - Na API Oficial é **obrigatório** iniciar com um modelo aprovado.
-
-### Simulador (modo demonstração)
-- **“🧪 Simular um lead chegando pelo WhatsApp”** / **“Simular mensagem do cliente”**: injeta uma
-  mensagem recebida que passa pelo **mesmo pipeline do webhook** — cria o lead, aplica o rastreio
-  SEO (inclua `[Ref: #SEO-XXXX]` no texto), aciona a Zeni e, no fim, a roleta.
 
 ---
 
@@ -444,7 +436,7 @@ Página `/site-seo`.
   o webhook usa esse código para vincular a conversa à página do Google.
 - Intercepta formulários e cria o lead com a origem completa.
 - Opção de **botão flutuante de WhatsApp**.
-- **“Testar em um site de exemplo”** abre `/demo-site`, um blog fictício que roda o script.
+- **Assistente de instalação** com passo a passo por plataforma e verificação automática.
 
 ### Configuração White-Label
 - Nome da marca, nome padrão do assistente, URL do logo, cores primária e secundária (com paletas
@@ -541,57 +533,36 @@ resposta?” → clica na ação sugerida → resolve no Atendimento ou na Agend
 A API autenticada (REST, em `src/app/api/`) cobre: autenticação e troca de perfil/workspace,
 conversas e mensagens, contatos (CRUD, importação, ações em massa, atividades), funis (quadro e
 análise), tarefas, catálogo, modelos e campanhas (prévia, envio), formulários, integrações,
-canais (conectar, simular), usuários, roleta, respostas rápidas, notificações, busca global,
-relatórios, SEO, agência (white-label) e Zeni (configuração, simulador, copiloto, automações,
+canais (conectar, status, assistentes), usuários, roleta, respostas rápidas, notificações, busca global,
+relatórios, SEO, agência (white-label) e Zeni (configuração, teste do roteiro, copiloto, automações,
 pendências).
 
 ---
 
-## 19. O que é simulado × o que fica real com credenciais
+## 19. Funcionamento real (sem simulação)
 
-| Recurso | Na demonstração | Com credenciais reais |
-| --- | --- | --- |
-| Envio/recebimento WhatsApp (Meta) | Canais com token iniciado por `demo` só **registram** as mensagens. | Envia pela Graph API e recebe pelo webhook. |
-| WhatsApp por QR (Evolution) | Sem URL/chave, o “Gerar QR Code” **conecta direto**. | QR real, conexão e mensagens pela Evolution API. |
-| Aprovação de modelos | Canal demo **simula a aprovação**. | Envio real à WABA; status e motivo de rejeição da Meta. |
-| Disparo de campanhas | Status por destinatário gravado, sem envio real. | Disparo real cobrado pela Meta. |
-| Zeni (qualificação) | **Motor de regras em português** (funciona de verdade, sem custo). | Modo LLM (OpenAI ou Gemini) com saídas estruturadas. |
-| Áudio e imagem | Ignorados / tratados como texto. | Transcrição (Whisper) e análise por visão. |
-| Copiloto | Relatórios prontos por palavra-chave. | Perguntas livres respondidas pelo LLM. |
-| Lead chegando | Botão **“Simular mensagem do cliente”** e `/demo-site`. | Webhooks reais e `tracker.js` no site do cliente. |
-| Lead Ads / Google Ads / portais | Integrações e contadores do seed. | Webhook com token recebe leads de verdade. |
-| Troca de perfil sem senha | Ligado com `DEMO_MODE=true`. | Desligar em produção. |
+O Ápice não tem mais modo de demonstração: não há troca de perfil sem senha, simulador de mensagens,
+site de exemplo nem envios "de mentira". Cada integração precisa das credenciais reais e, quando
+falta alguma coisa, o sistema mostra uma mensagem clara dizendo o que configurar.
 
-O que **já funciona de verdade** mesmo na demo (é lógica interna, não depende de terceiros):
-RBAC, funis e Kanban, contatos/importação/exportação, ficha 360º, agenda, roleta, dossiê e
-pontuação do lead, motor de regras da Zeni, automações agendadas, cálculo de custo, segmentação de
-campanhas, análises, relatórios, tracker e vínculo do protocolo SEO, white-label e tempo real.
+| Recurso | Como funciona |
+| --- | --- |
+| WhatsApp oficial (Meta) | As credenciais são testadas na Meta antes de salvar; o app é inscrito na conta do WhatsApp para receber mensagens; o webhook valida token e assinatura. |
+| WhatsApp por QR Code | Cria a instância na Evolution API, mostra o QR Code e acompanha o status até conectar. |
+| Modelos de mensagem | Enviados para aprovação da Meta; o status (em análise, aprovado, rejeitado) é atualizado sozinho. |
+| Campanhas | Disparo real em lotes; cada destinatário registra enviado, entregue, lido ou falha (com o motivo). |
+| Arquivos do chat | Salvos no Supabase Storage com link público (exigido pela Meta para enviar mídia). |
+| Rastreio do site | Assistente de instalação por plataforma e verificação automática (procura o código no site e as visitas recebidas). |
+| Leads de anúncios | Endereço exclusivo por integração e botão de "lead de teste". |
+| Zeni | Motor de regras em português sem custo; com chave de IA, modo LLM. O "Testar conversa" da configuração continua disponível para ensaiar o roteiro antes de ativar. |
 
----
+## 20. Primeiro acesso e contas
 
-## 20. Dados e contas de demonstração
+- No primeiro start, o sistema cria a agência, a primeira empresa e o administrador a partir das
+  variáveis `ADMIN_EMAIL` / `ADMIN_PASSWORD` (veja `docs/COLOCAR-NO-AR.md`).
+- A agência cadastra cada cliente em **Configurar › Clientes**; o gestor do cliente recebe uma senha
+  provisória e cria a própria no primeiro acesso.
+- Gestores convidam a equipe em **Equipe** e podem gerar uma nova senha provisória a qualquer momento.
+- Cada pessoa altera nome, WhatsApp e senha em **Minha conta** (menu do avatar).
 
-Senha de todas as contas: **`teo123456`**.
-
-| Perfil | E-mail | Quem é |
-| --- | --- | --- |
-| Gestor | `gestor@horizonte.com.br` | Patrícia Andrade — vê tudo |
-| Assistente | `assistente@horizonte.com.br` | Juliana Reis — módulos liberados em Equipe |
-| Corretor | `marcio@horizonte.com.br` | Márcio Lima — na roleta, peso 2 |
-| Corretor | `corretor@horizonte.com.br` | Beatriz Nunes — fora do plantão |
-| Agência SEO | `agencia@rankalto.com.br` | Lucas Rank — alterna entre clientes |
-| Super Admin | `admin@teocrm.com.br` | Acesso à plataforma |
-
-O seed cria:
-- **Agência** *CRAP Digital* com dois clientes: *Horizonte Imóveis* (Feira de Santana/BA) e
-  *Clínica Sorriso Feira*.
-- Corretores Márcio, Camila, Rafael (na roleta) e Beatriz.
-- Números: *Horizonte • Comercial* (API Oficial) e os WhatsApps dos corretores via QR, em estados
-  diferentes (conectado, requer atenção, desconectado) para mostrar os alertas.
-- *Funil de vendas* (padrão) e *Funil de aluguel*; contatos de várias origens; conversas em todos
-  os status (com a Zeni, a responder, não lidas…); tarefas; imóveis.
-- Modelos (`boas_vindas_lead`, `feirao_mcmv_novembro`, `lembrete_visita`, `pedido_indicacao`,
-  `reengajamento_leads` em análise) e campanhas (enviada, agendada e rascunho).
-- Integrações de Facebook Lead Ads, Google Ads e Grupo OLX com leads recebidos.
-
-Para rodar localmente ou fazer o deploy gratuito no Render, veja o [README](../README.md).
+Para colocar no ar, siga o [guia passo a passo](COLOCAR-NO-AR.md).

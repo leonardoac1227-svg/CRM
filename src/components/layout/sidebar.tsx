@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronsLeft, ChevronsRight, Search, X } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, ChevronsUpDown, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMe } from "@/hooks/use-me";
 import { useNavBadges } from "@/hooks/use-nav-badges";
@@ -11,7 +11,7 @@ import { ROLE_LABELS } from "@/lib/constants";
 import { Avatar } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/overlay";
 import { ApiceMark, ApiceWordmark } from "@/components/brand/logo";
-import { NAV_GROUPS, activeNavItem, navLabel, type NavItem } from "./nav-config";
+import { NAV_GROUPS, activeNavItem, navAllowed, type NavItem } from "./nav-config";
 
 function NavLink({ item, collapsed, active, badge, assistant, onNavigate }: { item: NavItem; collapsed: boolean; active: boolean; badge: number; assistant: string; onNavigate?: () => void }) {
   const Icon = item.icon;
@@ -49,7 +49,7 @@ function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate
   const setCommandOpen = useUi((s) => s.setCommandOpen);
   const assistant = me?.assistantName ?? "Zeni";
   const active = activeNavItem(pathname);
-  const can = (m: string | null) => m === null || !me || me.modules.includes(m);
+  const isAgency = me?.user.role === "AGENCY_ADMIN" || me?.user.role === "SUPER_ADMIN";
 
   return (
     <div className="flex h-full flex-col">
@@ -66,7 +66,7 @@ function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate
       </Link>
 
       {!collapsed && me && (
-        <div className="mx-3 mb-3 flex items-center gap-3 rounded-xl border border-sidebar-border bg-white/[0.03] px-3 py-2.5 [@media(max-height:760px)]:hidden">
+        <Link href={isAgency ? "/clientes" : "/central"} onClick={onNavigate} title={isAgency ? "Trocar de cliente" : undefined} className="mx-3 mb-3 flex items-center gap-3 transition-colors hover:border-[rgb(var(--brand)/0.5)] rounded-xl border border-sidebar-border bg-white/[0.03] px-3 py-2.5 [@media(max-height:760px)]:hidden">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[rgb(var(--brand)/0.14)] text-[12px] font-extrabold text-gold">
             {me.workspace.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
           </span>
@@ -74,7 +74,8 @@ function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate
             <span className="block truncate text-[13px] font-bold text-white">{me.workspace.name}</span>
             <span className="block truncate text-[11px] text-sidebar-muted">{[me.workspace.city, me.workspace.state].filter(Boolean).join(" · ") || "Workspace"}</span>
           </span>
-        </div>
+          {isAgency && <ChevronsUpDown className="h-4 w-4 shrink-0 text-sidebar-muted" />}
+        </Link>
       )}
 
       <div className={cn("mb-3", collapsed ? "px-2" : "px-3")}>
@@ -98,7 +99,7 @@ function SidebarBody({ collapsed, onNavigate }: { collapsed: boolean; onNavigate
 
       <nav aria-label="Navegação principal" className={cn("min-h-0 flex-1 space-y-4 overflow-y-auto pb-4 scrollbar-thin", collapsed ? "px-2" : "px-3")}>
         {NAV_GROUPS.map((g) => {
-          const items = g.items.filter((i) => can(i.module));
+          const items = g.items.filter((i) => navAllowed(i, me));
           if (!items.length) return null;
           return (
             <div key={g.key} className="space-y-0.5">

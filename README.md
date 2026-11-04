@@ -21,81 +21,65 @@ Plataforma SaaS **multi-tenant e white-label** (Agência de SEO → Empresas cli
 | IA | OpenAI (Structured Outputs / JSON Schema, Whisper, visão) ou Gemini — com **motor de regras pt-BR embutido** quando não há chave |
 | WhatsApp | Adaptadores `META_OFFICIAL` (Graph API) e `EVOLUTION_QR` (Evolution API) atrás da mesma interface |
 
-## Deploy gratuito (Render)
+## Colocar no ar
 
-O arquivo `render.yaml` cria tudo no plano gratuito do Render: o web service e um PostgreSQL.
+O caminho completo, escrito para quem não é técnico, está em **[docs/COLOCAR-NO-AR.md](docs/COLOCAR-NO-AR.md)**:
+banco no **Supabase**, servidor no **Render** (Blueprint `render.yaml`) e, opcionalmente, a
+**Evolution API** para o WhatsApp por QR Code.
 
-1. Crie uma conta em [render.com](https://render.com) entrando com o GitHub.
-2. **New → Blueprint** → escolha o repositório `CRM` (branch `claude/focused-heisenberg-wo4i29`) → **Apply**.
-3. Quando pedir `GEMINI_API_KEY`, cole uma chave gratuita do [Google AI Studio](https://aistudio.google.com/apikey) ou deixe em branco (a Zeni usa o motor de regras).
-4. Aguarde o build (~5 min) e abra a URL `https://ia-crm-xxxx.onrender.com`. O banco é populado com os dados de demonstração no primeiro start.
+No primeiro start o Ápice cria sozinho a agência, a primeira empresa e a conta de administrador
+a partir de `ADMIN_EMAIL` / `ADMIN_PASSWORD` (sem senha definida, gera uma provisória e mostra nos logs).
+Não há dados de demonstração: tudo começa vazio.
 
-Limites do plano gratuito: o serviço "dorme" após 15 min sem acesso (o primeiro acesso depois disso leva ~1 min), o PostgreSQL gratuito expira em 30 dias e arquivos enviados no chat não são permanentes.
+Depois do primeiro login, tudo é configurado pela interface, com assistentes passo a passo:
 
-## Como rodar
+- **Clientes** (agência): cria cada empresa e o acesso do gestor, com senha provisória e convite pronto.
+- **Integrações › WhatsApp**: API oficial da Meta (7 passos, com teste real das credenciais e da
+  primeira mensagem) ou celular pelo QR Code (status ao vivo até conectar).
+- **Site & SEO › Instalar o rastreio**: instruções para WordPress, Wix, Shopify, Google Tag Manager
+  ou qualquer site, com verificação automática da instalação.
+- **Integrações › Facebook / Google Ads / Portais**: endereço exclusivo, passo a passo e botão de lead de teste.
 
-Pré-requisitos: Node 20+, PostgreSQL 14+ (ou `docker compose up db`).
+## Rodar localmente
+
+Pré-requisitos: Node 20+ e PostgreSQL 14+ (ou `docker compose up db`).
 
 ```bash
-cp .env.example .env          # ajuste DATABASE_URL / DIRECT_URL / JWT_SECRET
+cp .env.example .env          # DATABASE_URL, DIRECT_URL, JWT_SECRET e ADMIN_EMAIL
 npm install
 npm run db:push               # cria as tabelas
-npm run db:seed               # dados de demonstração
+npm run db:seed               # agência + primeira empresa + administrador
 npm run dev                   # http://localhost:3000
 ```
 
-Produção:
-
-```bash
-npm run build                 # next build + bundle do servidor (dist/server.js)
-npm start
-```
-
-Com Docker: `docker compose up --build` (sobe Postgres + app). Rode o seed uma vez com
+Produção: `npm run build && npm start`. Com Docker: `docker compose up --build` e depois
 `docker compose exec app npx prisma db seed`.
 
 > O servidor customizado é compilado com esbuild (`scripts/build-server.mjs`) porque o require-hook do Next não convive com loaders como o `tsx`.
 
-### Contas de demonstração (senha `teo123456`)
-
-| Perfil | E-mail | O que vê |
-| --- | --- | --- |
-| Gestor | `gestor@horizonte.com.br` | Tudo, inclusive conversas dos números dos corretores |
-| Assistente | `assistente@horizonte.com.br` | Módulos liberados em Equipe → Permissões |
-| Corretor | `corretor@horizonte.com.br` / `marcio@horizonte.com.br` | Apenas os próprios leads, chats e agenda |
-| Agência SEO | `agencia@rankalto.com.br` | Alterna entre os workspaces (clientes) da agência |
-
-Com `DEMO_MODE=true`, o menu do avatar permite **trocar de perfil sem senha** e o Atendimento ganha o botão **“Simular mensagem do cliente”**, que passa pelo mesmo pipeline do webhook (lead novo → rastreio SEO → Zeni → roleta).
-
-### Testar o tracker de ponta a ponta
-
-1. Acesse **Mais → Site & SEO** e clique em **“Testar em um site de exemplo”** (`/demo-site`).
-2. O site de exemplo carrega o `tracker.js`, detecta a origem (com `utm_medium=organic` simula o Google) e gera o protocolo.
-3. Clique em **Falar no WhatsApp → Simular envio para o CRM**: o lead aparece no Atendimento já atendido pela Zeni e vinculado à página do blog. O formulário lateral cria o lead com a mesma atribuição.
-
 ## Variáveis de ambiente
 
-Veja `.env.example`. As principais:
+Todas estão comentadas em `.env.example`. As principais:
 
 | Variável | Uso |
 | --- | --- |
-| `DATABASE_URL`, `DIRECT_URL` | PostgreSQL (no Supabase: pooler em `DATABASE_URL`, conexão direta em `DIRECT_URL`) |
-| `JWT_SECRET` | Assinatura das sessões (obrigatório em produção, ≥ 32 caracteres) |
-| `APP_URL` | URL pública (usada no `tracker.js`, uploads e webhooks) |
-| `DEMO_MODE` | Troca de perfil sem senha e simulador de mensagens |
-| `OPENAI_API_KEY` / `GEMINI_API_KEY`, `AI_PROVIDER` | Liga o modo LLM da Zeni, transcrição de áudio e análise de imagem |
-| `META_WEBHOOK_VERIFY_TOKEN`, `META_APP_SECRET` | Verificação e assinatura (`X-Hub-Signature-256`) do webhook da Meta |
-| `EVOLUTION_API_URL`, `EVOLUTION_API_KEY` | Evolution API padrão (cada número também pode ter a sua) |
-| `DISABLE_SCHEDULER`, `CRON_SECRET` | Agendador interno ou `POST /api/cron/tick` em ambientes serverless |
-
-Canais com token iniciado por `demo` (ou Evolution sem URL/chave) operam em **modo simulado**: as mensagens são registradas normalmente, sem chamar o provedor.
+| `DATABASE_URL`, `DIRECT_URL` | Supabase: *Transaction pooler* (6543, com `?pgbouncer=true&connection_limit=1`) e *Session pooler* (5432) |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Arquivos do chat no Supabase Storage (bucket criado automaticamente) |
+| `JWT_SECRET` | Assinatura das sessões (≥ 32 caracteres) |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`, `AGENCY_NAME` | Primeira conta, criada só com o banco vazio |
+| `APP_URL` | Endereço público (no Render vem de `RENDER_EXTERNAL_URL`) |
+| `GEMINI_API_KEY` / `OPENAI_API_KEY`, `AI_PROVIDER` | Modo LLM da Zeni, transcrição de áudio e visão |
+| `META_WEBHOOK_VERIFY_TOKEN`, `META_APP_SECRET` | Opcionais: o token é derivado do `JWT_SECRET` e a chave secreta pode ser cadastrada por número |
+| `EVOLUTION_API_URL`, `EVOLUTION_API_KEY` | Servidor da Evolution API (WhatsApp por QR Code) |
+| `KEEPALIVE_URL` | Endereços que o servidor acessa a cada 10 min para mantê-los acordados |
+| `DISABLE_SCHEDULER`, `CRON_SECRET` | Agendador interno ou `POST /api/cron/tick` em serverless |
 
 ## Arquitetura
 
 ```
 server.ts                      Next + Socket.io + agendador (tick a cada 60 s)
 prisma/schema.prisma           Modelo multi-tenant completo
-prisma/seed.ts                 Workspace de demonstração (Horizonte Imóveis / CRAP Digital)
+prisma/bootstrap.ts            Primeira inicialização: agência, empresa e administrador
 src/middleware.ts              Proteção de rotas (JWT em cookie httpOnly)
 src/lib/
   auth.ts, session-token.ts    Sessão (jose/HS256), workspace ativo para agências

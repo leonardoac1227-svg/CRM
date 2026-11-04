@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ingestInbound } from "@/lib/services/messaging";
 import { loadAiConfig, mediaToText, runAiTurn } from "@/lib/services/ai-runner";
+import { evolutionInstanceToken } from "@/lib/whatsapp/evolution";
 
 export const dynamic = "force-dynamic";
 
@@ -33,14 +34,16 @@ export async function POST(req: NextRequest) {
   if (!p.instance) return NextResponse.json({ ok: false }, { status: 400 });
   const channel = await prisma.whatsAppChannel.findUnique({ where: { evolutionInstance: p.instance } });
   if (!channel) return NextResponse.json({ ok: false }, { status: 404 });
-  const expectedKey = channel.evolutionApiKey || process.env.EVOLUTION_API_KEY;
-  const gotKey = p.apikey || req.headers.get("apikey");
-  if (expectedKey && gotKey && gotKey !== expectedKey) return NextResponse.json({ ok: false }, { status: 401 });
+  // Autenticação: token da instância na URL ou no campo apikey, ou a chave global do servidor
+  const token = evolutionInstanceToken(p.instance);
+  const accepted = [token, channel.evolutionApiKey, process.env.EVOLUTION_API_KEY].filter(Boolean);
+  const got = [req.nextUrl.searchParams.get("t"), p.apikey, req.headers.get("apikey")].filter(Boolean);
+  if (!got.some((g) => accepted.includes(g!))) return NextResponse.json({ ok: false }, { status: 401 });
 
   const event = (p.event || "").toLowerCase().replace("_", ".");
   if (event === "connection.update") {
     const state = p.data?.state;
-    await prisma.whatsAppChannel.update({ where: { id: channel.id }, data: { status: state === "open" ? "CONNECTED" : state === "connecting" ? "ATTENTION" : "DISCONNECTED", qrCode: state === "open" ? null : undefined } });
+    await prisma.whatsAppChannel.update({ where: { id: channel.id }, data: { status: state === "open" ? "CONNECTED" : state === "connecting" ? "ATTENTION" : "DISCONNECTED", qrCode: state === "open" ? null : undefined, ...(state === "open" ? { lastActivityAt: new Date() } : {}) } });
     return NextResponse.json({ ok: true });
   }
   if (event === "qrcode.updated") {

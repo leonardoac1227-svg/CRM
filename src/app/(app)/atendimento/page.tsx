@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import type { Channel, ConversationListItem } from "@/lib/types";
 import { useCan, useTeam } from "@/hooks/use-me";
 import { ConversationList, type InboxTab } from "@/components/inbox/conversation-list";
-import { ChatWindow, SimulateDialog } from "@/components/inbox/chat-window";
+import { ChatWindow } from "@/components/inbox/chat-window";
 import { NewConversationDialog } from "@/components/inbox/new-conversation";
 import { RobotIllustration } from "@/components/inbox/robot";
 
@@ -30,7 +30,6 @@ function Atendimento() {
   useEffect(() => {
     if (sp.get("nova")) setNewOpen(true);
   }, [sp]);
-  const [simOpen, setSimOpen] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDeb(q), 250);
@@ -117,13 +116,9 @@ function Atendimento() {
               </button>
             ))}
           </div>
-          {me?.demoMode && company && (
-            <button onClick={() => setSimOpen(true)} className="mt-7 flex items-center gap-2 rounded-full border border-dashed border-primary/50 px-4 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary/10 dark:text-secondary">🧪 Simular um lead chegando pelo WhatsApp</button>
-          )}
         </div>
       )}
       <NewConversationDialog open={newOpen} onOpenChange={setNewOpen} channels={channels ?? []} onCreated={select} />
-      {company && <SimulateDialog open={simOpen} onOpenChange={setSimOpen} channelId={company.id} onDone={(r) => r.conversationId && select(r.conversationId)} />}
     </div>
   );
 }

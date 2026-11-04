@@ -23,7 +23,7 @@ const TOUR_TEXT: Record<string, string> = {
   "/ia/automacoes": "A IA responde o lead na hora, faz as perguntas de qualificação (renda, entrada, FGTS…) e entrega para o corretor certo pela roleta.",
 };
 /** O tour passa por todos os módulos do mapa da plataforma. */
-const TOUR = ALL_NAV.filter((n) => n.inMap).map((n) => ({ icon: n.icon, title: n.ai ? "Copiloto" : n.label, text: TOUR_TEXT[n.href] ?? n.description, href: n.href }));
+const TOUR = ALL_NAV.filter((n) => n.inMap && !n.roles).map((n) => ({ icon: n.icon, title: n.ai ? "Copiloto" : n.label, text: TOUR_TEXT[n.href] ?? n.description, href: n.href }));
 
 function TourDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const [i, setI] = useState(0);

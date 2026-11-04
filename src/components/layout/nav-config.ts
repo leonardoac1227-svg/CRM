@@ -1,5 +1,5 @@
 import {
-  BarChart3, Building2, CalendarDays, Globe, KanbanSquare, LayoutDashboard, ListChecks, Megaphone, MessagesSquare, Plug, Rocket, ShieldCheck, Sparkles, Users, Zap,
+  BarChart3, Briefcase, Building2, CalendarDays, Globe, KanbanSquare, LayoutDashboard, ListChecks, Megaphone, MessagesSquare, Plug, Rocket, ShieldCheck, Sparkles, Users, Zap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -19,6 +19,8 @@ export type NavItem = {
   ai?: boolean;
   /** aparece no mapa de módulos da Central */
   inMap?: boolean;
+  /** restringe a perfis específicos (ex.: só a agência) */
+  roles?: string[];
 };
 
 export type NavGroup = { key: string; label: string; items: NavItem[] };
@@ -64,12 +66,20 @@ export const NAV_GROUPS: NavGroup[] = [
     key: "configurar",
     label: "Configurar",
     items: [
+      { href: "/clientes", label: "Clientes", module: null, roles: ["AGENCY_ADMIN", "SUPER_ADMIN"], icon: Briefcase, inMap: true, description: "Empresas atendidas pela agência: crie um cliente e o acesso do gestor em um minuto." },
       { href: "/integracoes", label: "Integrações", module: "integracoes", icon: Plug, badge: "attention", inMap: true, description: "WhatsApp oficial e por QR Code, Facebook Lead Ads, Google Ads e portais." },
       { href: "/equipe", label: "Equipe", module: "equipe", icon: ShieldCheck, inMap: true, description: "Perfis de acesso, permissões por módulo e roleta de corretores." },
       { href: "/getting-started", label: "Primeiros passos", module: null, icon: Rocket, description: "Checklist de implantação e tour guiado." },
     ],
   },
 ];
+
+/** O perfil pode ver este item? */
+export function navAllowed(item: NavItem, me: { modules: string[]; user: { role: string } } | undefined) {
+  if (!me) return !item.roles;
+  if (item.roles && !item.roles.includes(me.user.role)) return false;
+  return item.module === null || me.modules.includes(item.module);
+}
 
 export const ALL_NAV: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 

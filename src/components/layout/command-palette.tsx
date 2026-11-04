@@ -9,7 +9,7 @@ import { api, qs } from "@/lib/client";
 import { formatPhone } from "@/lib/utils";
 import { useUi } from "@/stores/ui";
 import { useMe } from "@/hooks/use-me";
-import { ALL_NAV } from "./nav-config";
+import { ALL_NAV, navAllowed } from "./nav-config";
 
 type Result = {
   contacts: { id: string; name: string | null; phone: string; stage: { name: string } | null }[];
@@ -100,7 +100,7 @@ export function CommandPalette() {
                 </Command.Group>
               )}
               <Command.Group heading="Ir para" className={group}>
-                {ALL_NAV.filter((p) => (!p.module || me?.modules.includes(p.module)) && (!q || `${p.label} ${p.description}`.toLowerCase().includes(q.toLowerCase()))).map((p) => (
+                {ALL_NAV.filter((p) => navAllowed(p, me) && (!q || `${p.label} ${p.description}`.toLowerCase().includes(q.toLowerCase()))).map((p) => (
                   <Command.Item key={p.href} value={p.href} onSelect={() => go(p.href)} className={item}>
                     <p.icon /> <span className="font-semibold">{p.ai ? `${me?.assistantName ?? "Zeni"} · ${p.label}` : p.label}</span>
                     <span className="hidden flex-1 truncate text-xs text-muted-foreground sm:block">{p.description}</span>

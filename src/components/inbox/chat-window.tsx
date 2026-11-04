@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Clock, FlaskConical, IdCard, Lock, MoreVertical, Sparkles, XCircle, RotateCcw, Bot, Loader2 } from "lucide-react";
+import { ArrowLeft, Clock, IdCard, Lock, MoreVertical, Sparkles, XCircle, RotateCcw, Bot, Loader2 } from "lucide-react";
 import { api } from "@/lib/client";
 import { formatPhone, timeAgo } from "@/lib/utils";
 import type { ConversationDetail, TeamUser } from "@/lib/types";
@@ -31,7 +31,6 @@ export function ChatWindow({ id, team, assistantName, onBack }: { id: string; te
   const { me, isManager } = useCan();
   const [panel, setPanel] = useState(false);
   const [tplOpen, setTplOpen] = useState(false);
-  const [simOpen, setSimOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const { data: conv, isLoading } = useQuery({
@@ -158,12 +157,6 @@ export function ChatWindow({ id, team, assistantName, onBack }: { id: string; te
               ) : (
                 <DropdownMenuItem onSelect={() => patchConv.mutate({ status: "OPEN" })}><RotateCcw /> Reabrir conversa</DropdownMenuItem>
               )}
-              {me?.demoMode && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => setSimOpen(true)}><FlaskConical /> Simular mensagem do cliente</DropdownMenuItem>
-                </>
-              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -225,48 +218,6 @@ export function ChatWindow({ id, team, assistantName, onBack }: { id: string; te
         onSend={(tid) => sendTemplate.mutate(tid)}
         sending={sendTemplate.isPending}
       />
-      <SimulateDialog open={simOpen} onOpenChange={setSimOpen} channelId={conv.channel?.id ?? ""} phone={c.phone} name={c.name ?? ""} onDone={refresh} />
     </div>
-  );
-}
-
-export function SimulateDialog({ open, onOpenChange, channelId, phone, name, onDone }: { open: boolean; onOpenChange: (v: boolean) => void; channelId: string; phone?: string; name?: string; onDone?: (r: { conversationId?: string }) => void }) {
-  const [form, setForm] = useState({ from: phone ?? "", name: name ?? "", text: "" });
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    if (open) setForm({ from: phone ?? "", name: name ?? "", text: "" });
-  }, [open, phone, name]);
-  async function go() {
-    setLoading(true);
-    try {
-      const r = await api<{ conversationId?: string }>(`/api/channels/${channelId}/simulate`, { body: form });
-      onOpenChange(false);
-      onDone?.(r);
-      toast.success("Mensagem recebida (simulação)");
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent title="Simular mensagem recebida" description="Passa pelo mesmo fluxo do webhook: cria o lead, aplica o rastreio SEO e aciona a Zeni." size="sm">
-        <DialogBody className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="WhatsApp do cliente"><Input value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })} placeholder="75 99999-0000" /></Field>
-            <Field label="Nome no perfil"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
-          </div>
-          <Field label="Mensagem" hint={<>Dica: inclua <code>[Ref: #SEO-5017]</code> para testar o vínculo com a página do Google.</>}>
-            <Textarea rows={3} value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })} placeholder="Oi, vi o anúncio do apartamento…" />
-          </Field>
-          <Badge tone="amber">Modo demonstração</Badge>
-        </DialogBody>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={go} loading={loading} disabled={!form.text.trim() || form.from.replace(/\D/g, "").length < 10}>Receber mensagem</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }

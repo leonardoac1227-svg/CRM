@@ -4,13 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { ingestInbound } from "@/lib/services/messaging";
 import { loadAiConfig, mediaToText, runAiTurn } from "@/lib/services/ai-runner";
 import { emitWorkspace } from "@/lib/realtime";
+import { metaVerifyToken } from "@/lib/public-url";
 
 export const dynamic = "force-dynamic";
 
 /** Verificação do webhook (Meta envia hub.challenge). */
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
-  if (sp.get("hub.mode") === "subscribe" && sp.get("hub.verify_token") === (process.env.META_WEBHOOK_VERIFY_TOKEN || "teo-verify-token")) {
+  if (sp.get("hub.mode") === "subscribe" && sp.get("hub.verify_token") === metaVerifyToken()) {
     return new NextResponse(sp.get("hub.challenge") ?? "", { status: 200 });
   }
   return new NextResponse("Forbidden", { status: 403 });
@@ -36,7 +37,7 @@ type MetaValue = {
 };
 
 async function mediaUrl(mediaId: string, token: string | null) {
-  if (!token || token.startsWith("demo")) return null;
+  if (!token) return null;
   const r = await fetch(`https://graph.facebook.com/${process.env.META_GRAPH_VERSION || "v21.0"}/${mediaId}`, { headers: { Authorization: `Bearer ${token}` } });
   if (!r.ok) return null;
   return ((await r.json()) as { url?: string }).url ?? null;
@@ -47,6 +48,8 @@ async function processValue(value: MetaValue) {
   if (!pnid) return;
   const channel = await prisma.whatsAppChannel.findUnique({ where: { metaPhoneNumberId: pnid } });
   if (!channel) return;
+  if (channel.status !== "CONNECTED" || !channel.lastActivityAt || Date.now() - channel.lastActivityAt.getTime() > 60_000)
+    await prisma.whatsAppChannel.update({ where: { id: channel.id }, data: { status: "CONNECTED", lastActivityAt: new Date() } });
 
   for (const st of value.statuses ?? []) {
     const status = st.status === "read" ? "READ" : st.status === "delivered" ? "DELIVERED" : st.status === "failed" ? "FAILED" : "SENT";
@@ -87,19 +90,26 @@ async function processValue(value: MetaValue) {
   }
 }
 
+function signatureOk(raw: string, sig: string, secret: string) {
+  const expected = "sha256=" + crypto.createHmac("sha256", secret).update(raw).digest("hex");
+  return sig.length === expected.length && crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+}
+
 export async function POST(req: NextRequest) {
   const raw = await req.text();
-  const secret = process.env.META_APP_SECRET;
-  if (secret) {
-    const sig = req.headers.get("x-hub-signature-256") ?? "";
-    const expected = "sha256=" + crypto.createHmac("sha256", secret).update(raw).digest("hex");
-    if (sig.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return new NextResponse("Invalid signature", { status: 401 });
-  }
   let payload: { entry?: { changes?: { value: MetaValue }[] }[] } = {};
   try {
     payload = JSON.parse(raw);
   } catch {
     return NextResponse.json({ ok: false }, { status: 400 });
+  }
+  // Assinatura: aceita a chave secreta global (META_APP_SECRET) ou a do app cadastrado no número
+  const pnids = (payload.entry ?? []).flatMap((e) => (e.changes ?? []).map((c) => c.value?.metadata?.phone_number_id)).filter(Boolean) as string[];
+  const channels = pnids.length ? await prisma.whatsAppChannel.findMany({ where: { metaPhoneNumberId: { in: pnids } }, select: { metaAppSecret: true } }) : [];
+  const secrets = [process.env.META_APP_SECRET, ...channels.map((c) => c.metaAppSecret)].filter(Boolean) as string[];
+  if (secrets.length) {
+    const sig = req.headers.get("x-hub-signature-256") ?? "";
+    if (!secrets.some((sec) => signatureOk(raw, sig, sec))) return new NextResponse("Invalid signature", { status: 401 });
   }
   // responde rápido à Meta; processamento segue no servidor
   void (async () => {

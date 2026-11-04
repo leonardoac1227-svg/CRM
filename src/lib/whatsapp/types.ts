@@ -1,6 +1,6 @@
 import type { MessageTemplate, WhatsAppChannel } from "@prisma/client";
 
-export type SendResult = { id: string; simulated: boolean };
+export type SendResult = { id: string };
 
 export type TemplateSendParams = {
   template: Pick<MessageTemplate, "name" | "language" | "headerType" | "headerContent">;
@@ -18,8 +18,4 @@ export class WhatsAppError extends Error {
   constructor(message: string, public details?: unknown) {
     super(message);
   }
-}
-
-export function simulatedId(prefix: string) {
-  return `${prefix}.sim.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 }

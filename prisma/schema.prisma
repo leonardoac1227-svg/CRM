@@ -294,29 +294,31 @@ model Workspace {
 }
 
 model User {
-  id             String     @id @default(cuid())
-  workspaceId    String?
-  workspace      Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id                 String     @id @default(cuid())
+  workspaceId        String?
+  workspace          Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   /// Preenchido para AGENCY_ADMIN (enxerga todos os workspaces da agência)
-  agencyId       String?
-  agency         Agency?    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  name           String
-  email          String     @unique
-  passwordHash   String
-  role           Role       @default(BROKER)
-  phone          String?
-  avatarUrl      String?
-  isActive       Boolean    @default(true)
+  agencyId           String?
+  agency             Agency?    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  name               String
+  email              String     @unique
+  passwordHash       String
+  role               Role       @default(BROKER)
+  phone              String?
+  avatarUrl          String?
+  isActive           Boolean    @default(true)
   /// Permissões granulares do ASSISTANT: { atendimento: true, contatos: true, campanhas: false, ... }
-  permissions    Json       @default("{}")
-  inRoulette     Boolean    @default(false)
-  rouletteWeight Int        @default(1)
-  lastAssignedAt DateTime?
-  createdAt      DateTime   @default(now())
+  permissions        Json       @default("{}")
+  inRoulette         Boolean    @default(false)
+  rouletteWeight     Int        @default(1)
+  lastAssignedAt     DateTime?
+  /// Senha provisória: o usuário precisa criar uma senha própria no primeiro acesso
+  mustChangePassword Boolean    @default(false)
+  createdAt          DateTime   @default(now())
 
   channels              WhatsAppChannel[]
-  assignedContacts      Contact[]          @relation("ContactAssignee")
-  assignedConversations Conversation[]     @relation("ConversationAssignee")
+  assignedContacts      Contact[]           @relation("ContactAssignee")
+  assignedConversations Conversation[]      @relation("ConversationAssignee")
   tasks                 Task[]
   activities            Activity[]
   notifications         Notification[]
@@ -345,6 +347,10 @@ model WhatsAppChannel {
   metaWabaId        String?
   metaPhoneNumberId String?            @unique
   metaAccessToken   String?
+  /// Chave secreta do app da Meta (valida a assinatura X-Hub-Signature-256 do webhook deste número)
+  metaAppSecret     String?
+  /// Nome verificado do número na Meta (preenchido ao testar a conexão)
+  metaVerifiedName  String?
   /// Evolution API
   evolutionInstance String?            @unique
   evolutionApiUrl   String?
@@ -439,13 +445,13 @@ model Pipeline {
 }
 
 model Stage {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   pipelineId String
-  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  pipeline   Pipeline  @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
   name       String
   order      Int
-  color      String   @default("#2563EB")
-  isWonStage Boolean  @default(false)
+  color      String    @default("#2563EB")
+  isWonStage Boolean   @default(false)
   contacts   Contact[]
 
   @@index([pipelineId, order])
@@ -456,26 +462,26 @@ model Stage {
 // -----------------------------------------------------------------------------
 
 model Conversation {
-  id                  String             @id @default(cuid())
-  workspaceId         String
-  workspace           Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  contactId           String
-  contact             Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  channelId           String?
-  channel             WhatsAppChannel?   @relation(fields: [channelId], references: [id], onDelete: SetNull)
-  assignedToId        String?
-  assignedTo          User?              @relation("ConversationAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
-  status              ConversationStatus @default(UNREAD)
-  aiActive            Boolean            @default(false)
+  id                   String             @id @default(cuid())
+  workspaceId          String
+  workspace            Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contactId            String
+  contact              Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  channelId            String?
+  channel              WhatsAppChannel?   @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  assignedToId         String?
+  assignedTo           User?              @relation("ConversationAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  status               ConversationStatus @default(UNREAD)
+  aiActive             Boolean            @default(false)
   /// Estado da máquina de qualificação da Zeni (perguntas feitas, respondidas, tentativas…)
-  aiState             Json               @default("{}")
-  metaWindowExpiresAt DateTime?
+  aiState              Json               @default("{}")
+  metaWindowExpiresAt  DateTime?
   lastContactMessageAt DateTime?
-  lastMessagePreview  String?
-  lastMessageAt       DateTime?
-  unreadCount         Int                @default(0)
-  createdAt           DateTime           @default(now())
-  messages            Message[]
+  lastMessagePreview   String?
+  lastMessageAt        DateTime?
+  unreadCount          Int                @default(0)
+  createdAt            DateTime           @default(now())
+  messages             Message[]
 
   @@unique([contactId, channelId])
   @@index([workspaceId, lastMessageAt])
@@ -601,76 +607,76 @@ model CopilotMessage {
 // -----------------------------------------------------------------------------
 
 model MessageTemplate {
-  id               String             @id @default(cuid())
-  workspaceId      String
-  workspace        Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  channelId        String?
-  channel          WhatsAppChannel?   @relation(fields: [channelId], references: [id], onDelete: SetNull)
-  name             String
-  category         TemplateCategory   @default(MARKETING)
-  language         String             @default("pt_BR")
-  headerType       TemplateHeaderType @default(NONE)
-  headerContent    String?
-  bodyText         String             @db.VarChar(1024)
+  id                String             @id @default(cuid())
+  workspaceId       String
+  workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  channelId         String?
+  channel           WhatsAppChannel?   @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  name              String
+  category          TemplateCategory   @default(MARKETING)
+  language          String             @default("pt_BR")
+  headerType        TemplateHeaderType @default(NONE)
+  headerContent     String?
+  bodyText          String             @db.VarChar(1024)
   /// { "1": "contact.firstName", "2": "user.name" }
-  variableMappings Json               @default("{}")
-  footerText       String?
+  variableMappings  Json               @default("{}")
+  footerText        String?
   /// [{ type: "QUICK_REPLY" | "URL" | "PHONE_NUMBER", text, value? }]
-  buttonsJson      Json               @default("[]")
-  metaStatus       TemplateStatus     @default(DRAFT)
-  metaTemplateId   String?
-  rejectionReason  String?
-  createdAt        DateTime           @default(now())
-  campaigns        Campaign[]         @relation("CampaignTemplate")
-  campaignsVariantB Campaign[]        @relation("CampaignTemplateB")
+  buttonsJson       Json               @default("[]")
+  metaStatus        TemplateStatus     @default(DRAFT)
+  metaTemplateId    String?
+  rejectionReason   String?
+  createdAt         DateTime           @default(now())
+  campaigns         Campaign[]         @relation("CampaignTemplate")
+  campaignsVariantB Campaign[]         @relation("CampaignTemplateB")
 
   @@unique([workspaceId, name, language])
 }
 
 model Campaign {
-  id                   String           @id @default(cuid())
+  id                   String              @id @default(cuid())
   workspaceId          String
-  workspace            Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace            Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   name                 String
   channelId            String?
-  channel              WhatsAppChannel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  channel              WhatsAppChannel?    @relation(fields: [channelId], references: [id], onDelete: SetNull)
   templateId           String?
-  template             MessageTemplate? @relation("CampaignTemplate", fields: [templateId], references: [id], onDelete: SetNull)
-  abTestEnabled        Boolean          @default(false)
+  template             MessageTemplate?    @relation("CampaignTemplate", fields: [templateId], references: [id], onDelete: SetNull)
+  abTestEnabled        Boolean             @default(false)
   templateBId          String?
-  templateB            MessageTemplate? @relation("CampaignTemplateB", fields: [templateBId], references: [id], onDelete: SetNull)
-  sendScheduleType     SendScheduleType @default(NOW)
+  templateB            MessageTemplate?    @relation("CampaignTemplateB", fields: [templateBId], references: [id], onDelete: SetNull)
+  sendScheduleType     SendScheduleType    @default(NOW)
   scheduledAt          DateTime?
   allowedSendUntilHour String?
-  routeRepliesToAi     Boolean          @default(true)
+  routeRepliesToAi     Boolean             @default(true)
   /// { pipelineId, stageIds[], assignedToIds[], origins[], tags[], contactIds[] }
-  filtersJson          Json             @default("{}")
-  totalRecipients      Int              @default(0)
-  estimatedCost        Decimal          @default(0) @db.Decimal(12, 4)
-  sentCount            Int              @default(0)
-  deliveredCount       Int              @default(0)
-  readCount            Int              @default(0)
-  repliedCount         Int              @default(0)
-  failedCount          Int              @default(0)
-  status               CampaignStatus   @default(DRAFT)
+  filtersJson          Json                @default("{}")
+  totalRecipients      Int                 @default(0)
+  estimatedCost        Decimal             @default(0) @db.Decimal(12, 4)
+  sentCount            Int                 @default(0)
+  deliveredCount       Int                 @default(0)
+  readCount            Int                 @default(0)
+  repliedCount         Int                 @default(0)
+  failedCount          Int                 @default(0)
+  status               CampaignStatus      @default(DRAFT)
   startedAt            DateTime?
   completedAt          DateTime?
-  createdAt            DateTime         @default(now())
+  createdAt            DateTime            @default(now())
   recipients           CampaignRecipient[]
 }
 
 model CampaignRecipient {
-  id         String          @id @default(cuid())
-  campaignId String
-  campaign   Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  contactId  String
-  contact    Contact         @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  variant    String          @default("A")
-  status     RecipientStatus @default(PENDING)
-  renderedBody String?       @db.Text
-  error      String?
-  sentAt     DateTime?
-  repliedAt  DateTime?
+  id           String          @id @default(cuid())
+  campaignId   String
+  campaign     Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contactId    String
+  contact      Contact         @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  variant      String          @default("A")
+  status       RecipientStatus @default(PENDING)
+  renderedBody String?         @db.Text
+  error        String?
+  sentAt       DateTime?
+  repliedAt    DateTime?
 
   @@unique([campaignId, contactId])
 }
@@ -693,22 +699,22 @@ model LeadForm {
 // -----------------------------------------------------------------------------
 
 model CatalogItem {
-  id          String        @id @default(cuid())
-  workspaceId String
-  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  title       String
-  code        String
-  category    String
-  price       Decimal?      @db.Decimal(14, 2)
-  neighborhood String?
-  city        String?
-  bedrooms    Int?
-  areaM2      Int?
-  description String?       @db.Text
-  images      String[]      @default([])
-  status      CatalogStatus @default(AVAILABLE)
-  createdAt   DateTime      @default(now())
-  interestedContacts Contact[] @relation("ContactInterests")
+  id                 String        @id @default(cuid())
+  workspaceId        String
+  workspace          Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  title              String
+  code               String
+  category           String
+  price              Decimal?      @db.Decimal(14, 2)
+  neighborhood       String?
+  city               String?
+  bedrooms           Int?
+  areaM2             Int?
+  description        String?       @db.Text
+  images             String[]      @default([])
+  status             CatalogStatus @default(AVAILABLE)
+  createdAt          DateTime      @default(now())
+  interestedContacts Contact[]     @relation("ContactInterests")
 
   @@unique([workspaceId, code])
 }
@@ -789,18 +795,18 @@ model TrackingSession {
 }
 
 model Integration {
-  id           String          @id @default(cuid())
-  workspaceId  String
-  workspace    Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  type         IntegrationType
-  name         String
-  isEnabled    Boolean         @default(false)
-  webhookToken String          @unique @default(cuid())
+  id            String          @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  type          IntegrationType
+  name          String
+  isEnabled     Boolean         @default(false)
+  webhookToken  String          @unique @default(cuid())
   /// mapeamento de campos (ex.: formulário FB -> campos do contato), pipeline/etapa destino, etc.
-  configJson   Json            @default("{}")
-  leadsReceived Int            @default(0)
-  lastEventAt  DateTime?
-  createdAt    DateTime        @default(now())
+  configJson    Json            @default("{}")
+  leadsReceived Int             @default(0)
+  lastEventAt   DateTime?
+  createdAt     DateTime        @default(now())
 
   @@unique([workspaceId, type, name])
 }

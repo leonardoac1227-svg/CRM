@@ -42,15 +42,17 @@ export async function sendOutboundText(opts: {
   }
   let metaMessageId: string | null = null;
   let status: "SENT" | "FAILED" = "SENT";
+  let failure = "";
   if (!opts.internal && conv.channel) {
     try {
       const adapter = adapterFor(conv.channel);
       const r = opts.mediaUrl && opts.mediaType && opts.mediaType !== "TEXT"
         ? await adapter.sendMedia(conv.channel, conv.contact.phone, { url: opts.mediaUrl, type: opts.mediaType === "AUDIO" ? "audio" : opts.mediaType === "IMAGE" ? "image" : "document", caption: opts.text })
         : await adapter.sendText(conv.channel, conv.contact.phone, opts.text);
-      metaMessageId = r.id;
+      metaMessageId = r.id || null;
     } catch (e) {
-      console.error("[messaging] envio falhou", (e as Error).message);
+      failure = (e as Error).message;
+      console.error("[messaging] envio falhou", failure);
       status = "FAILED";
     }
   }
@@ -74,7 +76,7 @@ export async function sendOutboundText(opts: {
   if (conv.channel) await prisma.whatsAppChannel.update({ where: { id: conv.channel.id }, data: { lastActivityAt: new Date() } });
   await prisma.contact.update({ where: { id: conv.contactId }, data: { lastInteractionAt: new Date() } });
   emitWorkspace(conv.workspaceId, "message:new", { conversationId: conv.id, messageId: msg.id });
-  if (status === "FAILED") throw new HttpError(502, "Falha ao enviar pelo provedor do WhatsApp");
+  if (status === "FAILED") throw new HttpError(502, `A mensagem não foi entregue ao WhatsApp: ${failure}`);
   return msg;
 }
 
@@ -96,7 +98,7 @@ export async function sendTemplateMessage(opts: { conversationId: string; templa
       content: [t.headerType === "TEXT" ? t.headerContent : null, text, t.footerText].filter(Boolean).join("\n\n"),
       mediaType: "TEMPLATE",
       mediaUrl: t.headerType !== "NONE" && t.headerType !== "TEXT" ? t.headerContent : null,
-      metaMessageId: r.id,
+      metaMessageId: r.id || null,
     },
   });
   await touchConversation(conv.id, `📋 ${t.name}`, opts.user ? { status: "OPEN" } : {});

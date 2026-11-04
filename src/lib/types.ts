@@ -9,7 +9,7 @@ export type Me = {
   seesOnlyOwn: boolean;
   assistantName: string;
   workspaces: { id: string; name: string; niche: string }[];
-  demoMode: boolean;
+  mustChangePassword: boolean;
 };
 
 export type UserLite = { id: string; name: string };
@@ -91,6 +91,8 @@ export type Channel = {
   evolutionInstance?: string | null;
   qrCode?: string | null;
   hasToken?: boolean;
+  hasAppSecret?: boolean;
+  metaVerifiedName?: string | null;
   _count?: { conversations: number };
 };
 

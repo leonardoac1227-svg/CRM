@@ -7,13 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 import { api } from "@/lib/client";
 
-const DEMO = [
-  { label: "Gestor", email: "gestor@horizonte.com.br" },
-  { label: "Assistente", email: "assistente@horizonte.com.br" },
-  { label: "Corretor", email: "corretor@horizonte.com.br" },
-  { label: "Agência SEO", email: "agencia@rankalto.com.br" },
-];
-
 const FEATURES = [
   { icon: Sparkles, title: "Zeni, a IA que atende por você", text: "Responde o lead na hora, qualifica e entrega ao corretor certo." },
   { icon: Search, title: "O ROI do seu SEO, provado", text: "Saiba qual página do Google gerou cada conversa no WhatsApp." },
@@ -23,17 +16,17 @@ const FEATURES = [
 function LoginForm() {
   const router = useRouter();
   const sp = useSearchParams();
-  const [email, setEmail] = useState("gestor@horizonte.com.br");
-  const [password, setPassword] = useState("teo123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function submit(e?: React.FormEvent, override?: string) {
+  async function submit(e?: React.FormEvent) {
     e?.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      await api("/api/auth/login", { body: { email: override ?? email, password } });
+      await api("/api/auth/login", { body: { email, password } });
       router.replace(sp.get("next") || "/central");
       router.refresh();
     } catch (err) {
@@ -89,16 +82,7 @@ function LoginForm() {
           </Field>
           {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
           <Button type="submit" size="lg" className="w-full" loading={loading}>Entrar no Ápice</Button>
-          <div className="rounded-xl border bg-card p-4">
-            <p className="mb-3 text-xs font-bold text-muted-foreground">Acesso de demonstração · senha teo123456</p>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO.map((d) => (
-                <Button key={d.email} type="button" variant="outline" size="sm" onClick={() => { setEmail(d.email); submit(undefined, d.email); }}>
-                  {d.label}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <p className="text-center text-xs text-muted-foreground">Esqueceu a senha? Peça ao gestor da sua empresa para gerar uma nova em Equipe.</p>
         </form>
       </div>
     </div>

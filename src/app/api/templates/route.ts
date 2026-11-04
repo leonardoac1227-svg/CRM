@@ -2,8 +2,24 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { body, route } from "@/lib/api";
 import { slugify } from "@/lib/utils";
+import { fetchTemplateStatus } from "@/lib/whatsapp/meta";
+
+const lastSync = new Map<string, number>();
+
+/** Atualiza os modelos "Em análise" consultando a Meta (no máximo a cada 2 minutos por empresa). */
+async function syncPending(workspaceId: string) {
+  if (Date.now() - (lastSync.get(workspaceId) ?? 0) < 120_000) return;
+  lastSync.set(workspaceId, Date.now());
+  const pending = await prisma.messageTemplate.findMany({ where: { workspaceId, metaStatus: "PENDING", metaTemplateId: { not: null } }, include: { channel: true }, take: 20 });
+  for (const t of pending) {
+    if (!t.channel) continue;
+    const r = await fetchTemplateStatus(t.channel, t.metaTemplateId!).catch(() => null);
+    if (r && r.status !== "PENDING") await prisma.messageTemplate.update({ where: { id: t.id }, data: { metaStatus: r.status, rejectionReason: r.reason } });
+  }
+}
 
 export const GET = route(async ({ req, session }) => {
+  await syncPending(session.workspace.id).catch((e) => console.error("[templates] sync", e));
   const status = req.nextUrl.searchParams.get("status");
   return prisma.messageTemplate.findMany({
     where: { workspaceId: session.workspace.id, ...(status ? { metaStatus: status as never } : {}) },

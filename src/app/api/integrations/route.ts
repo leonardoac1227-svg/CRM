@@ -1,11 +1,14 @@
+import { publicAppUrl } from "@/lib/public-url";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { body, route } from "@/lib/api";
 import { requireManager } from "@/lib/rbac";
 
 export const GET = route(async ({ req, session }) => {
+  // corretores só conectam o próprio WhatsApp; integrações de anúncios são do gestor
+  if (session.user.role === "BROKER") return [];
   const items = await prisma.integration.findMany({ where: { workspaceId: session.workspace.id }, orderBy: { createdAt: "asc" } });
-  const appUrl = process.env.APP_URL || req.nextUrl.origin;
+  const appUrl = publicAppUrl(req.nextUrl.origin);
   return items.map((i) => ({ ...i, webhookUrl: `${appUrl}/api/webhooks/leads/${i.webhookToken}` }));
 }, { module: "integracoes" });
 

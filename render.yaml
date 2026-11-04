@@ -1,38 +1,86 @@
-# Deploy gratuito no Render (Blueprint): web service + PostgreSQL, ambos no plano free.
-# Render → New → Blueprint → selecione este repositório.
+# Ápice no Render (Blueprint) com banco no Supabase.
+# Render → New → Blueprint → escolha este repositório. Passo a passo: docs/COLOCAR-NO-AR.md
 services:
+  # ---------------------------------------------------------------- Ápice
   - type: web
-    name: teo-crm
+    name: apice
     runtime: node
     plan: free
-    branch: claude/focused-heisenberg-wo4i29
+    branch: claude/wonderful-keller-18bj47
     buildCommand: npm ci && npm run build
     startCommand: npm run start:render
-    healthCheckPath: /login
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
+      # Supabase › Project Settings › Database › Connection string (veja o guia)
       - key: DATABASE_URL
-        fromDatabase:
-          name: teo-crm-db
-          property: connectionString
+        sync: false
       - key: DIRECT_URL
-        fromDatabase:
-          name: teo-crm-db
-          property: connectionString
+        sync: false
+      # Supabase › Project Settings › API (arquivos do chat)
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: JWT_SECRET
         generateValue: true
-      - key: DEMO_MODE
-        value: "true"
+      # Primeira conta (criada no primeiro start)
+      - key: AGENCY_NAME
+        value: CRAP Digital
+      - key: ADMIN_NAME
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      # IA da Zeni — chave gratuita em aistudio.google.com/apikey (em branco = motor de regras)
       - key: AI_PROVIDER
         value: gemini
-      # Opcional e gratuito: chave do Google AI Studio (aistudio.google.com/apikey).
-      # Em branco, o Téo usa o motor de regras embutido.
       - key: GEMINI_API_KEY
         sync: false
+      # WhatsApp por QR Code: endereço público do serviço "apice-whatsapp-qr" (ex.: https://apice-whatsapp-qr.onrender.com)
+      - key: EVOLUTION_API_URL
+        sync: false
+      - key: EVOLUTION_API_KEY
+        fromService:
+          type: web
+          name: apice-whatsapp-qr
+          envVarKey: AUTHENTICATION_API_KEY
+      # Mantém o servidor de QR Code acordado (cole o mesmo endereço do EVOLUTION_API_URL)
+      - key: KEEPALIVE_URL
+        sync: false
 
-databases:
-  - name: teo-crm-db
+  # ---------------------------------------------------------------- WhatsApp por QR Code (Evolution API)
+  # Opcional: só é necessário para conectar celulares pelo QR Code.
+  - type: web
+    name: apice-whatsapp-qr
+    runtime: image
+    image:
+      url: docker.io/evoapicloud/evolution-api:v2.3.7
     plan: free
-    databaseName: crm
-    user: crm
+    envVars:
+      - key: SERVER_PORT
+        value: "10000"
+      # Endereço público deste serviço (copie do topo da página dele no Render)
+      - key: SERVER_URL
+        sync: false
+      - key: AUTHENTICATION_API_KEY
+        generateValue: true
+      - key: DATABASE_ENABLED
+        value: "true"
+      - key: DATABASE_PROVIDER
+        value: postgresql
+      # O mesmo "Session pooler" do Supabase (porta 5432), terminando em ?schema=evolution
+      - key: DATABASE_CONNECTION_URI
+        sync: false
+      - key: DATABASE_CONNECTION_CLIENT_NAME
+        value: apice
+      - key: CACHE_REDIS_ENABLED
+        value: "false"
+      - key: CACHE_LOCAL_ENABLED
+        value: "true"
+      - key: DEL_INSTANCE
+        value: "false"
+      - key: LANGUAGE
+        value: pt-BR

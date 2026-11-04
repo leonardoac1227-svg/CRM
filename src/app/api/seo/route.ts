@@ -1,3 +1,4 @@
+import { publicAppUrl } from "@/lib/public-url";
 import { prisma } from "@/lib/prisma";
 import { route } from "@/lib/api";
 import { seoDashboard } from "@/lib/services/analytics";
@@ -5,7 +6,7 @@ import { trackerSnippet } from "@/lib/tracker";
 
 export const GET = route(async ({ req, session }) => {
   const days = Number(req.nextUrl.searchParams.get("days") || 90);
-  const appUrl = process.env.APP_URL || req.nextUrl.origin;
+  const appUrl = publicAppUrl(req.nextUrl.origin);
   const [dash, recent] = await Promise.all([
     seoDashboard(session.workspace.id, days),
     prisma.trackingSession.findMany({ where: { workspaceId: session.workspace.id }, orderBy: { createdAt: "desc" }, take: 15 }),

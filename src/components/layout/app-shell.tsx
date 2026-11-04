@@ -8,6 +8,7 @@ import { useRealtime } from "@/hooks/use-realtime";
 import { useUi } from "@/stores/ui";
 import { CommandPalette } from "./command-palette";
 import { Sidebar } from "./sidebar";
+import { AccountDialog } from "./account-dialog";
 import { ContactDrawer } from "@/components/contacts/contact-drawer";
 
 const ROUTE_MODULE: [string, string][] = [
@@ -59,6 +60,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">{children}</div>
       <CommandPalette />
       <ContactDrawer contactId={contactId} onClose={() => openContact(null)} />
+      <AccountDialog open={!!me?.mustChangePassword} onOpenChange={() => undefined} forced />
     </div>
   );
 }

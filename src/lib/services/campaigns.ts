@@ -99,7 +99,7 @@ export async function processCampaignBatch(campaignId: string, batchSize = 50) {
           senderName: `Campanha: ${c.name}`,
           content: [t.headerType === "TEXT" ? t.headerContent : null, body, t.footerText].filter(Boolean).join("\n\n"),
           mediaType: "TEMPLATE",
-          metaMessageId: res.id,
+          metaMessageId: res.id || null,
         },
       });
       await prisma.conversation.update({

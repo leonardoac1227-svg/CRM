@@ -5,6 +5,7 @@ import { body, route } from "@/lib/api";
 import { publicUser } from "@/lib/auth";
 import { requireManager } from "@/lib/rbac";
 import { normalizePhone } from "@/lib/utils";
+import { tempPasswordGen } from "@/lib/passwords";
 
 export const GET = route(async ({ session }) => {
   const users = await prisma.user.findMany({
@@ -29,7 +30,7 @@ const schema = z.object({
 export const POST = route(async ({ req, session }) => {
   requireManager(session);
   const data = await body(req, schema);
-  const tempPassword = data.password ?? Math.random().toString(36).slice(2, 10);
+  const tempPassword = data.password ?? tempPasswordGen();
   const user = await prisma.user.create({
     data: {
       workspaceId: session.workspace.id,
@@ -40,6 +41,7 @@ export const POST = route(async ({ req, session }) => {
       passwordHash: await bcrypt.hash(tempPassword, 10),
       inRoulette: data.role === "BROKER" ? data.inRoulette ?? true : false,
       permissions: data.permissions ?? {},
+      mustChangePassword: true,
     },
   });
   await prisma.workspace.update({ where: { id: session.workspace.id }, data: { onboardingProgress: { ...((session.workspace.onboardingProgress ?? {}) as object), team: true } } });

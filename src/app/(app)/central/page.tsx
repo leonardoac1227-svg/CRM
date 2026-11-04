@@ -10,7 +10,7 @@ import { TASK_TYPE_LABELS } from "@/lib/constants";
 import { useMe, usePipelines } from "@/hooks/use-me";
 import { useNavBadges } from "@/hooks/use-nav-badges";
 import { Avatar, Card, Skeleton } from "@/components/ui/misc";
-import { NAV_GROUPS, type NavItem } from "@/components/layout/nav-config";
+import { NAV_GROUPS, navAllowed, type NavItem } from "@/components/layout/nav-config";
 import type { ConversationListItem, Task } from "@/lib/types";
 
 type Reports = {
@@ -115,6 +115,7 @@ export default function Central() {
     "/ia/automacoes": "Trabalha 24 horas por dia",
     "/integracoes": badges.attention ? `${badges.attention} número(s) pedem atenção` : "Tudo conectado",
     "/equipe": "Roleta de distribuição",
+    "/clientes": me?.workspaces.length ? `${me.workspaces.length} empresa(s) na agência` : null,
   };
 
   function submitAsk(q: string) {
@@ -196,7 +197,7 @@ export default function Central() {
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {NAV_GROUPS.flatMap((g) => g.items.filter((i) => i.inMap && (!i.module || has(i.module))).map((i) => ({ i, g }))).map(({ i, g }, idx) => (
+          {NAV_GROUPS.flatMap((g) => g.items.filter((i) => i.inMap && navAllowed(i, me)).map((i) => ({ i, g }))).map(({ i, g }, idx) => (
             <ModuleCard key={i.href} item={i} group={g.key === "ia" ? `${assistant} · IA` : g.label} stat={stats[i.href]} assistant={assistant} delay={idx * 35} />
           ))}
         </div>

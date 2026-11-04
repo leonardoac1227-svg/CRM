@@ -319,4 +319,4 @@ export const DEFAULT_ASSISTANT_PERMISSIONS: Record<ModuleKey | "verTodosLeads", 
   verTodosLeads: true,
 };
 
-export const BROKER_MODULES: ModuleKey[] = ["atendimento", "contatos", "funis", "imoveis", "agenda", "teo"];
+export const BROKER_MODULES: ModuleKey[] = ["atendimento", "contatos", "funis", "imoveis", "agenda", "teo", "integracoes"];

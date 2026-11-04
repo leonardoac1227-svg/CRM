@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select } from "@/components/ui/input";
 import { Avatar, Badge, Card, CardHeader, PageHeader } from "@/components/ui/misc";
 import { Dialog, DialogBody, DialogContent, DialogFooter, Switch } from "@/components/ui/overlay";
+import { PasswordReveal } from "@/components/shared/password-reveal";
 
 type Roulette = { history: { id: string; title: string; createdAt: string; user: { name: string } | null; contact: { id: string; name: string | null; phone: string; origin: string } }[]; next: { id: string; name: string } | null };
 
@@ -53,37 +54,33 @@ function PermissionsDialog({ user, onClose }: { user: TeamUser | null; onClose: 
   );
 }
 
-function InviteDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+function InviteDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpenChange: (v: boolean) => void; onCreated: (r: { name: string; email: string; tempPassword: string }) => void }) {
   const qc = useQueryClient();
   const [f, setF] = useState({ name: "", email: "", phone: "", role: "BROKER" });
-  const [result, setResult] = useState<{ email: string; tempPassword: string } | null>(null);
   const invite = useMutation({
-    mutationFn: () => api<{ user: { email: string }; tempPassword: string }>("/api/users", { body: f }),
-    onSuccess: (r) => { qc.invalidateQueries({ queryKey: ["users"] }); setResult({ email: r.user.email, tempPassword: r.tempPassword }); },
+    mutationFn: () => api<{ user: { email: string; name: string }; tempPassword: string }>("/api/users", { body: f }),
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["users"] });
+      onOpenChange(false);
+      setF({ name: "", email: "", phone: "", role: "BROKER" });
+      onCreated({ name: r.user.name, email: r.user.email, tempPassword: r.tempPassword });
+    },
     onError: (e: Error) => toast.error(e.message),
   });
   return (
-    <Dialog open={open} onOpenChange={(o) => { onOpenChange(o); if (!o) { setResult(null); setF({ name: "", email: "", phone: "", role: "BROKER" }); } }}>
-      <DialogContent title="Convidar membro" size="md">
-        {result ? (
-          <DialogBody className="space-y-3 text-center">
-            <KeyRound className="mx-auto h-10 w-10 text-success" />
-            <p className="text-sm">Acesso criado para <strong>{result.email}</strong>.</p>
-            <p className="text-xs text-muted-foreground">Senha provisória (mostrada só agora):</p>
-            <p className="rounded-md bg-slate-900 py-2 font-mono text-lg text-emerald-300">{result.tempPassword}</p>
-          </DialogBody>
-        ) : (
-          <DialogBody className="grid gap-3 sm:grid-cols-2">
-            <Field label="Nome" className="sm:col-span-2"><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
-            <Field label="E-mail"><Input type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
-            <Field label="WhatsApp (recebe os leads da roleta)"><Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></Field>
-            <Field label="Perfil" className="sm:col-span-2" hint={ROLE_DESC[f.role]}>
-              <Select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })}><option value="MANAGER">Gestor</option><option value="ASSISTANT">Assistente</option><option value="BROKER">Corretor/Vendedor</option></Select>
-            </Field>
-          </DialogBody>
-        )}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent title="Convidar membro" description="A pessoa recebe uma senha provisória e cria a própria senha no primeiro acesso." size="md">
+        <DialogBody className="grid gap-3 sm:grid-cols-2">
+          <Field label="Nome" className="sm:col-span-2"><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
+          <Field label="E-mail"><Input type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
+          <Field label="WhatsApp (recebe os leads da roleta)"><Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} placeholder="(75) 99999-0000" /></Field>
+          <Field label="Perfil" className="sm:col-span-2" hint={ROLE_DESC[f.role]}>
+            <Select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })}><option value="MANAGER">Gestor</option><option value="ASSISTANT">Assistente</option><option value="BROKER">Corretor/Vendedor</option></Select>
+          </Field>
+        </DialogBody>
         <DialogFooter>
-          {result ? <Button onClick={() => onOpenChange(false)}>Concluir</Button> : <><Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button><Button onClick={() => invite.mutate()} loading={invite.isPending} disabled={f.name.length < 2 || !f.email.includes("@")}>Convidar</Button></>}
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={() => invite.mutate()} loading={invite.isPending} disabled={f.name.length < 2 || !f.email.includes("@")}>Criar acesso</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -96,6 +93,7 @@ export default function Equipe() {
   const { data: team } = useTeam();
   const { data: roulette } = useQuery({ queryKey: ["roulette"], queryFn: () => api<Roulette>("/api/roulette") });
   const [invite, setInvite] = useState(false);
+  const [reset, setReset] = useState<{ name: string; email: string; tempPassword: string } | null>(null);
   const [perm, setPerm] = useState<TeamUser | null>(null);
   const patch = useMutation({
     mutationFn: (p: { id: string } & Record<string, unknown>) => api(`/api/users/${p.id}`, { method: "PATCH", body: p }),
@@ -145,6 +143,15 @@ export default function Equipe() {
                     <td className="px-3 py-2.5">{u.role === "BROKER" ? <Switch disabled={!isManager || !u.isActive} checked={u.inRoulette} onCheckedChange={(v) => patch.mutate({ id: u.id, inRoulette: v })} /> : <span className="text-xs text-muted-foreground">—</span>}</td>
                     <td className="px-3 py-2.5">{u.role === "BROKER" ? <Select disabled={!isManager} value={String(u.rouletteWeight)} onChange={(e) => patch.mutate({ id: u.id, rouletteWeight: Number(e.target.value) })} className="h-8 w-16 text-xs">{[1, 2, 3, 4, 5].map((n) => <option key={n}>{n}</option>)}</Select> : null}</td>
                     <td className="px-3 py-2.5 text-right">
+                      {isManager && u.id !== me?.user.id && u.isActive && (
+                        <Button size="icon-sm" variant="ghost" title="Gerar nova senha provisória" onClick={async () => {
+                          if (!confirm(`Gerar uma nova senha provisória para ${u.name}? A senha atual deixa de funcionar.`)) return;
+                          try {
+                            const r = await api<{ tempPassword: string; email: string }>(`/api/users/${u.id}`, { method: "PATCH", body: { resetPassword: true } });
+                            setReset({ name: u.name, email: r.email, tempPassword: r.tempPassword });
+                          } catch (e) { toast.error((e as Error).message); }
+                        }}><KeyRound /></Button>
+                      )}
                       {isManager && u.id !== me?.user.id && (u.isActive ? <Button size="icon-sm" variant="ghost" title="Desativar" onClick={() => confirm(`Desativar ${u.name}? Os leads dele ficarão sem responsável.`) && remove.mutate(u.id)}><UserMinus /></Button> : <Button size="xs" variant="outline" onClick={() => patch.mutate({ id: u.id, isActive: true })}>Reativar</Button>)}
                     </td>
                   </tr>
@@ -179,7 +186,8 @@ export default function Equipe() {
           </div>
         </Card>
       </div>
-      <InviteDialog open={invite} onOpenChange={setInvite} />
+      <InviteDialog open={invite} onOpenChange={setInvite} onCreated={setReset} />
+      <PasswordReveal data={reset} onClose={() => setReset(null)} />
       <PermissionsDialog user={perm} onClose={() => setPerm(null)} />
     </div>
   );

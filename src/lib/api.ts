@@ -17,9 +17,17 @@ export function errorResponse(e: unknown) {
   const digest = (e as { digest?: string } | null)?.digest;
   if (typeof digest === "string" && (digest === "DYNAMIC_SERVER_USAGE" || digest.startsWith("NEXT_"))) throw e;
   if (e instanceof HttpError) return NextResponse.json({ error: e.message }, { status: e.status });
-  if (e instanceof ZodError) return NextResponse.json({ error: "Dados inválidos", issues: e.issues }, { status: 422 });
+  if (e instanceof ZodError) {
+    const first = e.issues[0];
+    const friendly = first?.message && !/^(Expected|Required|Invalid|String must)/.test(first.message) ? first.message : `Confira o campo "${first?.path.join(".") || "formulário"}"`;
+    return NextResponse.json({ error: friendly, issues: e.issues }, { status: 422 });
+  }
   if (e instanceof Prisma.PrismaClientKnownRequestError) {
-    if (e.code === "P2002") return NextResponse.json({ error: "Registro duplicado" }, { status: 409 });
+    if (e.code === "P2002") {
+      const target = String((e.meta as { target?: unknown } | undefined)?.target ?? "");
+      const msg = target.includes("email") ? "Já existe uma conta com este e-mail" : target.includes("phone") ? "Este telefone já está cadastrado" : "Este registro já existe";
+      return NextResponse.json({ error: msg }, { status: 409 });
+    }
     if (e.code === "P2025") return NextResponse.json({ error: "Registro não encontrado" }, { status: 404 });
   }
   console.error("[api]", e);

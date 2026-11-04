@@ -45,7 +45,15 @@ app.prepare().then(() => {
     if (workspaceId) socket.join(`ws:${workspaceId}`);
   });
 
-  // Agendador: timeouts do Téo, campanhas agendadas, lembretes, pós-visita, reengajamento, datas anuais
+  // Mantém acordados serviços vizinhos (ex.: Evolution API no plano gratuito do Render)
+  const keepalive = (process.env.KEEPALIVE_URL || "").split(",").map((u) => u.trim()).filter(Boolean);
+  if (keepalive.length) {
+    setInterval(() => {
+      for (const u of keepalive) fetch(u, { method: "GET" }).catch(() => undefined);
+    }, 10 * 60_000);
+  }
+
+  // Agendador: timeouts da Zeni, campanhas agendadas, lembretes, pós-visita, reengajamento, datas anuais
   if (process.env.DISABLE_SCHEDULER !== "true") {
     setInterval(() => {
       tick().catch((e) => console.error("[scheduler]", e));

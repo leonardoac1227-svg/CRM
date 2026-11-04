@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select } from "@/components/ui/input";
 import { Badge, Card, CardHeader, PageHeader, Skeleton, Stat } from "@/components/ui/misc";
 import { ColumnChart, HBar } from "@/components/shared/charts";
+import { SiteWizard } from "@/components/integrations/site-wizard";
 
 type Seo = {
   seoLeads: number; allLeads: number; seoShare: number; trackedSessions: number; aiQualificationRate: number; wonValue: number; wonCount: number;
@@ -83,9 +84,8 @@ function WhiteLabel() {
 export default function SiteSeo() {
   const { isManager } = useCan();
   const [days, setDays] = useState("90");
-  const [button, setButton] = useState(true);
+  const [wizard, setWizard] = useState(false);
   const { data } = useQuery({ queryKey: ["seo", days], queryFn: () => api<Seo>(`/api/seo?days=${days}`) });
-  const snippet = data ? data.tracker.snippet.replace(`k=${data.tracker.key}`, `k=${data.tracker.key}${button ? "&button=1" : ""}`) : "";
   const maxPage = Math.max(1, ...(data?.topPages.map((p) => p.leads) ?? [1]));
   const maxKw = Math.max(1, ...(data?.topKeywords.map((p) => p.leads) ?? [1]));
   return (
@@ -127,29 +127,29 @@ export default function SiteSeo() {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader
-              title={<span className="flex items-center gap-2"><Code2 className="h-4 w-4 text-primary" /> Script de rastreio plug & play (tracker.js)</span>}
-              description="Cole antes do </body> do site do cliente (ou no Google Tag Manager)."
-              actions={<Button size="sm" variant="outline" asChild><a href={`/demo-site?k=${data.tracker.key}&utm_source=google&utm_medium=organic&utm_term=minha+casa+minha+vida+feira`} target="_blank" rel="noreferrer"><ExternalLink /> Testar em um site de exemplo</a></Button>}
-            />
-            <div className="grid gap-5 p-5 lg:grid-cols-[1fr_340px]">
-              <div>
-                <div className="relative">
-                  <pre className="overflow-x-auto rounded-lg bg-slate-900 p-4 text-xs leading-relaxed text-emerald-300 scrollbar-thin">{snippet}</pre>
-                  <Button size="xs" variant="secondary" className="absolute right-2 top-2" onClick={() => { navigator.clipboard.writeText(snippet); toast.success("Snippet copiado"); }}><Copy /> Copiar</Button>
-                </div>
-                <label className="mt-3 flex items-center gap-2 text-sm"><Checkbox checked={button} onChange={(e) => setButton(e.target.checked)} /> Exibir botão flutuante de WhatsApp no site</label>
+          <Card className={data.trackedSessions ? "p-5" : "glow-gold border-primary/30 p-6"}>
+            <div className="flex flex-wrap items-center gap-4">
+              <span className={data.trackedSessions ? "flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-600" : "flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary dark:text-secondary"}>
+                {data.trackedSessions ? <Check className="h-6 w-6" /> : <Code2 className="h-6 w-6" />}
+              </span>
+              <div className="min-w-[220px] flex-1">
+                <p className="text-[16px] font-extrabold">{data.trackedSessions ? "Rastreio funcionando no site" : "Instale o rastreio no seu site"}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {data.trackedSessions
+                    ? `${data.trackedSessions} visitas rastreadas${data.siteUrl ? ` em ${data.siteUrl}` : ""}. Cada conversa vinda do site chega com a página de origem.`
+                    : "Um passo a passo de 5 minutos para WordPress, Wix, Shopify, Google Tag Manager ou qualquer outro site — com verificação automática no final."}
+                </p>
               </div>
-              <ul className="space-y-2.5 text-xs text-foreground/75">
-                <li className="flex gap-2"><Badge tone="green">1</Badge> Detecta tráfego do Google/Bing (SEO Orgânico), Google Ads, Facebook/Instagram, OLX e portais.</li>
-                <li className="flex gap-2"><Badge tone="green">2</Badge> Guarda a URL exata da página/artigo de entrada (first-touch, 30 dias).</li>
-                <li className="flex gap-2"><Badge tone="green">3</Badge> Intercepta cliques em links/botões de WhatsApp e injeta o protocolo <code className="rounded bg-muted px-1">[Ref: #SEO-XXXX]</code> na mensagem.</li>
-                <li className="flex gap-2"><Badge tone="green">4</Badge> Intercepta envios de formulário e cria o lead com a origem completa.</li>
-                <li className="flex gap-2"><Badge tone="green">5</Badge> O webhook do WhatsApp lê o protocolo e vincula a conversa à página posicionada no Google.</li>
-              </ul>
+              <Button onClick={() => setWizard(true)} variant={data.trackedSessions ? "outline" : "default"}>{data.trackedSessions ? "Ver instalação" : "Começar instalação"}</Button>
+            </div>
+            <div className="mt-5 grid gap-3 border-t pt-5 text-xs text-foreground/75 sm:grid-cols-2 lg:grid-cols-4">
+              <p className="flex gap-2"><Badge tone="green">1</Badge> Descobre se o visitante veio do Google, de anúncio, do Instagram ou de portais.</p>
+              <p className="flex gap-2"><Badge tone="green">2</Badge> Guarda a página exata em que ele entrou (por 30 dias).</p>
+              <p className="flex gap-2"><Badge tone="green">3</Badge> Coloca um protocolo <code className="rounded bg-muted px-1">[Ref: #SEO-XXXX]</code> na mensagem do WhatsApp.</p>
+              <p className="flex gap-2"><Badge tone="green">4</Badge> O Ápice liga a conversa — e a venda — àquela página.</p>
             </div>
           </Card>
+          <SiteWizard open={wizard} onOpenChange={setWizard} snippet={data.tracker.snippet} trackerKey={data.tracker.key} initialSite={data.siteUrl} />
 
           <Card className="overflow-hidden">
             <CardHeader title="Últimas sessões rastreadas" />

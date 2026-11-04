@@ -8,7 +8,9 @@ import { cn, timeAgo } from "@/lib/utils";
 import { api } from "@/lib/client";
 import { ROLE_LABELS } from "@/lib/constants";
 import { useMe } from "@/hooks/use-me";
+import { useState } from "react";
 import { useUi } from "@/stores/ui";
+import { AccountDialog } from "./account-dialog";
 import { useTheme } from "@/hooks/use-theme";
 import { ApiceMark } from "@/components/brand/logo";
 import { activeNavItem, groupOf } from "./nav-config";
@@ -72,18 +74,7 @@ function ProfileMenu() {
   const { theme, toggle: toggleTheme } = useTheme();
   const router = useRouter();
   const qc = useQueryClient();
-  const { data: profiles } = useQuery({
-    queryKey: ["profiles"],
-    queryFn: () => api<{ profiles: { id: string; name: string; role: string; email: string }[] }>("/api/auth/profiles"),
-    enabled: !!me?.demoMode,
-  });
-  async function switchTo(userId: string) {
-    await api("/api/auth/switch", { body: { userId } });
-    qc.clear();
-    toast.success("Perfil alterado");
-    router.refresh();
-    window.location.reload();
-  }
+  const [accountOpen, setAccountOpen] = useState(false);
   async function switchWorkspace(workspaceId: string) {
     await api("/api/auth/workspace", { body: { workspaceId } });
     qc.clear();
@@ -94,13 +85,8 @@ function ProfileMenu() {
     window.location.href = "/login";
   }
   if (!me) return <div className="h-8 w-8 rounded-full bg-muted" />;
-  const groups: [string, string[]][] = [
-    ["Gestor", ["MANAGER"]],
-    ["Assistente", ["ASSISTANT"]],
-    ["Corretor", ["BROKER"]],
-    ["Agência SEO", ["AGENCY_ADMIN"]],
-  ];
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="ml-1 flex items-center gap-2 rounded-xl py-1 pl-1 pr-2 hover:bg-muted">
@@ -132,25 +118,10 @@ function ProfileMenu() {
             ))}
           </>
         )}
-        {me.demoMode && !!profiles?.profiles.length && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Testar visão como…</DropdownMenuLabel>
-            {groups.map(([label, roles]) => {
-              const list = profiles.profiles.filter((p) => roles.includes(p.role));
-              if (!list.length) return null;
-              return list.map((p) => (
-                <DropdownMenuItem key={p.id} onSelect={() => switchTo(p.id)}>
-                  <UserCog />
-                  <span className="flex-1 truncate">{p.name}</span>
-                  <span className="text-[10px] text-muted-foreground">{label}</span>
-                  {p.id === me.user.id && <Check className="!text-primary" />}
-                </DropdownMenuItem>
-              ));
-            })}
-          </>
-        )}
         <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => setAccountOpen(true)}>
+          <UserCog /> Minha conta e senha
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={(e) => { e.preventDefault(); toggleTheme(); }}>
           {theme === "dark" ? <Sun /> : <Moon />} {theme === "dark" ? "Usar tema claro" : "Usar tema escuro"}
         </DropdownMenuItem>
@@ -159,6 +130,8 @@ function ProfileMenu() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    <AccountDialog open={accountOpen} onOpenChange={setAccountOpen} />
+    </>
   );
 }
 

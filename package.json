@@ -1,8 +1,8 @@
 {
-  "name": "teo-crm",
+  "name": "apice",
   "version": "1.0.0",
   "private": true,
-  "description": "CRM Omnichannel Multi-Tenant White-Label com IA (Téo) integrada ao WhatsApp, disparador de campanhas e rastreamento de SEO.",
+  "description": "Ápice by CRAP Digital — CRM multi-tenant white-label com IA (Zeni) no WhatsApp, campanhas oficiais da Meta e rastreamento de SEO.",
   "scripts": {
     "dev": "node scripts/build-server.mjs && node --enable-source-maps dist/server.js",
     "dev:next": "next dev",
@@ -12,14 +12,14 @@
     "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "prisma db seed",
-    "db:reset": "prisma db push --force-reset && prisma db seed",
+    "db:seed": "tsx prisma/bootstrap.ts",
+    "db:reset": "prisma db push --force-reset && tsx prisma/bootstrap.ts",
     "postinstall": "prisma generate",
     "build:server": "node scripts/build-server.mjs",
-    "start:render": "prisma db push --skip-generate && tsx prisma/seed-if-empty.ts && NODE_ENV=production node --enable-source-maps dist/server.js"
+    "start:render": "prisma db push --skip-generate && tsx prisma/bootstrap.ts && NODE_ENV=production node --enable-source-maps dist/server.js"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/bootstrap.ts"
   },
   "dependencies": {
     "@hello-pangea/dnd": "16.6.0",
