@@ -40,36 +40,35 @@ function Funis() {
   };
 
   return (
-    <div className="flex min-h-app">
-      <aside className="hidden w-56 shrink-0 border-r bg-white p-3 md:block">
-        <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Funis</p>
-        {isLoading && <Skeleton className="h-20" />}
-        {pipelines?.map((p) => (
-          <button key={p.id} onClick={() => setPid(p.id)} className={cn("flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium", pid === p.id ? "bg-primary/10 text-primary" : "text-slate-600 hover:bg-muted")}>
-            <span className="flex-1 truncate">{p.name}</span>
-            {p.isDefault && <Star className="h-3 w-3 fill-amber-400 text-amber-400" />}
-            <span className="text-[11px] text-muted-foreground">{p.contactsCount}</span>
-          </button>
-        ))}
-        {isManager && <button onClick={() => setDialog("new")} className="mt-2 flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-primary/5"><Plus className="h-4 w-4" /> Novo funil</button>}
-      </aside>
-
-      <div className="min-w-0 flex-1 p-4 md:p-6">
-        <div className="mb-4 flex flex-wrap items-center gap-3">
-          <Select value={pid ?? ""} onChange={(e) => setPid(e.target.value)} className="w-auto md:hidden">
-            {pipelines?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </Select>
-          <h1 className="hidden text-xl font-semibold md:block">{pipeline?.name}</h1>
+    <div className="min-h-app">
+      <div className="min-w-0 px-4 py-6 md:px-8 md:py-8">
+        <div className="mb-4 flex flex-wrap items-center gap-3 animate-rise">
+          <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10 text-primary dark:text-secondary sm:flex"><KanbanSquare className="h-6 w-6" /></span>
+          <div className="min-w-0">
+            <p className="eyebrow mb-1">Vender · Funis</p>
+            <h1 className="display text-[28px] leading-none sm:text-[32px]">{pipeline?.name ?? "Funis"}</h1>
+          </div>
           {isManager && pipeline && (
             <>
               <Button size="icon-sm" variant="ghost" onClick={() => setDialog("edit")} title="Editar funil"><Pencil /></Button>
               {!pipeline.isDefault && <Button size="xs" variant="ghost" onClick={async () => { await api(`/api/pipelines/${pipeline.id}`, { method: "PATCH", body: { isDefault: true } }); qc.invalidateQueries({ queryKey: ["pipelines"] }); toast.success("Definido como padrão"); }}><Star /> Tornar padrão</Button>}
             </>
           )}
-          <div className="ml-auto inline-flex rounded-lg bg-muted p-1">
-            <button onClick={() => changeView("analise")} className={cn("flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium", view === "analise" ? "bg-white shadow-sm" : "text-muted-foreground")}><BarChart3 className="h-3.5 w-3.5" /> Análise</button>
-            <button onClick={() => changeView("kanban")} className={cn("flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium", view === "kanban" ? "bg-white shadow-sm" : "text-muted-foreground")}><KanbanSquare className="h-3.5 w-3.5" /> Kanban</button>
+          <div className="ml-auto inline-flex rounded-xl border bg-card p-1">
+            <button onClick={() => changeView("analise")} className={cn("flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-bold transition-colors", view === "analise" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}><BarChart3 className="h-3.5 w-3.5" /> Análise</button>
+            <button onClick={() => changeView("kanban")} className={cn("flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-bold transition-colors", view === "kanban" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}><KanbanSquare className="h-3.5 w-3.5" /> Kanban</button>
           </div>
+        </div>
+        <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+          {isLoading && <Skeleton className="h-9 w-64" />}
+          {pipelines?.map((p) => (
+            <button key={p.id} onClick={() => setPid(p.id)} className={cn("flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-bold transition-colors", pid === p.id ? "border-primary bg-primary text-primary-foreground" : "bg-card text-foreground/75 hover:border-primary/50")}>
+              {p.isDefault && <Star className={cn("h-3 w-3", pid === p.id ? "fill-current" : "fill-amber-400 text-amber-400")} />}
+              {p.name}
+              <span className={cn("rounded-full px-1.5 text-[10px] font-extrabold", pid === p.id ? "bg-black/15" : "bg-muted")}>{p.contactsCount}</span>
+            </button>
+          ))}
+          {isManager && <button onClick={() => setDialog("new")} className="flex shrink-0 items-center gap-1.5 rounded-full border border-dashed border-primary/50 px-4 py-2 text-[13px] font-bold text-primary hover:bg-primary/10 dark:text-secondary"><Plus className="h-4 w-4" /> Novo funil</button>}
         </div>
         <div className="mb-5 flex flex-wrap items-center gap-2">
           {view === "analise" && (
@@ -100,7 +99,7 @@ function Funis() {
           {view === "kanban" && (
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar card…" className="h-9 w-52 rounded-md border bg-white pl-8 pr-3 text-sm outline-none focus:border-primary/50" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar card…" className="h-9 w-52 rounded-md border bg-card pl-8 pr-3 text-sm outline-none focus:border-primary/50" />
             </div>
           )}
           {filters.origin === "SEO_ORGANICO" && <span className="text-xs font-medium text-emerald-700">Mostrando apenas leads do Google Orgânico — o ROI do seu SEO.</span>}

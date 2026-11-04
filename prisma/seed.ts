@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 // Seed de demonstração: agência white-label, 2 workspaces, equipe com RBAC, WhatsApp, funil de 7 etapas,
-// conversas com o Téo, contatos com origem SEO, catálogo, agenda, modelos Meta e campanhas.
+// conversas com a Zeni, contatos com origem SEO, catálogo, agenda, modelos Meta e campanhas.
 import { PrismaClient, type Contact, type LeadOrigin, type Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AI_PRESET_QUESTIONS, AUTOMATION_DEFS, DEFAULT_FAQS, DEFAULT_STAGES, META_PRICING } from "../src/lib/constants";
@@ -71,7 +71,7 @@ async function main() {
 
   // ---------------------------------------------------------------- Agência e workspaces
   const agency = await prisma.agency.create({
-    data: { name: "Rank Alto SEO", slug: "rankalto", logoUrl: null, primaryColor: "#2563EB", secondaryColor: "#4F46E5", assistantDefaultName: "Téo" },
+    data: { name: "CRAP Digital", slug: "crapdigital", logoUrl: null, primaryColor: "#C9A35B", secondaryColor: "#E4C88A", assistantDefaultName: "Zeni" },
   });
   const ws = await prisma.workspace.create({
     data: {
@@ -170,12 +170,12 @@ async function main() {
     }));
   }
 
-  // ---------------------------------------------------------------- Téo (IA)
+  // ---------------------------------------------------------------- Zeni (IA)
   const aiConfig = await prisma.aiAssistantConfig.create({
     data: {
-      workspaceId: ws.id, isActive: true, preset: "MCMV_ECONOMICO", focus: "VENDAS", assistantName: "Téo", roleTitle: "Assistente virtual",
+      workspaceId: ws.id, isActive: true, preset: "MCMV_ECONOMICO", focus: "VENDAS", assistantName: "Zeni", roleTitle: "Assistente virtual",
       tone: "NO_MEIO", emojiLevel: "POUCOS", messageLength: "CURTAS_UMA_A_UMA", regionCity: "Feira de Santana - BA",
-      initialGreeting: "Olá{{nome_cliente}}! Aqui é o {{nome_assistente}} da equipe {{nome_empresa}}. Tudo bem?",
+      initialGreeting: "Olá{{nome_cliente}}! Aqui é a {{nome_assistente}} da equipe {{nome_empresa}}. Tudo bem?",
       qualificationObjective: "COMPRA",
       customPromptContext: "Trabalhamos principalmente com Minha Casa Minha Vida e imóveis até R$ 450 mil em Feira de Santana. Não informe taxas de juros exatas.",
       targetPipelineId: sales.id, targetStageId: S[0].id, qualifiedStageId: S[1].id, distributionMode: "ROULETTE", inactivityTimeoutHours: 24,
@@ -303,7 +303,7 @@ async function main() {
         data: {
           conversationId: conv.id,
           senderType: m.from === "c" ? "CONTACT" : m.from === "ai" ? "AI_AGENT" : m.from === "sys" ? "SYSTEM" : "USER",
-          senderName: m.from === "c" ? contact.name : m.from === "ai" ? "IA: Téo" : m.from === "sys" ? "Campanha" : (m.user ?? marcio).name,
+          senderName: m.from === "c" ? contact.name : m.from === "ai" ? "IA: Zeni" : m.from === "sys" ? "Campanha" : (m.user ?? marcio).name,
           senderUserId: m.from === "u" ? (m.user ?? marcio).id : null,
           content: m.text, mediaType: m.mediaType ?? "TEXT", status: m.from === "c" ? "DELIVERED" : "READ", createdAt: minutesAgo(m.ago),
         },
@@ -313,7 +313,7 @@ async function main() {
     return conv;
   }
 
-  // 1) Téo qualificando agora (em andamento)
+  // 1) Zeni qualificando agora (em andamento)
   await conversation({
     contactIdx: 0, channel: company, status: "WITH_AI", aiActive: true, name: "Mariana Cerqueira", assignTo: null,
     contact: { origin: "SEO_ORGANICO", seoLandingPage: SEO_PAGES[1], seoReferrer: "https://www.google.com/", seoKeyword: SEO_KEYWORDS[1], trackingCode: "#SEO-1037", utmSource: null, utmMedium: null, utmCampaign: null, employmentType: "CLT", monthlyIncome: 3800, profession: "Auxiliar administrativa", tags: ["mcmv", "seo"], stage: { connect: { id: S[0].id } } },
@@ -321,7 +321,7 @@ async function main() {
     aiState: { step: "QUALIFYING", currentQuestionId: Q[2].id, answered: { [Q[0].id]: "CLT", [Q[1].id]: "R$ 3.800,00" }, skipped: [], attempts: {}, collected: { employmentType: "CLT", monthlyIncome: 3800 } },
     messages: [
       { from: "c", text: "Oi, vi no Google o apartamento de 2 quartos no Santa Mônica. Ainda tem?\n\n[Ref: #SEO-1037]", ago: 14 },
-      { from: "ai", text: "Olá Mariana! Aqui é o Téo da equipe Horizonte Imóveis. Tudo bem? 😊", ago: 14 },
+      { from: "ai", text: "Olá Mariana! Aqui é a Zeni da equipe Horizonte Imóveis. Tudo bem? 😊", ago: 14 },
       { from: "ai", text: "Vou te fazer algumas perguntas rápidas pra entender o que você procura e te encaminhar para o corretor ideal.", ago: 14 },
       { from: "ai", text: "Trabalha de carteira assinada ou é autônomo?", ago: 14 },
       { from: "c", text: "Carteira assinada, sou auxiliar administrativa", ago: 11 },
@@ -332,8 +332,8 @@ async function main() {
       { from: "ai", text: "Já tem imóvel no nome?", ago: 6 },
     ],
   });
-  // 2) Téo concluiu e passou para o Márcio (a responder)
-  const summary2 = `🤖 Relatório de qualificação — Téo
+  // 2) Zeni concluiu e passou para o Márcio (a responder)
+  const summary2 = `🤖 Relatório de qualificação — Zeni
 Temperatura: Quente (90/100)
 
 PERFIL
@@ -357,7 +357,7 @@ Encerramento: qualificação concluída`;
     aiState: { step: "DONE", handoffReason: "COMPLETED", answered: Object.fromEntries(Q.map((q) => [q.id, "ok"])), skipped: [], attempts: {}, collected: { employmentType: "CLT", monthlyIncome: 4500 } },
     messages: [
       { from: "c", text: "Boa tarde! Li o artigo de vocês sobre Minha Casa Minha Vida e queria saber se me encaixo\n\n[Ref: #SEO-1074]", ago: 95 },
-      { from: "ai", text: "Olá João! Aqui é o Téo da equipe Horizonte Imóveis. Tudo bem? 😊", ago: 95 },
+      { from: "ai", text: "Olá João! Aqui é a Zeni da equipe Horizonte Imóveis. Tudo bem? 😊", ago: 95 },
       { from: "ai", text: "Trabalha de carteira assinada ou é autônomo?", ago: 95 },
       { from: "c", text: "carteira assinada", ago: 92 },
       { from: "ai", text: "Qual a renda bruta da família, mais ou menos?", ago: 92 },
@@ -404,7 +404,7 @@ Encerramento: qualificação concluída`;
     aiState: { step: "QUALIFYING", currentQuestionId: Q[1].id, answered: { [Q[0].id]: "Autônomo" }, skipped: [], attempts: {}, collected: { employmentType: "AUTONOMO" } },
     messages: [
       { from: "c", text: "Olá, quero saber do lançamento no Papagaio", ago: 33 },
-      { from: "ai", text: "Olá Larissa! Aqui é o Téo da equipe Horizonte Imóveis. Tudo bem? 😊", ago: 33 },
+      { from: "ai", text: "Olá Larissa! Aqui é a Zeni da equipe Horizonte Imóveis. Tudo bem? 😊", ago: 33 },
       { from: "ai", text: "Trabalha de carteira assinada ou é autônomo?", ago: 33 },
       { from: "c", text: "🎙️ Transcrição: eu sou autônoma, tenho um salão de beleza aqui no bairro", ago: 29, mediaType: "AUDIO" },
       { from: "ai", text: "Legal!", ago: 29 },
@@ -438,7 +438,7 @@ Encerramento: qualificação concluída`;
   const taskDefs = [
     { c: 20, u: camila, title: "Visita casa no Tomba (CA-087)", type: "VISIT" as const, due: daysAgo(-1, -10) },
     { c: 30, u: marcio, title: "Retornar contraproposta", type: "CALL" as const, due: daysAgo(1) },
-    { c: 1, u: marcio, title: "Ligar para João Pedro (lead quente do Téo)", type: "CALL" as const, due: hoursAgo(-2) },
+    { c: 1, u: marcio, title: "Ligar para João Pedro (lead quente da Zeni)", type: "CALL" as const, due: hoursAgo(-2) },
     { c: 33, u: rafael, title: "Conferir documentação para financiamento", type: "DOCUMENTATION" as const, due: daysAgo(-1) },
     { c: 8, u: camila, title: "Visita AP-201 Santa Mônica", type: "VISIT" as const, due: daysAgo(-2, -6) },
     { c: 12, u: marcio, title: "Visita Residencial Jardim Papagaio", type: "VISIT" as const, due: daysAgo(-3, -4) },
@@ -505,7 +505,7 @@ Encerramento: qualificação concluída`;
     data: { workspaceId: ws.id, name: "Simulação MCMV (site)", pipelineId: sales.id, stageId: S[0].id, submissions: 27, fieldsJson: [{ key: "name", label: "Nome", type: "text", required: true }, { key: "phone", label: "WhatsApp", type: "tel", required: true }, { key: "monthlyIncome", label: "Renda familiar", type: "number", required: false }] },
   });
   for (const u of [manager, assistant, marcio]) {
-    await prisma.notification.create({ data: { workspaceId: ws.id, userId: u.id, title: "Novo lead qualificado pelo Téo: João Pedro Almeida", body: "Quente (90/100) · Renda R$ 4.500 · Entrada R$ 15.000", link: `/atendimento?contato=${contacts[1].id}` } });
+    await prisma.notification.create({ data: { workspaceId: ws.id, userId: u.id, title: "Novo lead qualificado pela Zeni: João Pedro Almeida", body: "Quente (90/100) · Renda R$ 4.500 · Entrada R$ 15.000", link: `/atendimento?contato=${contacts[1].id}` } });
   }
   await prisma.notification.create({ data: { workspaceId: ws.id, userId: manager.id, title: "Número de Camila Souza requer atenção", body: "Reconecte o QR Code em Integrações.", link: "/integracoes" } });
 

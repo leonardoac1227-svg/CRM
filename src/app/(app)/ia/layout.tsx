@@ -19,27 +19,27 @@ function Sidebar() {
   const { data: auto } = useQuery({ queryKey: ["teo-automations"], queryFn: () => api<{ items: { isEnabled: boolean }[] }>("/api/teo/automations") });
   const { data: threads } = useQuery({ queryKey: ["copilot-threads"], queryFn: () => api<Threads>("/api/teo/copilot") });
   const on = auto?.items.filter((i) => i.isEnabled).length ?? 0;
-  const item = (active: boolean) => cn("flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors", active ? "bg-primary/10 text-primary" : "text-slate-600 hover:bg-muted");
+  const item = (active: boolean) => cn("flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-bold transition-colors", active ? "bg-primary/10 text-primary dark:text-secondary" : "text-foreground/75 hover:bg-muted");
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r bg-white p-3 md:flex">
-      <p className="mb-3 flex items-center gap-2 px-2 text-base font-semibold"><Sparkles className="h-4 w-4 text-secondary" /> {me?.assistantName ?? "Téo"}</p>
-      <button onClick={() => router.push(`/teo?thread=${Math.random().toString(36).slice(2, 10)}`)} className="mb-3 flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-primary to-secondary px-3 py-2 text-sm font-medium text-white shadow-sm hover:opacity-95">
+    <aside className="hidden w-64 shrink-0 flex-col border-r bg-card/50 p-4 md:flex">
+      <div className="mb-4 flex items-center gap-3 px-1"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-secondary to-primary text-primary-foreground shadow-md shadow-primary/25"><Sparkles className="h-5 w-5" /></span><span className="leading-tight"><span className="display block text-xl leading-none">{me?.assistantName ?? "Zeni"}</span><span className="text-[11px] font-semibold text-muted-foreground">Inteligência artificial</span></span></div>
+      <button onClick={() => router.push(`/ia?thread=${Math.random().toString(36).slice(2, 10)}`)} className="mb-4 flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-extrabold text-primary-foreground shadow-md shadow-primary/25 transition-all hover:brightness-110">
         <MessageSquarePlus className="h-4 w-4" /> Nova conversa
       </button>
-      <Link href="/teo/pendencias" className={item(pathname === "/teo/pendencias")}>
+      <Link href="/ia/pendencias" className={item(pathname === "/ia/pendencias")}>
         <AlertTriangle className="h-4 w-4" /> <span className="flex-1">Pendências</span>
-        {!!pend?.total && <span className="rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white">{pend.total}</span>}
+        {!!pend?.total && <span className="rounded-full bg-primary/15 px-1.5 text-[10px] font-extrabold text-primary dark:text-secondary">{pend.total}</span>}
       </Link>
-      <Link href="/teo/automacoes" className={item(pathname === "/teo/automacoes")}>
+      <Link href="/ia/automacoes" className={item(pathname === "/ia/automacoes")}>
         <Workflow className="h-4 w-4" /> <span className="flex-1">Automações</span>
-        {on > 0 ? <span className="rounded-full bg-emerald-100 px-1.5 text-[10px] font-semibold text-emerald-700">Ligado</span> : <span className="rounded-full bg-slate-100 px-1.5 text-[10px] text-slate-500">Desligado</span>}
+        {on > 0 ? <span className="rounded-full bg-emerald-100 px-1.5 text-[10px] font-semibold text-emerald-700">Ligado</span> : <span className="rounded-full bg-muted px-1.5 text-[10px] text-muted-foreground">Desligado</span>}
       </Link>
       {!!threads?.threads.length && (
         <>
-          <p className="mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Recentes</p>
+          <p className="eyebrow mb-1.5 mt-6 px-3">Conversas recentes</p>
           <div className="flex-1 space-y-0.5 overflow-y-auto scrollbar-thin">
             {threads.threads.map((t) => (
-              <Link key={t.id} href={`/teo?thread=${t.id}`} className={cn("flex items-center gap-2 truncate rounded-md px-3 py-1.5 text-xs", sp.get("thread") === t.id ? "bg-muted font-medium" : "text-slate-600 hover:bg-muted")}>
+              <Link key={t.id} href={`/ia?thread=${t.id}`} className={cn("flex items-center gap-2 truncate rounded-lg px-3 py-2 text-xs", sp.get("thread") === t.id ? "bg-muted font-bold" : "text-foreground/75 hover:bg-muted")}>
                 <MessageSquare className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> <span className="truncate">{t.title}</span>
               </Link>
             ))}

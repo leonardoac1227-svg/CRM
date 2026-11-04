@@ -24,7 +24,7 @@ function Segmented<T extends string>({ value, onChange, options, size = "sm" }: 
   return (
     <div className="inline-flex rounded-lg bg-muted p-0.5">
       {options.map((o) => (
-        <button key={o.value} type="button" onClick={() => onChange(o.value)} className={cn("rounded-md font-medium transition-all", size === "xs" ? "px-2 py-0.5 text-[11px]" : "px-3 py-1 text-xs", value === o.value ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
+        <button key={o.value} type="button" onClick={() => onChange(o.value)} className={cn("rounded-md font-medium transition-all", size === "xs" ? "px-2 py-0.5 text-[11px]" : "px-3 py-1 text-xs", value === o.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
           {o.label}
         </button>
       ))}
@@ -34,7 +34,7 @@ function Segmented<T extends string>({ value, onChange, options, size = "sm" }: 
 
 function ToggleRow({ icon, title, description, checked, onChange }: { icon: React.ReactNode; title: string; description: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-lg border bg-white px-3 py-2.5 hover:bg-slate-50">
+    <label className="flex cursor-pointer items-center gap-3 rounded-lg border bg-card px-3 py-2.5 hover:bg-muted/60">
       <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">{icon}</span>
       <span className="flex-1">
         <span className="block text-sm font-medium">{title}</span>
@@ -52,9 +52,9 @@ function QuestionRow({ q, index, onChange, onRemove }: { q: AiQuestion; index: n
   return (
     <Draggable draggableId={`q-${index}-${q.questionText.slice(0, 12)}`} index={index}>
       {(p, snap) => (
-        <div ref={p.innerRef} {...p.draggableProps} className={cn("rounded-lg border bg-white p-3", snap.isDragging && "shadow-lg ring-2 ring-primary/30")}>
+        <div ref={p.innerRef} {...p.draggableProps} className={cn("rounded-lg border bg-card p-3", snap.isDragging && "shadow-lg ring-2 ring-primary/30")}>
           <div className="flex items-start gap-2">
-            <span {...p.dragHandleProps} className="mt-0.5 cursor-grab text-slate-400 hover:text-slate-600" aria-label="Arrastar"><GripVertical className="h-4 w-4" /></span>
+            <span {...p.dragHandleProps} className="mt-0.5 cursor-grab text-muted-foreground/80 hover:text-foreground/75" aria-label="Arrastar"><GripVertical className="h-4 w-4" /></span>
             <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">{index + 1}</span>
             <div className="min-w-0 flex-1">
               {editing ? (
@@ -73,7 +73,7 @@ function QuestionRow({ q, index, onChange, onRemove }: { q: AiQuestion; index: n
                   onChange={(v) => onChange({ ...q, requirementMode: v })}
                   options={[{ value: "SE_DER", label: "Se der" }, { value: "OBRIGATORIA", label: "Obrigatória" }]}
                 />
-                <select value={q.targetField ?? ""} onChange={(e) => onChange({ ...q, targetField: e.target.value || null })} className="h-6 rounded-md border bg-white px-1.5 text-[11px] text-slate-600 outline-none">
+                <select value={q.targetField ?? ""} onChange={(e) => onChange({ ...q, targetField: e.target.value || null })} className="h-6 rounded-md border bg-card px-1.5 text-[11px] text-foreground/75 outline-none">
                   <option value="">Salvar como texto livre</option>
                   {AI_TARGET_FIELDS.map((f) => <option key={f.key} value={f.key}>→ {f.label}</option>)}
                 </select>
@@ -84,8 +84,8 @@ function QuestionRow({ q, index, onChange, onRemove }: { q: AiQuestion; index: n
             </div>
             {!editing && (
               <div className="flex shrink-0 gap-0.5">
-                <button onClick={() => setEditing(true)} className="rounded p-1 text-slate-400 hover:bg-muted hover:text-slate-700" aria-label="Editar"><Pencil className="h-3.5 w-3.5" /></button>
-                <button onClick={onRemove} className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Excluir"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button onClick={() => setEditing(true)} className="rounded p-1 text-muted-foreground/80 hover:bg-muted hover:text-foreground/90" aria-label="Editar"><Pencil className="h-3.5 w-3.5" /></button>
+                <button onClick={onRemove} className="rounded p-1 text-muted-foreground/80 hover:bg-red-50 hover:text-red-600" aria-label="Excluir"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             )}
           </div>
@@ -98,12 +98,12 @@ function QuestionRow({ q, index, onChange, onRemove }: { q: AiQuestion; index: n
 function FaqRow({ f, onChange, onRemove }: { f: AiFaq; onChange: (f: AiFaq) => void; onRemove: () => void }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-lg border bg-white">
+    <div className="rounded-lg border bg-card">
       <div className="flex items-center gap-3 px-3 py-2.5">
         <Switch checked={f.isEnabled} onCheckedChange={(v) => onChange({ ...f, isEnabled: v })} />
         <button onClick={() => setOpen((o) => !o)} className="flex-1 text-left text-sm font-medium">{f.questionTitle}</button>
-        <button onClick={() => setOpen((o) => !o)} className="rounded p-1 text-slate-400 hover:bg-muted"><Pencil className="h-3.5 w-3.5" /></button>
-        <button onClick={onRemove} className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-3.5 w-3.5" /></button>
+        <button onClick={() => setOpen((o) => !o)} className="rounded p-1 text-muted-foreground/80 hover:bg-muted"><Pencil className="h-3.5 w-3.5" /></button>
+        <button onClick={onRemove} className="rounded p-1 text-muted-foreground/80 hover:bg-red-50 hover:text-red-600"><Trash2 className="h-3.5 w-3.5" /></button>
       </div>
       {open && (
         <div className="space-y-2 border-t px-3 py-3">
@@ -135,7 +135,7 @@ export function TeoConfigDrawer({ open, onOpenChange }: { open: boolean; onOpenC
       qc.setQueryData(["teo-config"], c);
       qc.invalidateQueries({ queryKey: ["teo-automations"] });
       qc.invalidateQueries({ queryKey: ["me"] });
-      toast.success(`${c.assistantName} atualizado!`);
+      toast.success(`${c.assistantName} atualizada!`);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -172,12 +172,12 @@ export function TeoConfigDrawer({ open, onOpenChange }: { open: boolean; onOpenC
     <DialogPrimitive.Root open={open} onOpenChange={(o) => { if (!o && dirty && !confirm("Descartar alterações não salvas?")) return; onOpenChange(o); }}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-900/40 animate-fade-in" />
-        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[1180px] flex-col bg-white shadow-2xl animate-slide-in-right focus:outline-none">
+        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[1180px] flex-col bg-card shadow-2xl animate-slide-in-right focus:outline-none">
           <div className="flex items-center gap-3 border-b px-5 py-3.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary text-white"><Sparkles className="h-4 w-4" /></span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-secondary text-primary-foreground"><Sparkles className="h-4 w-4" /></span>
             <div className="flex-1">
               <DialogPrimitive.Title className="text-base font-semibold">Configurar Atendimento no WhatsApp</DialogPrimitive.Title>
-              <DialogPrimitive.Description className="text-xs text-muted-foreground">Como o {cfg?.assistantName ?? "Téo"} atende, qualifica e distribui os novos leads.</DialogPrimitive.Description>
+              <DialogPrimitive.Description className="text-xs text-muted-foreground">Como a {cfg?.assistantName ?? "Zeni"} atende, qualifica e distribui os novos leads.</DialogPrimitive.Description>
             </div>
             {cfg && (
               <label className="flex items-center gap-2 text-xs font-medium">
@@ -218,7 +218,7 @@ export function TeoConfigDrawer({ open, onOpenChange }: { open: boolean; onOpenC
                             {Object.entries(AI_FOCUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                           </Select>
                         </Field>
-                        <Field label="Nome"><Input value={cfg.assistantName} maxLength={30} onChange={(e) => set("assistantName", e.target.value)} placeholder="Téo, Clara…" /></Field>
+                        <Field label="Nome"><Input value={cfg.assistantName} maxLength={30} onChange={(e) => set("assistantName", e.target.value)} placeholder="Zeni, Clara…" /></Field>
                         <Field label="Papel"><Input value={cfg.roleTitle} onChange={(e) => set("roleTitle", e.target.value)} placeholder="Assistente virtual" /></Field>
                         <Field label="Jeito de conversar">
                           <Select value={cfg.tone} onChange={(e) => set("tone", e.target.value as AiConfig["tone"])}>
@@ -241,7 +241,7 @@ export function TeoConfigDrawer({ open, onOpenChange }: { open: boolean; onOpenC
                         <Textarea rows={2} value={cfg.initialGreeting} onChange={(e) => set("initialGreeting", e.target.value)} />
                       </Field>
                       <div className="space-y-2">
-                        <p className="text-xs font-medium text-slate-600">Multimídia</p>
+                        <p className="text-xs font-medium text-foreground/75">Multimídia</p>
                         <ToggleRow icon={<Mic className="h-4 w-4" />} title="Áudio" description="Transcreve os áudios que o cliente enviar." checked={cfg.enableAudioTranscription} onChange={(v) => set("enableAudioTranscription", v)} />
                         <ToggleRow icon={<ImageIcon className="h-4 w-4" />} title="Imagem" description="Interpreta fotos e documentos (holerite, RG, comprovantes)." checked={cfg.enableImageAnalysis} onChange={(v) => set("enableImageAnalysis", v)} />
                         <ToggleRow icon={<Building2 className="h-4 w-4" />} title="Imóveis / Catálogo" description="Recomenda itens cadastrados quando o cliente pedir opções." checked={cfg.enableCatalogSend} onChange={(v) => set("enableCatalogSend", v)} />
@@ -252,7 +252,7 @@ export function TeoConfigDrawer({ open, onOpenChange }: { open: boolean; onOpenC
                   {tab === "roteiro" && (
                     <>
                       <div>
-                        <p className="mb-1.5 text-xs font-medium text-slate-600">Objetivo da qualificação</p>
+                        <p className="mb-1.5 text-xs font-medium text-foreground/75">Objetivo da qualificação</p>
                         <Segmented value={cfg.qualificationObjective === "LOCACAO" ? "LOCACAO" : "COMPRA"} onChange={(v) => set("qualificationObjective", v)} options={[{ value: "COMPRA", label: "Compra" }, { value: "LOCACAO", label: "Locação" }]} />
                       </div>
                       <Field label="Instruções extras para o assistente" hint={`${(cfg.customPromptContext ?? "").length}/500 caracteres`}>
@@ -260,7 +260,7 @@ export function TeoConfigDrawer({ open, onOpenChange }: { open: boolean; onOpenC
                       </Field>
                       <div>
                         <div className="mb-2 flex items-center justify-between">
-                          <p className="text-xs font-medium text-slate-600">Perguntas de qualificação <span className="text-muted-foreground">({cfg.questions.length}/10 · arraste para reordenar)</span></p>
+                          <p className="text-xs font-medium text-foreground/75">Perguntas de qualificação <span className="text-muted-foreground">({cfg.questions.length}/10 · arraste para reordenar)</span></p>
                         </div>
                         <DragDropContext onDragEnd={onDragEnd}>
                           <Droppable droppableId="questions">
@@ -303,7 +303,7 @@ export function TeoConfigDrawer({ open, onOpenChange }: { open: boolean; onOpenC
                   {tab === "respostas" && (
                     <>
                       <div>
-                        <p className="mb-2 text-xs font-medium text-slate-600">Dúvidas frequentes</p>
+                        <p className="mb-2 text-xs font-medium text-foreground/75">Dúvidas frequentes</p>
                         <div className="space-y-2">
                           {cfg.faqs.map((f, i) => (
                             <FaqRow key={i} f={f} onChange={(nf) => set("faqs", cfg.faqs.map((x, k) => (k === i ? nf : x)))} onRemove={() => set("faqs", cfg.faqs.filter((_, k) => k !== i))} />
@@ -311,7 +311,7 @@ export function TeoConfigDrawer({ open, onOpenChange }: { open: boolean; onOpenC
                         </div>
                         <Button variant="outline" size="sm" className="mt-2" onClick={() => set("faqs", [...cfg.faqs, { questionTitle: "Nova pergunta", answerText: "Resposta…", keywords: [], isEnabled: true }])}><Plus /> Adicionar resposta</Button>
                       </div>
-                      <div className="space-y-3 rounded-lg border bg-slate-50/60 p-4">
+                      <div className="space-y-3 rounded-lg border bg-muted/40 p-4">
                         <p className="text-sm font-semibold">Transbordo para o corretor</p>
                         <ul className="space-y-1 text-xs text-muted-foreground">
                           <li>• Se o lead pedir para falar com um corretor/vendedor a qualquer momento, transfere na hora.</li>

@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Command } from "cmdk";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { Building, FileText, LayoutGrid, MessageSquare, Search, User, Sparkles } from "lucide-react";
+import { Building, FileText, MessageSquare, Search, User, Sparkles } from "lucide-react";
 import { api, qs } from "@/lib/client";
 import { formatPhone } from "@/lib/utils";
 import { useUi } from "@/stores/ui";
 import { useMe } from "@/hooks/use-me";
+import { ALL_NAV } from "./nav-config";
 
 type Result = {
   contacts: { id: string; name: string | null; phone: string; stage: { name: string } | null }[];
@@ -16,23 +17,6 @@ type Result = {
   catalog: { id: string; title: string; code: string }[];
   templates: { id: string; name: string }[];
 };
-
-const PAGES = [
-  { href: "/atendimento", label: "Atendimento", module: "atendimento" },
-  { href: "/contatos", label: "Contatos", module: "contatos" },
-  { href: "/funis", label: "Funis", module: "funis" },
-  { href: "/imoveis", label: "Imóveis", module: "imoveis" },
-  { href: "/agenda", label: "Agenda", module: "agenda" },
-  { href: "/teo", label: "Téo ✨ — Copiloto", module: "teo" },
-  { href: "/teo/automacoes", label: "Téo ✨ — Automações", module: "teo" },
-  { href: "/relatorios", label: "Relatórios", module: "relatorios" },
-  { href: "/campanhas", label: "Campanhas", module: "campanhas" },
-  { href: "/campanhas/modelos", label: "Modelos de mensagem", module: "campanhas" },
-  { href: "/site-seo", label: "Site & SEO", module: "site-seo" },
-  { href: "/integracoes", label: "Integrações", module: "integracoes" },
-  { href: "/equipe", label: "Equipe", module: "equipe" },
-  { href: "/getting-started", label: "Onde começar", module: null },
-];
 
 export function CommandPalette() {
   const open = useUi((s) => s.commandOpen);
@@ -54,19 +38,19 @@ export function CommandPalette() {
     setOpen(false);
     router.push(href);
   };
-  const item = "flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm aria-selected:bg-muted [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-muted-foreground";
+  const item = "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm aria-selected:bg-primary/10 aria-selected:text-foreground [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-muted-foreground";
   const group = "px-1 py-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:text-muted-foreground";
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-900/40" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-[12vh] z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-xl border bg-white shadow-2xl">
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/55 backdrop-blur-sm animate-fade-in" />
+        <DialogPrimitive.Content className="fixed left-1/2 top-[12vh] z-50 w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-2xl border bg-popover shadow-2xl animate-rise">
           <DialogPrimitive.Title className="sr-only">Buscar no CRM</DialogPrimitive.Title>
           <Command shouldFilter={false} loop>
             <div className="flex items-center gap-2 border-b px-4">
               <Search className="h-4 w-4 text-muted-foreground" />
-              <Command.Input value={q} onValueChange={setQ} placeholder="Buscar contatos, conversas, imóveis, páginas…" className="h-12 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+              <Command.Input value={q} onValueChange={setQ} placeholder="Buscar contatos, conversas, imóveis, telas… ou pergunte algo" className="h-14 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
             </div>
             <Command.List className="max-h-[60vh] overflow-y-auto p-1 scrollbar-thin">
               <Command.Empty className="px-4 py-8 text-center text-xs text-muted-foreground">Nada encontrado.</Command.Empty>
@@ -109,16 +93,17 @@ export function CommandPalette() {
                 </Command.Group>
               )}
               {q.length > 2 && me?.modules.includes("teo") && (
-                <Command.Group heading="Perguntar ao Téo" className={group}>
-                  <Command.Item value="ask-teo" onSelect={() => go(`/teo?q=${encodeURIComponent(q)}`)} className={item}>
+                <Command.Group heading={`Perguntar à ${me?.assistantName ?? "Zeni"}`} className={group}>
+                  <Command.Item value="ask-teo" onSelect={() => go(`/ia?q=${encodeURIComponent(q)}`)} className={item}>
                     <Sparkles /> Perguntar: “{q}”
                   </Command.Item>
                 </Command.Group>
               )}
               <Command.Group heading="Ir para" className={group}>
-                {PAGES.filter((p) => (!p.module || me?.modules.includes(p.module)) && (!q || p.label.toLowerCase().includes(q.toLowerCase()))).map((p) => (
+                {ALL_NAV.filter((p) => (!p.module || me?.modules.includes(p.module)) && (!q || `${p.label} ${p.description}`.toLowerCase().includes(q.toLowerCase()))).map((p) => (
                   <Command.Item key={p.href} value={p.href} onSelect={() => go(p.href)} className={item}>
-                    <LayoutGrid /> {p.label}
+                    <p.icon /> <span className="font-semibold">{p.ai ? `${me?.assistantName ?? "Zeni"} · ${p.label}` : p.label}</span>
+                    <span className="hidden flex-1 truncate text-xs text-muted-foreground sm:block">{p.description}</span>
                   </Command.Item>
                 ))}
               </Command.Group>

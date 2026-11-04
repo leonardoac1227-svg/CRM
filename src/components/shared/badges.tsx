@@ -30,7 +30,7 @@ export function StageDot({ color }: { color: string }) {
   return <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />;
 }
 
-export function AiBadge({ name = "Téo", className }: { name?: string; className?: string }) {
+export function AiBadge({ name = "Zeni", className }: { name?: string; className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 px-2 py-0.5 text-[10px] font-semibold text-secondary ring-1 ring-inset ring-secondary/20", className)}>
       <Sparkles className="h-3 w-3" /> {name}
@@ -40,10 +40,10 @@ export function AiBadge({ name = "Téo", className }: { name?: string; className
 
 export function TagChip({ tag, onRemove }: { tag: string; onRemove?: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600">
+    <span className="inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-foreground/75">
       #{tag}
       {onRemove && (
-        <button onClick={onRemove} className="text-slate-400 hover:text-slate-700" aria-label={`Remover ${tag}`}>
+        <button onClick={onRemove} className="text-muted-foreground/80 hover:text-foreground/90" aria-label={`Remover ${tag}`}>
           ×
         </button>
       )}

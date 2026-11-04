@@ -110,6 +110,37 @@ export function hexToRgbTriplet(hex: string): string {
   return `${(n >> 16) & 255} ${(n >> 8) & 255} ${n & 255}`;
 }
 
+function hexToRgb(hex: string): [number, number, number] {
+  const t = hexToRgbTriplet(hex).split(" ").map(Number);
+  return [t[0], t[1], t[2]];
+}
+
+function luminance([r, g, b]: [number, number, number]) {
+  const f = (v: number) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+const shade = ([r, g, b]: [number, number, number], k: number) => [r, g, b].map((v) => Math.round(v * k)).join(" ");
+const fgFor = (rgb: number[]) => (luminance(rgb as [number, number, number]) > 0.4 ? "10 14 23" : "255 255 255");
+
+/**
+ * CSS das cores White-Label do tenant para os dois temas. No claro a cor é escurecida
+ * para manter contraste de texto sobre fundo claro; no escuro é usada como veio.
+ */
+export function brandThemeCss(primaryHex: string, secondaryHex: string): string {
+  const p = hexToRgb(primaryHex);
+  const s = hexToRgb(secondaryHex);
+  const pLight = shade(p, luminance(p) > 0.25 ? 0.68 : 1);
+  const sLight = shade(s, luminance(s) > 0.3 ? 0.78 : 1);
+  return (
+    `:root{--brand:${p.join(" ")};--gold:${s.join(" ")};--primary:${pLight};--secondary:${sLight};--primary-foreground:${fgFor(pLight.split(" ").map(Number))};--secondary-foreground:${fgFor(sLight.split(" ").map(Number))};}` +
+    `.dark{--primary:${p.join(" ")};--secondary:${s.join(" ")};--primary-foreground:${fgFor(p)};--secondary-foreground:${fgFor(s)};}`
+  );
+}
+
 export function groupBy<T, K extends string | number>(arr: T[], key: (t: T) => K): Record<K, T[]> {
   return arr.reduce((acc, item) => {
     const k = key(item);

@@ -38,7 +38,7 @@ export const ORIGIN_BADGE: Record<string, string> = {
   PORTAIS: "bg-orange-50 text-orange-700 ring-orange-200",
   OLX: "bg-fuchsia-50 text-fuchsia-700 ring-fuchsia-200",
   SITE_DIRETO: "bg-sky-50 text-sky-700 ring-sky-200",
-  MANUAL: "bg-slate-100 text-slate-600 ring-slate-200",
+  MANUAL: "bg-muted text-foreground/75 ring-border",
 };
 
 export const ORIGINS = Object.keys(ORIGIN_LABELS);
@@ -97,7 +97,7 @@ export const TEMPLATE_VARIABLES: { key: string; label: string; sample: string }[
 export const CONVERSATION_STATUS_LABELS: Record<string, string> = {
   UNREAD: "Não lida",
   NEEDS_REPLY: "A responder",
-  WITH_AI: "Com o Téo",
+  WITH_AI: "Com a Zeni",
   OPEN: "Em atendimento",
   CLOSED: "Encerrada",
 };
@@ -125,7 +125,7 @@ export const CATALOG_STATUS_LABELS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// Téo — presets, campos e automações
+// Zeni — presets, campos e automações
 // ---------------------------------------------------------------------------
 
 export const AI_PRESET_LABELS: Record<string, string> = {
@@ -261,7 +261,7 @@ export const DEFAULT_FAQS: { questionTitle: string; answerText: string; keywords
 ];
 
 export const AUTOMATION_DEFS: { type: string; name: string; description: string }[] = [
-  { type: "WHATSAPP_QUALIFICATION", name: "Atendimento no WhatsApp", description: "O Téo responde novos leads na hora, faz as perguntas de qualificação e passa para o corretor." },
+  { type: "WHATSAPP_QUALIFICATION", name: "Atendimento no WhatsApp", description: "A Zeni responde novos leads na hora, faz as perguntas de qualificação e passa para o corretor." },
   { type: "VISIT_REMINDER", name: "Lembrete de visita", description: "Envia lembrete ao cliente e ao corretor antes de cada visita agendada." },
   { type: "BROKER_FOLLOWUP", name: "Acompanhamento do corretor", description: "Cobra o corretor quando um lead fica sem resposta além do tempo combinado." },
   { type: "POST_VISIT", name: "Pós-visita", description: "Pergunta ao cliente o que achou do imóvel no dia seguinte à visita." },
@@ -271,7 +271,7 @@ export const AUTOMATION_DEFS: { type: string; name: string; description: string 
 
 export const ONBOARDING_STEPS = [
   { key: "whatsapp", title: "Conectar WhatsApp", description: "Conecte o número oficial da empresa ou o WhatsApp dos corretores.", href: "/integracoes" },
-  { key: "catalog", title: "Cadastrar o primeiro imóvel/serviço", description: "O Téo usa o catálogo para recomendar opções aos clientes.", href: "/imoveis" },
+  { key: "catalog", title: "Cadastrar o primeiro imóvel/serviço", description: "A Zeni usa o catálogo para recomendar opções aos clientes.", href: "/imoveis" },
   { key: "team", title: "Convidar a equipe", description: "Adicione gestores, assistentes e corretores e monte a roleta.", href: "/equipe" },
   { key: "contact", title: "Criar um contato", description: "Cadastre ou importe sua base de clientes.", href: "/contatos" },
   { key: "seoScript", title: "Configurar o site (Script SEO)", description: "Instale o script de rastreio para saber qual página do Google gerou cada lead.", href: "/site-seo" },
@@ -296,7 +296,7 @@ export const MODULE_LABELS: Record<ModuleKey, string> = {
   funis: "Funis",
   imoveis: "Imóveis",
   agenda: "Agenda",
-  teo: "Téo",
+  teo: "Zeni",
   relatorios: "Relatórios",
   campanhas: "Campanhas",
   "site-seo": "Site & SEO",

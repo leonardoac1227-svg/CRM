@@ -1,5 +1,5 @@
 // Cliente LLM agnóstico de provedor (OpenAI ou Gemini). Sem chave configurada, llmAvailable() = false
-// e o Téo opera com o motor determinístico embutido.
+// e a Zeni opera com o motor determinístico embutido.
 import OpenAI from "openai";
 
 export type ChatMsg = { role: "system" | "user" | "assistant"; content: string };

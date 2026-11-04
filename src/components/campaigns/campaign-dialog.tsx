@@ -19,7 +19,7 @@ export type Filters = { pipelineId?: string | null; stageIds: string[]; assigned
 type Preview = { count: number; estimatedCost: number; category: string; sample: { id: string; name: string | null; phone: string; city: string | null; state: string | null; neighborhood: string | null; stage: { name: string } | null; assignedTo: { name: string } | null }[] };
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" onClick={onClick} className={cn("rounded-full border px-3 py-1 text-xs font-medium transition-colors", active ? "border-primary bg-primary text-white" : "bg-white text-slate-600 hover:border-primary/40")}>{children}</button>;
+  return <button type="button" onClick={onClick} className={cn("rounded-full border px-3 py-1 text-xs font-medium transition-colors", active ? "border-primary bg-primary text-primary-foreground" : "bg-card text-foreground/75 hover:border-primary/40")}>{children}</button>;
 }
 
 function RecipientsDialog({ open, onOpenChange, filters, onChange, templateId }: { open: boolean; onOpenChange: (v: boolean) => void; filters: Filters; onChange: (f: Filters) => void; templateId: string }) {
@@ -56,7 +56,7 @@ function RecipientsDialog({ open, onOpenChange, filters, onChange, templateId }:
             ) : null}
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-xs font-semibold text-slate-600">Funil e etapa</p>
+                <p className="text-xs font-semibold text-foreground/75">Funil e etapa</p>
                 <Select value={pipeline?.id ?? ""} onChange={(e) => setF({ ...f, pipelineId: e.target.value, stageIds: [] })} className="h-8 w-auto text-xs">
                   {pipelines?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </Select>
@@ -68,7 +68,7 @@ function RecipientsDialog({ open, onOpenChange, filters, onChange, templateId }:
             </div>
             {!me?.seesOnlyOwn && (
               <div>
-                <p className="mb-2 text-xs font-semibold text-slate-600">Corretor responsável</p>
+                <p className="mb-2 text-xs font-semibold text-foreground/75">Corretor responsável</p>
                 <div className="flex flex-wrap gap-2">
                   {team?.filter((u) => u.isActive && u.role !== "ASSISTANT").map((u) => <Chip key={u.id} active={f.assignedToIds.includes(u.id)} onClick={() => toggle("assignedToIds", u.id)}>{u.name}</Chip>)}
                   <Chip active={f.assignedToIds.includes("none")} onClick={() => toggle("assignedToIds", "none")}>Sem responsável</Chip>
@@ -76,20 +76,20 @@ function RecipientsDialog({ open, onOpenChange, filters, onChange, templateId }:
               </div>
             )}
             <div>
-              <p className="mb-2 text-xs font-semibold text-slate-600">Origem</p>
+              <p className="mb-2 text-xs font-semibold text-foreground/75">Origem</p>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(ORIGIN_SHORT).map(([k, v]) => <Chip key={k} active={f.origins.includes(k)} onClick={() => toggle("origins", k)}>{v}</Chip>)}
               </div>
             </div>
             {!!tagsResp?.tags.length && (
               <div>
-                <p className="mb-2 text-xs font-semibold text-slate-600">Etiquetas</p>
+                <p className="mb-2 text-xs font-semibold text-foreground/75">Etiquetas</p>
                 <div className="flex flex-wrap gap-2">{tagsResp.tags.map((t) => <Chip key={t} active={f.tags.includes(t)} onClick={() => toggle("tags", t)}>#{t}</Chip>)}</div>
               </div>
             )}
           </div>
           <div className="rounded-lg border">
-            <p className="border-b px-3 py-2 text-xs font-semibold text-slate-600">Prévia dos destinatários {isFetching && "…"}</p>
+            <p className="border-b px-3 py-2 text-xs font-semibold text-foreground/75">Prévia dos destinatários {isFetching && "…"}</p>
             <div className="max-h-[50vh] divide-y overflow-y-auto scrollbar-thin">
               {prev?.sample.map((c) => (
                 <div key={c.id} className="px-3 py-2">
@@ -206,7 +206,7 @@ export function CampaignDialog({ open, onOpenChange, initialFilters, onCreated }
                 <Switch checked={ab} onCheckedChange={setAb} />
               </label>
               <div className="rounded-lg border p-3">
-                <p className="mb-2 text-xs font-semibold text-slate-600">Agendamento</p>
+                <p className="mb-2 text-xs font-semibold text-foreground/75">Agendamento</p>
                 <div className="flex flex-wrap gap-2">
                   <Chip active={schedule === "NOW"} onClick={() => setSchedule("NOW")}><Send className="mr-1 inline h-3 w-3" /> Enviar agora</Chip>
                   <Chip active={schedule === "SCHEDULED"} onClick={() => setSchedule("SCHEDULED")}><Calendar className="mr-1 inline h-3 w-3" /> Agendar data/hora</Chip>
@@ -222,13 +222,13 @@ export function CampaignDialog({ open, onOpenChange, initialFilters, onCreated }
               <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-secondary/30 bg-gradient-to-r from-primary/[0.03] to-secondary/[0.06] px-3 py-3">
                 <Checkbox checked={routeAi} onChange={(e) => setRouteAi(e.target.checked)} className="mt-0.5" />
                 <span>
-                  <span className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-secondary" /> Entregar ao {me?.assistantName ?? "Téo"} quem responder</span>
+                  <span className="flex items-center gap-1.5 text-sm font-medium"><Sparkles className="h-4 w-4 text-secondary" /> Entregar à {me?.assistantName ?? "Zeni"} quem responder</span>
                   <span className="block text-xs text-muted-foreground">Quando o cliente responder (ex.: “Eu quero!”), a IA assume a conversa e continua a qualificação.</span>
                 </span>
               </label>
               <div className="flex items-center justify-between rounded-lg border p-3">
                 <div>
-                  <p className="text-xs font-semibold text-slate-600">Destinatários</p>
+                  <p className="text-xs font-semibold text-foreground/75">Destinatários</p>
                   <p className="text-sm">{filterSummary}</p>
                 </div>
                 <Button size="sm" variant="outline" onClick={() => setRecOpen(true)}><Users /> Selecionar destinatários</Button>

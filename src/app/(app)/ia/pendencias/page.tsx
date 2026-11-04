@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, CheckCircle2, ChevronRight } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronRight, ListChecks } from "lucide-react";
 import { api } from "@/lib/client";
 import { Card, PageHeader } from "@/components/ui/misc";
 
@@ -10,8 +10,8 @@ type Pend = { total: number; items: { key: string; label: string; count: number;
 export default function Pendencias() {
   const { data } = useQuery({ queryKey: ["teo-pendencias"], queryFn: () => api<Pend>("/api/teo/pendencias") });
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <PageHeader title="Pendências" description="O que precisa da sua atenção agora, segundo o Téo." />
+    <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Inteligência" icon={<ListChecks />} title="Pendências" description="O que precisa da sua atenção agora, segundo a Zeni." />
       <Card className="divide-y">
         {data?.items.map((i) => (
           <Link key={i.key} href={i.href} className="flex items-center gap-4 px-5 py-4 hover:bg-muted/50">

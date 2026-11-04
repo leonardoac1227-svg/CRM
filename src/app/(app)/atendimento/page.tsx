@@ -27,6 +27,9 @@ function Atendimento() {
   const [showClosed, setShowClosed] = useState(false);
   const [selected, setSelected] = useState<string | null>(sp.get("conversa"));
   const [newOpen, setNewOpen] = useState(false);
+  useEffect(() => {
+    if (sp.get("nova")) setNewOpen(true);
+  }, [sp]);
   const [simOpen, setSimOpen] = useState(false);
 
   useEffect(() => {
@@ -56,8 +59,8 @@ function Atendimento() {
     setSelected(id);
     router.replace(`/atendimento?conversa=${id}`, { scroll: false });
   };
-  const assistant = me?.assistantName ?? "Téo";
-  const brand = me?.agency.name ?? "Téo CRM";
+  const assistant = me?.assistantName ?? "Zeni";
+  const brand = me?.agency.name ?? "Ápice";
   const company = channels?.find((c) => c.accountType === "COMPANY") ?? channels?.[0];
 
   return (
@@ -90,27 +93,32 @@ function Atendimento() {
         <ChatWindow key={selected} id={selected} team={team ?? []} assistantName={assistant} onBack={() => { setSelected(null); router.replace("/atendimento"); }} />
       ) : (
         <div className="hidden flex-1 flex-col items-center justify-center bg-chat p-8 md:flex">
-          <RobotIllustration className="h-40 w-48" />
-          <h2 className="mt-4 text-xl font-semibold">Atendimento {brand}</h2>
-          <p className="mt-1 max-w-md text-center text-sm text-muted-foreground">
-            {me?.seesOnlyOwn ? "Aqui ficam as suas conversas do WhatsApp." : "Todas as conversas dos números da empresa e dos corretores em um só lugar."} O {assistant} responde os novos leads na hora.
+          <div className="relative animate-rise">
+            <div className="absolute inset-0 -z-0 rounded-full bg-primary/20 blur-3xl" aria-hidden="true" />
+            <RobotIllustration className="relative h-40 w-48" />
+          </div>
+          <p className="eyebrow mt-4">{brand}</p>
+          <h2 className="display mt-1 text-3xl">Central de atendimento</h2>
+          <p className="mt-2 max-w-md text-center text-sm text-muted-foreground">
+            {me?.seesOnlyOwn ? "Aqui ficam as suas conversas do WhatsApp." : "Todas as conversas dos números da empresa e dos corretores em um só lugar."} A {assistant} responde os novos leads na hora.
           </p>
-          <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[
-              { icon: MessageSquarePlus, label: "Nova conversa", onClick: () => setNewOpen(true) },
-              { icon: Inbox, label: "A responder", badge: data?.counts.reply, onClick: () => setTab("reply") },
-              { icon: Zap, label: "Mensagens rápidas", onClick: () => (me?.demoMode && company ? setSimOpen(true) : router.push("/atendimento?aba=responder")) },
-              { icon: Users, label: "Contatos", onClick: () => router.push("/contatos") },
-            ].map((a) => (
-              <button key={a.label} onClick={a.onClick} className="relative flex h-28 w-32 flex-col items-center justify-center gap-2 rounded-xl border bg-white p-3 text-center text-xs font-medium shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary"><a.icon className="h-5 w-5" /></span>
-                {a.label}
-                {!!a.badge && <span className="absolute right-2 top-2 rounded-full bg-primary px-1.5 text-[10px] font-semibold text-white">{a.badge}</span>}
+              { icon: MessageSquarePlus, label: "Nova conversa", hint: "Pelo WhatsApp", onClick: () => setNewOpen(true) },
+              { icon: Inbox, label: "A responder", hint: "Fila de espera", badge: data?.counts.reply, onClick: () => setTab("reply") },
+              { icon: Zap, label: `Com a ${assistant}`, hint: "Qualificando", badge: data?.counts.ai, onClick: () => setTab("ai") },
+              { icon: Users, label: "Contatos", hint: "Ficha 360º", onClick: () => router.push("/contatos") },
+            ].map((a, i) => (
+              <button key={a.label} onClick={a.onClick} style={{ animationDelay: `${80 + i * 50}ms` }} className="card-hover relative flex h-32 w-36 animate-rise flex-col items-center justify-center gap-1.5 rounded-2xl border bg-card p-3 text-center">
+                <span className="mb-1 flex h-11 w-11 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary dark:text-secondary"><a.icon className="h-5 w-5" /></span>
+                <span className="text-[13px] font-bold">{a.label}</span>
+                <span className="text-[11px] text-muted-foreground">{a.hint}</span>
+                {!!a.badge && <span className="absolute right-2.5 top-2.5 rounded-full bg-primary px-1.5 text-[10px] font-extrabold text-primary-foreground">{a.badge}</span>}
               </button>
             ))}
           </div>
           {me?.demoMode && company && (
-            <button onClick={() => setSimOpen(true)} className="mt-6 text-xs font-medium text-primary hover:underline">🧪 Simular um lead chegando pelo WhatsApp</button>
+            <button onClick={() => setSimOpen(true)} className="mt-7 flex items-center gap-2 rounded-full border border-dashed border-primary/50 px-4 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary/10 dark:text-secondary">🧪 Simular um lead chegando pelo WhatsApp</button>
           )}
         </div>
       )}

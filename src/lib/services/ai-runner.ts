@@ -1,4 +1,4 @@
-// Orquestra o Téo numa conversa real: carrega config, roda o motor, envia respostas,
+// Orquestra a Zeni numa conversa real: carrega config, roda o motor, envia respostas,
 // grava dados no contato e faz o transbordo (roleta / gestor / usuário fixo).
 import type { AiAssistantConfig, AiFaq, AiQuestion, Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
@@ -143,7 +143,7 @@ export async function completeQualification(conversationId: string, reason: "COM
 
   let summary = buildSummary(conv.contact, state, cfg.questions, cfg.assistantName);
   if (llmAvailable()) {
-    const transcript = conv.messages.map((m) => `${m.senderType === "CONTACT" ? "Cliente" : "Téo"}: ${m.content}`).join("\n");
+    const transcript = conv.messages.map((m) => `${m.senderType === "CONTACT" ? "Cliente" : "Zeni"}: ${m.content}`).join("\n");
     summary = await enrichSummary(summary, transcript);
   }
 
@@ -154,7 +154,7 @@ export async function completeQualification(conversationId: string, reason: "COM
       stageData.stage = { connect: { id: stage.id } };
       stageData.pipeline = { connect: { id: stage.pipelineId } };
       stageData.stageChangedAt = new Date();
-      await logActivity({ workspaceId: conv.workspaceId, contactId: conv.contactId, type: "STAGE_CHANGE", title: `Etapa alterada para ${stage.name} pelo ${cfg.assistantName}` });
+      await logActivity({ workspaceId: conv.workspaceId, contactId: conv.contactId, type: "STAGE_CHANGE", title: `Etapa alterada para ${stage.name} pela ${cfg.assistantName}` });
     }
   }
   await prisma.contact.update({ where: { id: conv.contactId }, data: { aiQualificationSummary: summary, aiQualifiedAt: new Date(), ...stageData } });

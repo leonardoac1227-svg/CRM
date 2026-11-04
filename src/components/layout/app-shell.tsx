@@ -7,20 +7,21 @@ import { useMe } from "@/hooks/use-me";
 import { useRealtime } from "@/hooks/use-realtime";
 import { useUi } from "@/stores/ui";
 import { CommandPalette } from "./command-palette";
+import { Sidebar } from "./sidebar";
 import { ContactDrawer } from "@/components/contacts/contact-drawer";
 
 const ROUTE_MODULE: [string, string][] = [
   ["/atendimento", "atendimento"], ["/contatos", "contatos"], ["/funis", "funis"], ["/imoveis", "imoveis"], ["/agenda", "agenda"],
-  ["/teo", "teo"], ["/relatorios", "relatorios"], ["/campanhas", "campanhas"], ["/site-seo", "site-seo"], ["/integracoes", "integracoes"], ["/equipe", "equipe"],
+  ["/ia", "teo"], ["/relatorios", "relatorios"], ["/campanhas", "campanhas"], ["/site-seo", "site-seo"], ["/integracoes", "integracoes"], ["/equipe", "equipe"],
 ];
 
 function NoAccess() {
   return (
     <div className="flex min-h-app flex-col items-center justify-center p-8 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500"><Lock className="h-5 w-5" /></span>
+      <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10 text-primary dark:text-secondary"><Lock className="h-6 w-6" /></span>
       <p className="mt-3 font-semibold">Seu perfil não tem acesso a este módulo</p>
       <p className="mt-1 text-sm text-muted-foreground">Peça ao gestor para liberar o acesso em Equipe.</p>
-      <Link href="/atendimento" className="mt-4 text-sm font-medium text-primary hover:underline">Ir para o Atendimento</Link>
+      <Link href="/central" className="mt-4 text-sm font-bold text-primary hover:underline dark:text-secondary">Voltar para a Central</Link>
     </div>
   );
 }
@@ -53,10 +54,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [setCommandOpen]);
 
   return (
-    <>
-      {children}
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex min-w-0 flex-1 flex-col">{children}</div>
       <CommandPalette />
       <ContactDrawer contactId={contactId} onClose={() => openContact(null)} />
-    </>
+    </div>
   );
 }

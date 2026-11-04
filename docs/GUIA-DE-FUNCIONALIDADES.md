@@ -1,7 +1,7 @@
-# Guia de Funcionalidades — Téo CRM
+# Guia de Funcionalidades — Ápice
 
-> **Sobre este guia.** O Téo CRM ainda é um **projeto de demonstração**: os dados vêm do seed
-> (imobiliária fictícia *Horizonte Imóveis*, agência fictícia *Rank Alto SEO*) e as integrações
+> **Sobre este guia.** O Ápice ainda é um **projeto de demonstração**: os dados vêm do seed
+> (imobiliária fictícia *Horizonte Imóveis*, agência fictícia *CRAP Digital*) e as integrações
 > externas rodam em **modo simulado**. Este documento descreve **o comportamento esperado** de
 > cada funcionalidade — o que o sistema foi construído para fazer — e, no fim, o que já funciona
 > de ponta a ponta na demo e o que depende de credenciais reais.
@@ -15,7 +15,7 @@
 3. [Navegação e recursos globais](#3-navegação-e-recursos-globais)
 4. [Onde começar (onboarding)](#4-onde-começar-onboarding)
 5. [Atendimento (inbox omnichannel)](#5-atendimento-inbox-omnichannel)
-6. [Téo ✨ — o assistente de IA](#6-téo---o-assistente-de-ia)
+6. [Zeni ✨ — o assistente de IA](#6-téo---o-assistente-de-ia)
 7. [Contatos](#7-contatos)
 8. [Funis (Análise e Kanban)](#8-funis-análise-e-kanban)
 9. [Campanhas, Modelos e Formulários](#9-campanhas-modelos-e-formulários)
@@ -35,7 +35,7 @@
 
 ## 1. Visão geral
 
-O Téo CRM é um **CRM SaaS multi-tenant e white-label** pensado para uma **agência de SEO** que
+O Ápice é um **CRM SaaS multi-tenant e white-label** pensado para uma **agência de SEO** que
 revende o sistema para seus **clientes** (imobiliárias, clínicas, prestadores de serviço). A
 hierarquia é:
 
@@ -50,7 +50,7 @@ Os quatro pilares do produto:
 | Pilar | Em uma frase |
 | --- | --- |
 | **Atendimento no WhatsApp** | Todas as conversas (número oficial da empresa + WhatsApp de cada corretor) numa só caixa de entrada. |
-| **Téo ✨ (IA)** | Responde o lead na hora, faz as perguntas de qualificação, gera um dossiê e entrega ao corretor certo. |
+| **Zeni ✨ (IA)** | Responde o lead na hora, faz as perguntas de qualificação, gera um dossiê e entrega ao corretor certo. |
 | **Funil e campanhas** | Kanban de vendas, análises por etapa/corretor e disparos oficiais da Meta com custo calculado. |
 | **ROI do SEO** | Um script no site descobre qual página do Google gerou cada conversa — e quanto ela vendeu. |
 
@@ -67,11 +67,11 @@ São 5 perfis. Toda rota da API verifica o perfil e o módulo antes de responder
 | --- | --- |
 | **Super Admin** | Acesso total à plataforma. |
 | **Agência SEO** | Acesso total e **alterna entre os workspaces** (clientes) da agência; edita a marca white-label. |
-| **Gestor** | Acesso total ao workspace: vê todos os leads, todas as conversas (inclusive dos números dos corretores), configura o Téo, a equipe e as integrações. |
+| **Gestor** | Acesso total ao workspace: vê todos os leads, todas as conversas (inclusive dos números dos corretores), configura a Zeni, a equipe e as integrações. |
 | **Assistente** | Acesso **por módulo**, ligado/desligado pelo gestor em *Equipe → Permissões*. Pode ou não “ver leads de toda a equipe”. |
-| **Corretor** | Vê **apenas os próprios** leads, conversas (atribuídas a ele ou do número dele) e tarefas. Módulos: Atendimento, Contatos, Funis, Imóveis, Agenda e Téo. |
+| **Corretor** | Vê **apenas os próprios** leads, conversas (atribuídas a ele ou do número dele) e tarefas. Módulos: Atendimento, Contatos, Funis, Imóveis, Agenda e Zeni. |
 
-Permissões padrão do Assistente: Atendimento, Contatos, Funis, Imóveis, Agenda, Téo e Campanhas
+Permissões padrão do Assistente: Atendimento, Contatos, Funis, Imóveis, Agenda, Zeni e Campanhas
 **ligados**; Relatórios, Site & SEO, Integrações e Equipe **desligados**; “ver todos os leads” ligado.
 
 Ao abrir um módulo sem permissão, a tela mostra *“Seu perfil não tem acesso a este módulo — peça
@@ -84,22 +84,41 @@ desativar membros, editar a roleta.
 
 ## 3. Navegação e recursos globais
 
-**Barra superior (topbar)**
-- Logo e cores da agência (white-label) e nome do assistente (ex.: “Téo ✨”).
-- Menu com todos os módulos permitidos ao perfil (os extras ficam em **Mais**).
-- **Seletor de cliente** (perfil Agência): troca o workspace ativo.
-- **Sino de notificações** com contador, lista das 30 mais recentes e “Marcar todas como lidas”.
-- **Menu do avatar**: perfil, sair, “Ver onde começar”, “Fazer um passeio pelo sistema” e, no
-  modo demonstração, **“Testar visão como…”** — troca de perfil sem senha.
+**Menu lateral (sidebar)**
+- Sempre visível no computador, com **todos os módulos à mostra**, agrupados em *Início*, *Vender*,
+  *Crescer*, *Zeni · IA* e *Configurar* (só aparecem os módulos liberados para o perfil).
+- **Contadores ao vivo** ao lado de cada item: conversas a responder, tarefas atrasadas, leads sem
+  responsável, números que pedem atenção, modelos rejeitados e pendências da Zeni.
+- Cartão da empresa (workspace) ativa, atalho de busca, status “Zeni está ativa” e o usuário logado.
+- Pode ser **recolhido** para uma coluna de ícones (com dicas ao passar o mouse); no celular vira uma
+  gaveta aberta pelo botão de menu.
+
+**Barra superior**
+- Mostra onde você está (grupo › tela), a busca, **“Perguntar à Zeni”** e o botão **Criar**
+  (nova conversa, contato, tarefa, imóvel ou campanha a partir de qualquer tela).
+- **Tema claro/escuro** (escuro é o padrão; a escolha fica salva no navegador).
+- **Sino de notificações**, ajuda (primeiros passos e tour) e **menu do avatar**: troca de cliente
+  (perfil Agência), troca de tema, sair e, no modo demonstração, **“Testar visão como…”**.
+
+**Central (`/central`) — a tela inicial**
+- Saudação com o resumo das pendências, campo para **perguntar à Zeni** com atalhos prontos e
+  indicadores do dia (a responder, com a Zeni, leads e vendas da semana, visitas).
+- **“Tudo o que o Ápice faz”**: um cartão por módulo com o que ele faz e um dado ao vivo.
+- Painéis: quem está esperando resposta, o funil padrão, a agenda de hoje e o que a Zeni sinalizou.
 
 **Busca global — `Ctrl+K`**
 - Pesquisa contatos, conversas, imóveis (por código) e tarefas ao mesmo tempo.
-- Atalhos para as páginas (Téo — Copiloto, Téo — Automações, Modelos, Site & SEO, Onde começar…).
-- **“Perguntar ao Téo”**: envia o texto digitado direto para o copiloto.
+- Atalhos para todas as telas, com a descrição de cada uma.
+- **“Perguntar à Zeni”**: envia o texto digitado direto para o copiloto.
 
 **Tempo real**
 - Socket.io avisa a interface sobre mensagens novas, mudanças de conversa e notificações; as
   listas também se atualizam periodicamente.
+
+**Identidade visual**
+- Marca **Ápice by CRAP Digital**: fundo preto-azulado, dourado como cor de destaque, títulos em
+  Oswald (caixa alta) e textos em Manrope. O dourado é o padrão do white-label: cada agência pode
+  trocar as cores em *Site & SEO → Configuração White-Label*.
 
 **Login**
 - E-mail e senha com sessão JWT em cookie httpOnly. A tela de login lista as contas de
@@ -118,7 +137,7 @@ Página `/getting-started`:
   4. Criar um contato → *Contatos*
   5. Configurar o site (Script SEO) → *Site & SEO*
 - **Vídeo de boas-vindas** (espaço reservado).
-- **Passeio guiado** (“tour”) em slides que apresenta Atendimento, Téo, Funis, Campanhas e Site & SEO.
+- **Passeio guiado** (“tour”) em slides que apresenta Atendimento, Zeni, Funis, Campanhas e Site & SEO.
 
 ---
 
@@ -127,21 +146,21 @@ Página `/getting-started`:
 Página `/atendimento`. É a tela principal do dia a dia.
 
 ### Lista de conversas
-- Abas: **Todas**, **Não lidos**, **A responder** e **Com o Téo** (com contadores).
+- Abas: **Todas**, **Não lidos**, **A responder** e **Com a Zeni** (com contadores).
 - Busca por nome, telefone ou texto da mensagem.
 - Filtros: número de WhatsApp (empresa ou corretor), responsável, “incluir conversas encerradas”.
 - Indicadores por conversa: origem do lead, etapa, não lidas, “⏳ 24h” quando a janela da Meta
-  está fechada, e o selo do Téo quando a IA está conduzindo.
+  está fechada, e o selo da Zeni quando a IA está conduzindo.
 
 ### Janela de chat
 - Cabeçalho com nome, etapa do funil e responsável; **Transferir para** outro usuário (gestor).
-- **Ligar/desligar o Téo** na conversa. Responder manualmente **desliga a IA** automaticamente.
-- **Qualificar com IA** (entrega a conversa ao Téo) e **Finalizar qualificação e distribuir**
+- **Ligar/desligar a Zeni** na conversa. Responder manualmente **desliga a IA** automaticamente.
+- **Qualificar com IA** (entrega a conversa à Zeni) e **Finalizar qualificação e distribuir**
   (gera o dossiê e manda para a roleta na hora).
 - **Encerrar / Reabrir** conversa.
 - Painel lateral **Ficha do contato** (renda, tempo de carteira, imóvel no nome, valor do
   negócio, data de criação) com link para a ficha completa.
-- Bolhas diferenciam cliente, usuário, Téo e mensagens de sistema; mostram status de envio
+- Bolhas diferenciam cliente, usuário, Zeni e mensagens de sistema; mostram status de envio
   (enviado, entregue, lido, falhou) e marcam os **modelos aprovados da Meta**.
 
 ### Composer (campo de mensagem)
@@ -165,18 +184,18 @@ Página `/atendimento`. É a tela principal do dia a dia.
 ### Simulador (modo demonstração)
 - **“🧪 Simular um lead chegando pelo WhatsApp”** / **“Simular mensagem do cliente”**: injeta uma
   mensagem recebida que passa pelo **mesmo pipeline do webhook** — cria o lead, aplica o rastreio
-  SEO (inclua `[Ref: #SEO-XXXX]` no texto), aciona o Téo e, no fim, a roleta.
+  SEO (inclua `[Ref: #SEO-XXXX]` no texto), aciona a Zeni e, no fim, a roleta.
 
 ---
 
-## 6. Téo ✨ — o assistente de IA
+## 6. Zeni ✨ — o assistente de IA
 
-O Téo tem três frentes: **atendimento automático** no WhatsApp, **automações** agendadas e
+A Zeni tem três frentes: **atendimento automático** no WhatsApp, **automações** agendadas e
 **copiloto** interno para a equipe. O nome é configurável (ex.: “Clara”).
 
 ### 6.1 Atendimento no WhatsApp (qualificação)
 
-Configurado em *Téo → Automações → Atendimento no WhatsApp → Configurar*. O drawer tem:
+Configurado em *Zeni → Automações → Atendimento no WhatsApp → Configurar*. O drawer tem:
 
 **Identidade e estilo**
 - Nome do assistente e **padrão de atendimento** (preset): MCMV/Econômico, Médio padrão, Alto
@@ -237,7 +256,7 @@ Configurado em *Téo → Automações → Atendimento no WhatsApp → Configurar
 
 ### 6.2 Automações
 
-Página *Téo → Automações*. Cada automação pode ser ligada/desligada e restrita a um número.
+Página *Zeni → Automações*. Cada automação pode ser ligada/desligada e restrita a um número.
 Executadas pelo agendador a cada minuto, sem repetir a mesma ação para o mesmo contato.
 
 | Automação | O que faz | Parâmetro |
@@ -249,12 +268,12 @@ Executadas pelo agendador a cada minuto, sem repetir a mesma ação para o mesmo
 | **Reengajamento de leads** | Retoma leads parados com uma mensagem leve. | Dias parados (padrão 15) |
 | **Datas anuais** | Parabeniza o cliente no aniversário. | — |
 
-Se a janela de 24h da Meta estiver fechada, a mensagem não sai: o Téo registra a pendência na
+Se a janela de 24h da Meta estiver fechada, a mensagem não sai: a Zeni registra a pendência na
 timeline do contato e avisa o corretor.
 
 ### 6.3 Copiloto (chat interno)
 
-Página `/teo`. Um chat para gestores e corretores perguntarem sobre os dados do CRM, com
+Página `/ia`. Um chat para gestores e corretores perguntarem sobre os dados do CRM, com
 histórico de conversas (threads) na lateral.
 
 - **Atalhos prontos**: Relatório dos corretores · Leads sem resposta · Tarefas atrasadas ·
@@ -267,7 +286,7 @@ histórico de conversas (threads) na lateral.
 
 ### 6.4 Pendências
 
-Página *Téo → Pendências*: o que precisa de atenção agora, com contagem e link:
+Página *Zeni → Pendências*: o que precisa de atenção agora, com contagem e link:
 conversas sem resposta há mais de 30 min, tarefas atrasadas, leads sem responsável, números de
 WhatsApp que requerem atenção e modelos rejeitados pela Meta.
 
@@ -308,7 +327,7 @@ Página `/contatos`.
   - **Conversas** — conversas do contato com atalho para o Atendimento.
   - **Anotações** — notas internas.
   - **Tarefas** — tarefas do contato e “Nova tarefa”.
-  - **Imóveis** — itens do catálogo recomendados pelo Téo ou vinculados.
+  - **Imóveis** — itens do catálogo recomendados pela Zeni ou vinculados.
 - **Marcar ganho / Marcar perdido**, campanhas recebidas e exclusão do contato com histórico.
 
 ---
@@ -350,7 +369,7 @@ Página `/funis`.
   responsável, origem e etiqueta, com amostra ao vivo.
 - **Enviar agora** ou **agendar** data/hora; **limite de horário** de envio (o que sobrar continua
   no dia seguinte).
-- **Entregar respostas ao Téo**: quando o cliente responder (“Eu quero!”), a IA assume e
+- **Entregar respostas à Zeni**: quando o cliente responder (“Eu quero!”), a IA assume e
   continua a qualificação.
 - **Custo estimado** pela tarifa da Meta (Marketing R$ 0,3217 · Utilidade R$ 0,035 ·
   Autenticação R$ 0,035). Em número QR: sem custo Meta, com alerta de risco de bloqueio.
@@ -380,7 +399,7 @@ Página `/imoveis`.
   área (m²), descrição, fotos (URLs) e status (Disponível, Reservado, Vendido, Alugado, Inativo).
 - Busca por título, código ou bairro; filtros por categoria e status.
 - Mostra os **leads interessados** em cada item.
-- Usado pelo Téo para recomendar opções e pelo composer para enviar o imóvel no chat.
+- Usado pela Zeni para recomendar opções e pelo composer para enviar o imóvel no chat.
 
 ---
 
@@ -390,7 +409,7 @@ Página `/agenda`.
 - Tipos: **Visita**, **Ligação**, **Follow-up** e **Documentação** (cores próprias).
 - Visão semanal e lista; seção de **atrasadas**; filtros por usuário e tipo.
 - Nova tarefa: título, tipo, data/hora, contato, responsável e observações.
-- **Agendar uma visita move o lead para “Visita agendada”** e dispara o lembrete do Téo (se a
+- **Agendar uma visita move o lead para “Visita agendada”** e dispara o lembrete da Zeni (se a
   automação estiver ligada).
 - O corretor vê só a própria agenda.
 
@@ -402,7 +421,7 @@ Página `/relatorios` (período de 7/30/90 dias):
 - KPIs: novos leads, vendas fechadas, **qualificados pela IA** (% dos novos), **tempo médio da
   1ª resposta**, conversas iniciadas, conversão (ganhos/novos) e ticket médio.
 - Gráfico de **leads por dia** (total × Google Orgânico).
-- **Leads por origem**, **mensagens por remetente** (cliente, equipe, Téo, sistema) e campanhas
+- **Leads por origem**, **mensagens por remetente** (cliente, equipe, Zeni, sistema) e campanhas
   do período.
 
 ---
@@ -489,7 +508,7 @@ para a conversa, contato ou agenda.
 1. Visitante chega ao blog pelo Google → `tracker.js` registra a sessão e a página.
 2. Clica em “Falar no WhatsApp” → a mensagem sai com `[Ref: #SEO-5017]`.
 3. Webhook recebe → cria o contato com origem **SEO Orgânico**, página e palavra-chave.
-4. O Téo responde, faz as perguntas e monta o dossiê (faixa MCMV, poder de compra, temperatura).
+4. A Zeni responde, faz as perguntas e monta o dossiê (faixa MCMV, poder de compra, temperatura).
 5. Transbordo → etapa pós-qualificação → roleta escolhe o corretor → aviso no WhatsApp dele.
 6. Corretor agenda a visita → lead vai para “Visita agendada” → lembrete automático.
 7. Fechamento no Kanban → a venda aparece no **ROI do SEO** ligada à página de origem.
@@ -500,10 +519,10 @@ roleta → corretor notificado.
 
 ### C) Campanha de reengajamento
 Filtrar contatos (ex.: etapa “Proposta”) → modelo aprovado → custo estimado → disparo em lotes
-dentro do horário → quem responde volta para o Téo, que continua a qualificação.
+dentro do horário → quem responde volta para a Zeni, que continua a qualificação.
 
 ### D) Gestão diária
-Gestor abre *Téo → Pendências* ou pergunta ao copiloto “quais corretores estão com mais leads sem
+Gestor abre *Zeni → Pendências* ou pergunta ao copiloto “quais corretores estão com mais leads sem
 resposta?” → clica na ação sugerida → resolve no Atendimento ou na Agenda.
 
 ---
@@ -523,7 +542,7 @@ A API autenticada (REST, em `src/app/api/`) cobre: autenticação e troca de per
 conversas e mensagens, contatos (CRUD, importação, ações em massa, atividades), funis (quadro e
 análise), tarefas, catálogo, modelos e campanhas (prévia, envio), formulários, integrações,
 canais (conectar, simular), usuários, roleta, respostas rápidas, notificações, busca global,
-relatórios, SEO, agência (white-label) e Téo (configuração, simulador, copiloto, automações,
+relatórios, SEO, agência (white-label) e Zeni (configuração, simulador, copiloto, automações,
 pendências).
 
 ---
@@ -536,7 +555,7 @@ pendências).
 | WhatsApp por QR (Evolution) | Sem URL/chave, o “Gerar QR Code” **conecta direto**. | QR real, conexão e mensagens pela Evolution API. |
 | Aprovação de modelos | Canal demo **simula a aprovação**. | Envio real à WABA; status e motivo de rejeição da Meta. |
 | Disparo de campanhas | Status por destinatário gravado, sem envio real. | Disparo real cobrado pela Meta. |
-| Téo (qualificação) | **Motor de regras em português** (funciona de verdade, sem custo). | Modo LLM (OpenAI ou Gemini) com saídas estruturadas. |
+| Zeni (qualificação) | **Motor de regras em português** (funciona de verdade, sem custo). | Modo LLM (OpenAI ou Gemini) com saídas estruturadas. |
 | Áudio e imagem | Ignorados / tratados como texto. | Transcrição (Whisper) e análise por visão. |
 | Copiloto | Relatórios prontos por palavra-chave. | Perguntas livres respondidas pelo LLM. |
 | Lead chegando | Botão **“Simular mensagem do cliente”** e `/demo-site`. | Webhooks reais e `tracker.js` no site do cliente. |
@@ -545,7 +564,7 @@ pendências).
 
 O que **já funciona de verdade** mesmo na demo (é lógica interna, não depende de terceiros):
 RBAC, funis e Kanban, contatos/importação/exportação, ficha 360º, agenda, roleta, dossiê e
-pontuação do lead, motor de regras do Téo, automações agendadas, cálculo de custo, segmentação de
+pontuação do lead, motor de regras da Zeni, automações agendadas, cálculo de custo, segmentação de
 campanhas, análises, relatórios, tracker e vínculo do protocolo SEO, white-label e tempo real.
 
 ---
@@ -564,13 +583,13 @@ Senha de todas as contas: **`teo123456`**.
 | Super Admin | `admin@teocrm.com.br` | Acesso à plataforma |
 
 O seed cria:
-- **Agência** *Rank Alto SEO* com dois clientes: *Horizonte Imóveis* (Feira de Santana/BA) e
+- **Agência** *CRAP Digital* com dois clientes: *Horizonte Imóveis* (Feira de Santana/BA) e
   *Clínica Sorriso Feira*.
 - Corretores Márcio, Camila, Rafael (na roleta) e Beatriz.
 - Números: *Horizonte • Comercial* (API Oficial) e os WhatsApps dos corretores via QR, em estados
   diferentes (conectado, requer atenção, desconectado) para mostrar os alertas.
 - *Funil de vendas* (padrão) e *Funil de aluguel*; contatos de várias origens; conversas em todos
-  os status (com o Téo, a responder, não lidas…); tarefas; imóveis.
+  os status (com a Zeni, a responder, não lidas…); tarefas; imóveis.
 - Modelos (`boas_vindas_lead`, `feirao_mcmv_novembro`, `lembrete_visita`, `pedido_indicacao`,
   `reengajamento_leads` em análise) e campanhas (enviada, agendada e rascunho).
 - Integrações de Facebook Lead Ads, Google Ads e Grupo OLX com leads recebidos.

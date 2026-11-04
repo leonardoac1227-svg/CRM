@@ -1,14 +1,14 @@
 // Gerador do tracker.js (script plug & play instalado pela agência nos sites dos clientes).
 
 export function trackerSnippet(appUrl: string, key: string) {
-  return `<!-- Téo CRM • Rastreamento SEO -> WhatsApp -->
+  return `<!-- Ápice • Rastreamento SEO -> WhatsApp -->
 <script async src="${appUrl}/api/tracker.js?k=${key}"></script>`;
 }
 
 /** Retorna o código JS servido em /api/tracker.js */
 export function trackerScript(appUrl: string, key: string, opts: { whatsappNumber?: string | null; showFloatingButton?: boolean } = {}) {
   const cfg = JSON.stringify({ api: appUrl, key, wa: opts.whatsappNumber ?? null, button: !!opts.showFloatingButton });
-  return `/*! Téo CRM tracker v1 */
+  return `/*! Ápice tracker v1 */
 (function(){
   if (window.TeoTracker) return;
   var CFG = ${cfg};

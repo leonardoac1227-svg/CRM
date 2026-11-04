@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Bell, CalendarHeart, ClipboardCheck, MessageCircle, RefreshCw, Settings2, UserCheck } from "lucide-react";
+import { Bell, CalendarHeart, ClipboardCheck, MessageCircle, RefreshCw, Settings2, UserCheck, Zap } from "lucide-react";
 import { api } from "@/lib/client";
 import { formatPhone } from "@/lib/utils";
 import { useCan } from "@/hooks/use-me";
@@ -66,7 +66,7 @@ function RuleDialog({ item, channels, onClose }: { item: Item | null; channels: 
               {channels.map((c) => <option key={c.id} value={c.id}>{c.name} · {formatPhone(c.phoneNumber)}</option>)}
             </Select>
           </Field>
-          <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">Na API Oficial, mensagens livres só saem com a janela de 24h aberta. Fora dela, o Téo registra a pendência na ficha e avisa o corretor.</p>
+          <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">Na API Oficial, mensagens livres só saem com a janela de 24h aberta. Fora dela, a Zeni registra a pendência na ficha e avisa o corretor.</p>
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
@@ -90,10 +90,10 @@ export default function Automacoes() {
   });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <PageHeader title={`Automações do ${data?.assistantName ?? "Téo"}`} description="Tarefas que o assistente executa sozinho, 24 horas por dia." />
+    <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Inteligência" icon={<Zap />} title={`Automações da ${data?.assistantName ?? "Zeni"}`} description="Tarefas que o assistente executa sozinho, 24 horas por dia." />
       <Card className="overflow-hidden">
-        <div className="hidden grid-cols-[2.2fr_1.3fr_0.9fr_0.9fr_auto] gap-4 border-b bg-slate-50 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground md:grid">
+        <div className="hidden grid-cols-[2.2fr_1.3fr_0.9fr_0.9fr_auto] gap-4 border-b bg-muted/60 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground md:grid">
           <span>Automação</span><span>Número vinculado</span><span>Situação</span><span>Em uso</span><span className="w-40 text-right">Ações</span>
         </div>
         {data?.items.map((i) => {

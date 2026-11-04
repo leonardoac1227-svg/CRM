@@ -7,6 +7,15 @@ type Tracker = { touch: () => { origin: string; landingPage: string; code: strin
 
 /** Site de exemplo (público) para testar o tracker.js de ponta a ponta. */
 function DemoSite() {
+  // O site de exemplo simula o site do cliente: sempre no tema claro
+  useEffect(() => {
+    const html = document.documentElement;
+    const wasDark = html.classList.contains("dark");
+    html.classList.remove("dark");
+    return () => {
+      if (wasDark) html.classList.add("dark");
+    };
+  }, []);
   const sp = useSearchParams();
   const key = sp.get("k") ?? "";
   const [code, setCode] = useState<string | null>(null);
@@ -69,7 +78,7 @@ function DemoSite() {
             <div className="mt-6 rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50 p-4">
               <p className="text-xs font-semibold text-emerald-800">Mensagem que abriria no WhatsApp do cliente:</p>
               <pre className="mt-2 whitespace-pre-wrap font-sans text-sm">{waText}</pre>
-              {sent ? <p className="mt-3 text-sm font-semibold text-emerald-700">✅ Enviado! Abra o Atendimento no CRM: o Téo já respondeu e o lead está vinculado a esta página.</p> : <button onClick={simulateSend} className="mt-3 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white">Simular envio para o CRM</button>}
+              {sent ? <p className="mt-3 text-sm font-semibold text-emerald-700">✅ Enviado! Abra o Atendimento no CRM: a Zeni já respondeu e o lead está vinculado a esta página.</p> : <button onClick={simulateSend} className="mt-3 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white">Simular envio para o CRM</button>}
             </div>
           )}
         </article>

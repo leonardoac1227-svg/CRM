@@ -107,18 +107,18 @@ export function ChatWindow({ id, team, assistantName, onBack }: { id: string; te
     <div className="flex min-w-0 flex-1">
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Header do chat */}
-        <div className="flex flex-wrap items-center gap-2 border-b bg-white px-3 py-2.5 md:px-4">
+        <div className="flex flex-wrap items-center gap-2 border-b bg-card/70 px-3 py-3 backdrop-blur md:px-5">
           <button onClick={onBack} className="rounded-md p-1.5 hover:bg-muted md:hidden"><ArrowLeft className="h-4 w-4" /></button>
-          <Avatar name={c.name ?? c.phone} size={38} />
+          <Avatar name={c.name ?? c.phone} size={42} />
           <div className="mr-auto min-w-0">
-            <p className="truncate text-sm font-semibold">{c.name ?? "Sem nome"}</p>
+            <p className="truncate text-[15px] font-extrabold">{c.name ?? "Sem nome"}</p>
             <p className="flex items-center gap-1.5 truncate text-xs text-muted-foreground">
               {formatPhone(c.phone)} <span className="hidden sm:inline">· via {conv.channel?.name}</span>
             </p>
           </div>
           {/* Etapa do funil */}
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex h-8 items-center gap-1.5 rounded-full border bg-white px-3 text-xs font-medium hover:bg-muted">
+            <DropdownMenuTrigger className="flex h-9 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-bold hover:border-primary/50">
               {c.stage && <StageDot color={c.stage.color} />} {c.stage?.name ?? "Sem etapa"} ▾
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -132,7 +132,7 @@ export function ChatWindow({ id, team, assistantName, onBack }: { id: string; te
           </DropdownMenu>
           {/* Responsável */}
           <DropdownMenu>
-            <DropdownMenuTrigger disabled={!canAssign} className="flex h-8 items-center gap-1.5 rounded-full border bg-white px-3 text-xs font-medium hover:bg-muted disabled:opacity-70">
+            <DropdownMenuTrigger disabled={!canAssign} className="flex h-9 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-bold hover:border-primary/50 disabled:opacity-70">
               {conv.assignedTo ? <Avatar name={conv.assignedTo.name} size={18} /> : null} {conv.assignedTo?.name.split(" ")[0] ?? "Sem responsável"} {canAssign && "▾"}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -146,8 +146,8 @@ export function ChatWindow({ id, team, assistantName, onBack }: { id: string; te
             </DropdownMenuContent>
           </DropdownMenu>
           <Button size="sm" variant={panel ? "soft" : "outline"} onClick={() => setPanel((v) => !v)}><IdCard /> <span className="hidden lg:inline">Ficha do contato</span></Button>
-          <Button size="sm" variant={conv.aiActive ? "ai" : "outline"} loading={patchConv.isPending} onClick={() => patchConv.mutate({ aiActive: !conv.aiActive }, { onSuccess: () => toast.success(conv.aiActive ? `${assistantName} desligado — você assumiu a conversa` : `${assistantName} assumiu a conversa ✨`) })}>
-            <Sparkles /> {conv.aiActive ? `${assistantName} ativo` : "Qualificar com IA"}
+          <Button size="sm" variant={conv.aiActive ? "ai" : "outline"} loading={patchConv.isPending} onClick={() => patchConv.mutate({ aiActive: !conv.aiActive }, { onSuccess: () => toast.success(conv.aiActive ? `${assistantName} desligada — você assumiu a conversa` : `${assistantName} assumiu a conversa ✨`) })}>
+            <Sparkles /> {conv.aiActive ? `${assistantName} ativa` : "Qualificar com IA"}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-md p-1.5 hover:bg-muted"><MoreVertical className="h-4 w-4" /></DropdownMenuTrigger>
@@ -169,20 +169,20 @@ export function ChatWindow({ id, team, assistantName, onBack }: { id: string; te
         </div>
 
         {conv.aiActive && (
-          <div className="flex items-center gap-2 border-b bg-gradient-to-r from-primary/[0.06] to-secondary/[0.08] px-4 py-1.5 text-xs text-secondary">
+          <div className="flex items-center gap-2 border-b border-primary/25 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-4 py-2 text-xs text-primary dark:text-secondary">
             <Sparkles className="h-3.5 w-3.5" />
-            <span className="font-medium">{assistantName} está atendendo esta conversa</span>
+            <span className="h-2 w-2 animate-pulse-gold rounded-full bg-primary" /><span className="font-extrabold">{assistantName} está atendendo esta conversa</span>
             <span className="text-muted-foreground">· {Object.keys(conv.aiState?.answered ?? {}).length} perguntas respondidas{aiStep === "QUALIFYING" ? " · qualificando" : ""}</span>
             <span className="ml-auto text-muted-foreground">Responder manualmente desliga a IA</span>
           </div>
         )}
 
         {/* Mensagens */}
-        <div className="flex-1 space-y-2 overflow-y-auto bg-chat px-3 py-4 scrollbar-thin md:px-8">
+        <div className="flex-1 space-y-2.5 overflow-y-auto bg-chat px-3 py-5 scrollbar-thin md:px-10">
           {grouped.map((g) => (
             <div key={g.day} className="space-y-2">
               <div className="sticky top-0 z-10 flex justify-center py-1">
-                <span className="rounded-full bg-white/90 px-3 py-0.5 text-[11px] font-medium text-slate-500 shadow-sm">{g.day}</span>
+                <span className="rounded-full border bg-card/90 px-3 py-1 text-[11px] font-bold text-muted-foreground shadow-sm backdrop-blur">{g.day}</span>
               </div>
               {g.items.map((m) => <MessageBubble key={m.id} m={m} assistantName={assistantName} />)}
             </div>
@@ -192,7 +192,7 @@ export function ChatWindow({ id, team, assistantName, onBack }: { id: string; te
 
         {/* Rodapé: janela de 24h ou composer */}
         {conv.status === "CLOSED" ? (
-          <div className="flex items-center justify-between gap-3 border-t bg-slate-50 px-4 py-3 text-sm text-muted-foreground">
+          <div className="flex items-center justify-between gap-3 border-t bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> Conversa encerrada</span>
             <Button size="sm" variant="outline" onClick={() => patchConv.mutate({ status: "OPEN" })}>Reabrir</Button>
           </div>
@@ -251,7 +251,7 @@ export function SimulateDialog({ open, onOpenChange, channelId, phone, name, onD
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent title="Simular mensagem recebida" description="Passa pelo mesmo fluxo do webhook: cria o lead, aplica o rastreio SEO e aciona o Téo." size="sm">
+      <DialogContent title="Simular mensagem recebida" description="Passa pelo mesmo fluxo do webhook: cria o lead, aplica o rastreio SEO e aciona a Zeni." size="sm">
         <DialogBody className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <Field label="WhatsApp do cliente"><Input value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })} placeholder="75 99999-0000" /></Field>

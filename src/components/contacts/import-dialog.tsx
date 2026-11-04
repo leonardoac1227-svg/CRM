@@ -130,7 +130,7 @@ export function ImportDialog({ open, onOpenChange, onDone }: { open: boolean; on
             <div className="space-y-5">
               <div className="overflow-hidden rounded-lg border">
                 <table className="w-full text-xs">
-                  <thead className="bg-slate-50 text-left text-muted-foreground">
+                  <thead className="bg-muted/60 text-left text-muted-foreground">
                     <tr><th className="px-3 py-2 font-medium">Coluna da planilha</th><th className="px-3 py-2 font-medium">Exemplo</th><th className="px-3 py-2 font-medium">Campo no CRM</th></tr>
                   </thead>
                   <tbody>

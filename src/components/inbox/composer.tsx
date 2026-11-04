@@ -104,9 +104,9 @@ export function Composer({ onSend, sending, disabled, placeholder }: { onSend: (
   }
 
   return (
-    <div className="relative border-t bg-white px-3 py-2.5">
+    <div className="relative border-t bg-card/70 px-3 py-3 backdrop-blur md:px-5">
       {slash.length > 0 && (
-        <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-lg border bg-white shadow-lg">
+        <div className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-lg border bg-card shadow-lg">
           {slash.map((q) => (
             <button key={q.id} onClick={() => setText(q.content)} className="flex w-full gap-3 px-3 py-2 text-left text-sm hover:bg-muted">
               <span className="font-mono text-xs font-semibold text-primary">{q.shortcut}</span>
@@ -117,7 +117,7 @@ export function Composer({ onSend, sending, disabled, placeholder }: { onSend: (
       )}
       {recording ? (
         <div className="flex items-center gap-3">
-          <button onClick={() => stopRec(true)} className="rounded-full p-2 text-slate-500 hover:bg-muted" aria-label="Cancelar"><Trash2 className="h-5 w-5" /></button>
+          <button onClick={() => stopRec(true)} className="rounded-full p-2 text-muted-foreground hover:bg-muted" aria-label="Cancelar"><Trash2 className="h-5 w-5" /></button>
           <span className="flex flex-1 items-center gap-2 text-sm text-red-600"><span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500" /> Gravando… {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}</span>
           <Button size="icon" onClick={() => stopRec(false)} aria-label="Enviar áudio"><Square className="h-4 w-4 fill-current" /></Button>
         </div>
@@ -125,7 +125,7 @@ export function Composer({ onSend, sending, disabled, placeholder }: { onSend: (
         <div className="flex items-end gap-1.5">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button disabled={disabled} className="rounded-full p-2 text-slate-500 hover:bg-muted disabled:opacity-40" aria-label="Anexar"><Paperclip className="h-5 w-5" /></button>
+              <button disabled={disabled} className="rounded-full p-2 text-muted-foreground hover:bg-muted disabled:opacity-40" aria-label="Anexar"><Paperclip className="h-5 w-5" /></button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top">
               <DropdownMenuItem onSelect={() => fileRef.current?.click()}><FileIcon /> Imagem ou documento</DropdownMenuItem>
@@ -135,7 +135,7 @@ export function Composer({ onSend, sending, disabled, placeholder }: { onSend: (
           <input ref={fileRef} type="file" accept="image/*,application/pdf,audio/*" className="hidden" onChange={onFile} />
           <Popover>
             <PopoverTrigger asChild>
-              <button disabled={disabled} className="rounded-full p-2 text-slate-500 hover:bg-muted disabled:opacity-40" aria-label="Respostas rápidas"><Zap className="h-5 w-5" /></button>
+              <button disabled={disabled} className="rounded-full p-2 text-muted-foreground hover:bg-muted disabled:opacity-40" aria-label="Respostas rápidas"><Zap className="h-5 w-5" /></button>
             </PopoverTrigger>
             <PopoverContent align="start" side="top" className="w-96 p-1">
               <p className="px-2 py-1.5 text-[11px] font-semibold uppercase text-muted-foreground">Mensagens rápidas · digite / no campo</p>
@@ -149,7 +149,7 @@ export function Composer({ onSend, sending, disabled, placeholder }: { onSend: (
           </Popover>
           <Popover>
             <PopoverTrigger asChild>
-              <button disabled={disabled} className="rounded-full p-2 text-slate-500 hover:bg-muted disabled:opacity-40" aria-label="Emoji"><Smile className="h-5 w-5" /></button>
+              <button disabled={disabled} className="rounded-full p-2 text-muted-foreground hover:bg-muted disabled:opacity-40" aria-label="Emoji"><Smile className="h-5 w-5" /></button>
             </PopoverTrigger>
             <PopoverContent align="start" side="top" className="w-72 p-2">
               <div className="grid grid-cols-9 gap-1">
@@ -171,7 +171,7 @@ export function Composer({ onSend, sending, disabled, placeholder }: { onSend: (
             }}
             rows={1}
             placeholder={placeholder ?? "Digite uma mensagem ou / para respostas rápidas"}
-            className="max-h-40 min-h-[40px] flex-1 resize-none rounded-2xl border bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-primary/50 focus:bg-white disabled:opacity-50"
+            className="max-h-40 min-h-[40px] flex-1 resize-none rounded-xl border bg-background px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary/60 disabled:opacity-50"
           />
           {text.trim() ? (
             <Button size="icon" className="rounded-full" onClick={send} loading={sending} aria-label="Enviar"><Send className="h-4 w-4" /></Button>
@@ -181,7 +181,7 @@ export function Composer({ onSend, sending, disabled, placeholder }: { onSend: (
         </div>
       )}
       {catalogOpen && (
-        <div className="absolute bottom-full left-3 right-3 mb-2 max-h-80 overflow-y-auto rounded-lg border bg-white shadow-xl scrollbar-thin">
+        <div className="absolute bottom-full left-3 right-3 mb-2 max-h-80 overflow-y-auto rounded-lg border bg-card shadow-xl scrollbar-thin">
           <div className="flex items-center justify-between border-b px-3 py-2">
             <p className="text-xs font-semibold">Enviar imóvel do catálogo</p>
             <button onClick={() => setCatalogOpen(false)} className="text-xs text-muted-foreground hover:text-foreground">Fechar</button>

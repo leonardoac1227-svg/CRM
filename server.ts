@@ -56,5 +56,5 @@ app.prepare().then(() => {
     console.error(`[server] falha ao iniciar na porta ${port}:`, err.message);
     process.exit(1);
   });
-  server.listen(port, () => console.log(`▲ Téo CRM pronto em http://localhost:${port} (${dev ? "dev" : "prod"})`));
+  server.listen(port, () => console.log(`▲ Ápice pronto em http://localhost:${port} (${dev ? "dev" : "prod"})`));
 });

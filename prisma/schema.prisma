@@ -1,5 +1,5 @@
 // =============================================================================
-//  Téo CRM — Schema multi-tenant (Agência White-Label -> Workspace) com RBAC
+//  Ápice — Schema multi-tenant (Agência White-Label -> Workspace) com RBAC
 // =============================================================================
 
 generator client {
@@ -250,9 +250,9 @@ model Agency {
   slug                 String      @unique
   customDomain         String?     @unique
   logoUrl              String?
-  primaryColor         String      @default("#2563EB")
-  secondaryColor       String      @default("#4F46E5")
-  assistantDefaultName String      @default("Téo")
+  primaryColor         String      @default("#C9A35B")
+  secondaryColor       String      @default("#E4C88A")
+  assistantDefaultName String      @default("Zeni")
   createdAt            DateTime    @default(now())
   workspaces           Workspace[]
   users                User[]
@@ -467,7 +467,7 @@ model Conversation {
   assignedTo          User?              @relation("ConversationAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
   status              ConversationStatus @default(UNREAD)
   aiActive            Boolean            @default(false)
-  /// Estado da máquina de qualificação do Téo (perguntas feitas, respondidas, tentativas…)
+  /// Estado da máquina de qualificação da Zeni (perguntas feitas, respondidas, tentativas…)
   aiState             Json               @default("{}")
   metaWindowExpiresAt DateTime?
   lastContactMessageAt DateTime?
@@ -508,7 +508,7 @@ model QuickReply {
 }
 
 // -----------------------------------------------------------------------------
-// Téo ✨ (IA)
+// Zeni ✨ (IA)
 // -----------------------------------------------------------------------------
 
 model AiAssistantConfig {
@@ -518,13 +518,13 @@ model AiAssistantConfig {
   isActive                 Boolean          @default(true)
   preset                   AiPreset         @default(MCMV_ECONOMICO)
   focus                    AiFocus          @default(VENDAS)
-  assistantName            String           @default("Téo")
+  assistantName            String           @default("Zeni")
   roleTitle                String           @default("Assistente virtual")
   tone                     AiTone           @default(NO_MEIO)
   emojiLevel               EmojiLevel       @default(POUCOS)
   messageLength            MessageLength    @default(CURTAS_UMA_A_UMA)
   regionCity               String?
-  initialGreeting          String           @default("Olá! Aqui é o {{nome_assistente}} da equipe {{nome_empresa}}. Tudo bem?")
+  initialGreeting          String           @default("Olá! Aqui é a {{nome_assistente}} da equipe {{nome_empresa}}. Tudo bem?")
   enableAudioTranscription Boolean          @default(true)
   enableImageAnalysis      Boolean          @default(true)
   enableCatalogSend        Boolean          @default(true)

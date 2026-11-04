@@ -79,12 +79,15 @@ function Imoveis() {
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (sp.get("novo")) setOpen(true);
+  }, [sp]);
   const [editing, setEditing] = useState<CatalogItem | null>(null);
   const { data, isLoading } = useQuery({ queryKey: ["catalog", q, status, category], queryFn: () => api<CatalogItem[]>(`/api/catalog${qs({ q, status, category })}`) });
   const del = useMutation({ mutationFn: (id: string) => api(`/api/catalog/${id}`, { method: "DELETE" }), onSuccess: () => qc.invalidateQueries({ queryKey: ["catalog"] }) });
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <PageHeader title="Imóveis" description="Catálogo usado pela equipe e pelo Téo para recomendar opções aos clientes." actions={<Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus /> Cadastrar imóvel</Button>} />
+    <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Vender" icon={<Building2 />} title="Imóveis" description="Catálogo usado pela equipe e pela Zeni para recomendar opções aos clientes." actions={<Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus /> Cadastrar imóvel</Button>} />
       <div className="mb-4 flex flex-wrap gap-2">
         <div className="relative min-w-[220px] flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -97,10 +100,10 @@ function Imoveis() {
         {isLoading && Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-72" />)}
         {data?.map((i) => (
           <Card key={i.id} className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-md" onClick={() => { setEditing(i); setOpen(true); }}>
-            <div className="relative h-40 bg-slate-100">
+            <div className="relative h-40 bg-muted">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {i.images[0] ? <img src={i.images[0]} alt={i.title} className="h-full w-full object-cover" /> : <Building2 className="m-auto h-full w-10 text-slate-300" />}
-              <Badge tone={TONE[i.status]} className="absolute left-2 top-2 bg-white/95">{CATALOG_STATUS_LABELS[i.status]}</Badge>
+              {i.images[0] ? <img src={i.images[0]} alt={i.title} className="h-full w-full object-cover" /> : <Building2 className="m-auto h-full w-10 text-muted-foreground/60" />}
+              <Badge tone={TONE[i.status]} className="absolute left-2 top-2 bg-card/95">{CATALOG_STATUS_LABELS[i.status]}</Badge>
               <span className="absolute right-2 top-2 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[10px] text-white">{i.code}</span>
             </div>
             <div className="p-3">

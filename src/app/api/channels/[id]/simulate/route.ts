@@ -7,7 +7,7 @@ import { runAiTurn } from "@/lib/services/ai-runner";
 
 /**
  * Simula uma mensagem recebida neste número (mesmo pipeline do webhook real).
- * Útil para demonstrar o Téo e o rastreio "[Ref: #SEO-XXXX]" sem um celular.
+ * Útil para demonstrar a Zeni e o rastreio "[Ref: #SEO-XXXX]" sem um celular.
  */
 export const POST = route<{ id: string }>(async ({ req, params, session }) => {
   if (process.env.DEMO_MODE !== "true") throw new HttpError(403, "Simulação desabilitada");

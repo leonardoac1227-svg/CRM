@@ -16,7 +16,7 @@ export const POST = route<{ id: string }>(async ({ req, params, session }) => {
   const conv = await prisma.conversation.findFirst({ where: { ...conversationScope(session), id: params.id } });
   if (!conv) throw new HttpError(404, "Conversa não encontrada");
   const d = await body(req, schema);
-  // Quando um humano responde, o Téo sai da conversa (evita respostas duplicadas)
+  // Quando um humano responde, a Zeni sai da conversa (evita respostas duplicadas)
   if (conv.aiActive && d.takeOver !== false) await prisma.conversation.update({ where: { id: conv.id }, data: { aiActive: false } });
   if (!conv.assignedToId && session.user.role === "BROKER") {
     await prisma.conversation.update({ where: { id: conv.id }, data: { assignedToId: session.user.id } });

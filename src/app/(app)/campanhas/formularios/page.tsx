@@ -16,7 +16,7 @@ type LeadForm = { id: string; name: string; fieldsJson: FormField[]; submissions
 
 function embedCode(appUrl: string, key: string, f: LeadForm) {
   const inputs = f.fieldsJson.map((x) => `  <label>${x.label}<input name="${x.key}" type="${x.type}"${x.required ? " required" : ""}></label>`).join("\n");
-  return `<!-- Formulário "${f.name}" — capturado pelo tracker do Téo CRM -->
+  return `<!-- Formulário "${f.name}" — capturado pelo tracker do Ápice -->
 <form class="teo-form" action="#" onsubmit="event.preventDefault(); this.innerHTML='<p>Recebemos seus dados! Em instantes falamos com você no WhatsApp.</p>'">
 ${inputs}
   <button type="submit">Quero ser atendido</button>
@@ -43,8 +43,8 @@ export default function Formularios() {
   });
   const appUrl = typeof window !== "undefined" ? window.location.origin : "";
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
-      <PageHeader title="Formulários" description="Formulários para o site que viram leads com a origem SEO completa." actions={<Button size="sm" onClick={() => setOpen(true)}><Plus /> Novo formulário</Button>} />
+    <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Campanhas" icon={<ClipboardList />} title="Formulários" description="Formulários para o site que viram leads com a origem SEO completa." actions={<Button size="sm" onClick={() => setOpen(true)}><Plus /> Novo formulário</Button>} />
       <div className="space-y-3">
         {data?.map((f) => (
           <Card key={f.id} className="p-4">
@@ -72,7 +72,7 @@ export default function Formularios() {
               </Select>
             </Field>
             <div className="space-y-2">
-              <p className="text-xs font-medium text-slate-600">Campos</p>
+              <p className="text-xs font-medium text-foreground/75">Campos</p>
               {fields.map((f, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <Input value={f.label} onChange={(e) => setFields(fields.map((x, k) => (k === i ? { ...x, label: e.target.value } : x)))} className="h-8" />

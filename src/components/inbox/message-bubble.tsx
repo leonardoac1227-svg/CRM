@@ -5,8 +5,8 @@ import type { Message } from "@/lib/types";
 function Ticks({ status }: { status: Message["status"] }) {
   if (status === "FAILED") return <AlertCircle className="h-3.5 w-3.5 text-red-500" />;
   if (status === "READ") return <CheckCheck className="h-3.5 w-3.5 text-sky-500" />;
-  if (status === "DELIVERED") return <CheckCheck className="h-3.5 w-3.5 text-slate-400" />;
-  return <Check className="h-3.5 w-3.5 text-slate-400" />;
+  if (status === "DELIVERED") return <CheckCheck className="h-3.5 w-3.5 text-muted-foreground/80" />;
+  return <Check className="h-3.5 w-3.5 text-muted-foreground/80" />;
 }
 
 export function MessageBubble({ m, assistantName }: { m: Message; assistantName: string }) {
@@ -23,18 +23,18 @@ export function MessageBubble({ m, assistantName }: { m: Message; assistantName:
     <div className={cn("flex", inbound ? "justify-start" : "justify-end")}>
       <div
         className={cn(
-          "relative max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
-          inbound ? "rounded-tl-sm bg-white text-slate-800" : "rounded-tr-sm",
-          !inbound && !system && (ai ? "bg-gradient-to-br from-indigo-50 to-blue-50 ring-1 ring-secondary/15" : "bg-primary/10"),
+          "relative max-w-[78%] animate-rise rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+          inbound ? "rounded-tl-md border bg-card text-foreground/90" : "rounded-tr-md",
+          !inbound && !system && (ai ? "bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/30" : "bg-primary text-primary-foreground"),
           system && "bg-amber-50 ring-1 ring-amber-200/70",
         )}
       >
         {ai && (
-          <p className="mb-1 flex items-center gap-1 text-[11px] font-semibold text-secondary">
-            🤖 IA: {aiLabel}
+          <p className="mb-1 flex items-center gap-1 text-[11px] font-extrabold text-primary dark:text-secondary">
+            ✦ {aiLabel} · IA
           </p>
         )}
-        {!inbound && !ai && !system && m.senderName && <p className="mb-0.5 text-[11px] font-semibold text-primary">{m.senderName}</p>}
+        {!inbound && !ai && !system && m.senderName && <p className="mb-0.5 text-[11px] font-extrabold opacity-80">{m.senderName}</p>}
         {system && (
           <p className="mb-1 flex items-center gap-1 text-[11px] font-semibold text-amber-700">
             {m.mediaType === "TEMPLATE" ? <Megaphone className="h-3.5 w-3.5" /> : null} {m.senderName ?? "Sistema"} {m.mediaType === "TEMPLATE" && "· Modelo Meta"}
@@ -47,13 +47,13 @@ export function MessageBubble({ m, assistantName }: { m: Message; assistantName:
         )}
         {m.mediaUrl && m.mediaType === "AUDIO" && <audio src={m.mediaUrl} controls className="mb-1 h-9 w-60" />}
         {m.mediaUrl && m.mediaType === "DOCUMENT" && (
-          <a href={m.mediaUrl} target="_blank" rel="noreferrer" className="mb-1 flex items-center gap-2 rounded-md bg-white/70 px-2 py-1.5 text-xs text-primary ring-1 ring-slate-200">
+          <a href={m.mediaUrl} target="_blank" rel="noreferrer" className="mb-1 flex items-center gap-2 rounded-md bg-card/70 px-2 py-1.5 text-xs text-primary ring-1 ring-border">
             <FileText className="h-4 w-4" /> Abrir documento
           </a>
         )}
         {m.mediaType === "AUDIO" && !m.mediaUrl && <Mic className="mb-1 inline h-3.5 w-3.5 text-muted-foreground" />}
         <p className="whitespace-pre-wrap break-words leading-relaxed">{text}</p>
-        <div className="mt-1 flex items-center justify-end gap-1.5 text-[10px] text-slate-400">
+        <div className={cn("mt-1 flex items-center justify-end gap-1.5 text-[10px]", !inbound && !ai && !system ? "opacity-70" : "text-muted-foreground/80")}>
           {ref && <span className="rounded bg-emerald-100 px-1.5 py-0.5 font-semibold text-emerald-700">🔗 #{ref}</span>}
           {time}
           {!inbound && <Ticks status={m.status} />}

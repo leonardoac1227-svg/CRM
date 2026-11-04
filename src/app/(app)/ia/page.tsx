@@ -53,7 +53,7 @@ function Copilot() {
       setPending(null);
       qc.invalidateQueries({ queryKey: ["copilot", threadId] });
       qc.invalidateQueries({ queryKey: ["copilot-threads"] });
-      if (!sp.get("thread")) router.replace(`/teo?thread=${threadId}`, { scroll: false });
+      if (!sp.get("thread")) router.replace(`/ia?thread=${threadId}`, { scroll: false });
     },
   });
 
@@ -72,7 +72,7 @@ function Copilot() {
 
   const messages = data?.messages ?? [];
   const empty = !messages.length && !pending;
-  const assistant = me?.assistantName ?? "Téo";
+  const assistant = me?.assistantName ?? "Zeni";
   const submit = () => {
     const q = input.trim();
     if (!q || ask.isPending) return;
@@ -85,17 +85,18 @@ function Copilot() {
       <div className="flex-1 overflow-y-auto py-8 scrollbar-thin">
         {empty ? (
           <div className="flex flex-col items-center pt-6 text-center md:pt-14">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-secondary text-white shadow-lg"><Sparkles className="h-7 w-7" /></span>
-            <h1 className="mt-4 text-2xl font-semibold tracking-tight">{greeting()}, {me?.user.name.split(" ")[0]}. Em que posso ajudar?</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Pergunte qualquer coisa sobre seus leads, corretores, agenda e campanhas. Eu analiso os dados reais do CRM.</p>
+            <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-secondary to-primary text-primary-foreground shadow-xl shadow-primary/30"><span className="absolute inset-0 animate-pulse-gold rounded-2xl" /><Sparkles className="h-8 w-8" /></span>
+            <p className="eyebrow mt-5">{assistant} · copiloto</p>
+            <h1 className="display mt-1 text-[32px] leading-tight sm:text-[40px]">{greeting()}, <span className="text-gradient">{me?.user.name.split(" ")[0]}</span>. Em que posso ajudar?</h1>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">Pergunte qualquer coisa sobre seus leads, corretores, agenda e campanhas. Eu analiso os dados reais do CRM.</p>
             <div className="mt-8 grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {data?.shortcuts.map((s) => {
                 const Icon = ICONS[s.key] ?? Sparkles;
                 return (
-                  <button key={s.key} onClick={() => ask.mutate({ shortcut: s.key, label: s.label })} className="group flex items-start gap-3 rounded-xl border bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white"><Icon className="h-4 w-4" /></span>
+                  <button key={s.key} onClick={() => ask.mutate({ shortcut: s.key, label: s.label })} className="card-hover group flex animate-rise items-start gap-3 rounded-xl border bg-card p-4 text-left">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground dark:text-secondary"><Icon className="h-4 w-4" /></span>
                     <span>
-                      <span className="block text-sm font-semibold">{s.label}</span>
+                      <span className="block text-sm font-extrabold">{s.label}</span>
                       <span className="mt-0.5 block text-xs text-muted-foreground">{s.description}</span>
                     </span>
                   </button>
@@ -109,7 +110,7 @@ function Copilot() {
               if (m.role === "user")
                 return (
                   <div key={m.id} className="flex justify-end gap-3">
-                    <p className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2 text-sm text-white">{m.content}</p>
+                    <p className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2 text-sm text-primary-foreground">{m.content}</p>
                     <Avatar name={me?.user.name} size={30} />
                   </div>
                 );
@@ -121,9 +122,9 @@ function Copilot() {
               }
               return (
                 <div key={m.id} className="flex gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-white"><Sparkles className="h-4 w-4" /></span>
-                  <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm border bg-white p-4 shadow-sm">
-                    {r.title && <p className="mb-2 text-sm font-semibold">{r.title}</p>}
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground"><Sparkles className="h-4 w-4" /></span>
+                  <div className="min-w-0 flex-1 animate-rise rounded-2xl rounded-tl-md border bg-card p-5">
+                    {r.title && <p className="display mb-3 text-lg leading-none">{r.title}</p>}
                     <Markdown text={r.markdown} />
                     {!!r.actions.length && (
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -137,12 +138,12 @@ function Copilot() {
             {pending && (
               <>
                 <div className="flex justify-end gap-3">
-                  <p className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2 text-sm text-white">{pending}</p>
+                  <p className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2 text-sm text-primary-foreground">{pending}</p>
                   <Avatar name={me?.user.name} size={30} />
                 </div>
                 <div className="flex gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-white"><Loader2 className="h-4 w-4 animate-spin" /></span>
-                  <p className="flex items-center gap-1 rounded-2xl border bg-white px-4 py-3 text-sm text-muted-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground"><Loader2 className="h-4 w-4 animate-spin" /></span>
+                  <p className="flex items-center gap-1 rounded-2xl border bg-card px-4 py-3 text-sm text-muted-foreground">
                     {assistant} está analisando os dados
                     <span className="animate-typing">.</span><span className="animate-typing [animation-delay:0.2s]">.</span><span className="animate-typing [animation-delay:0.4s]">.</span>
                   </p>
@@ -157,18 +158,19 @@ function Copilot() {
         {!empty && (
           <div className="mb-2 flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
             {data?.shortcuts.map((s) => (
-              <button key={s.key} onClick={() => ask.mutate({ shortcut: s.key, label: s.label })} className="shrink-0 rounded-full border bg-white px-3 py-1 text-xs text-slate-600 hover:border-primary/40 hover:text-primary">{s.label}</button>
+              <button key={s.key} onClick={() => ask.mutate({ shortcut: s.key, label: s.label })} className="shrink-0 rounded-full border bg-card px-3 py-1.5 text-xs font-bold text-foreground/75 hover:border-primary/50 hover:text-foreground">{s.label}</button>
             ))}
           </div>
         )}
-        <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="flex items-end gap-2 rounded-2xl border bg-white p-2 shadow-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
+        <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="glow-gold flex items-end gap-2 rounded-2xl border border-primary/25 p-2 shadow-lg focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
             rows={1}
-            placeholder={`Pergunte ao ${assistant}… ex.: "quais corretores estão com mais leads sem resposta?"`}
-            className="max-h-32 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none"
+            placeholder={`Pergunte à ${assistant}… ex.: "quais corretores estão com mais leads sem resposta?"`}
+            aria-label={`Pergunte à ${assistant}`}
+            className="max-h-32 min-h-[44px] flex-1 resize-none bg-transparent px-2 py-2.5 text-[15px] outline-none"
           />
           <Button type="submit" size="icon" variant="ai" className="rounded-xl" disabled={!input.trim()} loading={ask.isPending}><ArrowUp className="h-4 w-4" /></Button>
         </form>

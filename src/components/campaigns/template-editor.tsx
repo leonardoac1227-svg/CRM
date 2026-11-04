@@ -90,7 +90,7 @@ export function TemplateEditor({ open, onOpenChange, template, onSaved, workspac
               </Field>
             </div>
             <div>
-              <p className="mb-1.5 text-xs font-medium text-slate-600">Categoria da Meta</p>
+              <p className="mb-1.5 text-xs font-medium text-foreground/75">Categoria da Meta</p>
               <div className="grid gap-2 sm:grid-cols-3">
                 {(["MARKETING", "UTILITY", "AUTHENTICATION"] as const).map((c) => (
                   <button key={c} onClick={() => setD({ ...d, category: c })} className={cn("rounded-lg border p-3 text-left transition-colors hover:border-primary/40", d.category === c && "border-primary bg-primary/[0.04] ring-1 ring-primary/30")}>
@@ -120,7 +120,7 @@ export function TemplateEditor({ open, onOpenChange, template, onSaved, workspac
             </div>
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <p className="text-xs font-medium text-slate-600">Corpo do texto</p>
+                <p className="text-xs font-medium text-foreground/75">Corpo do texto</p>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild><Button size="xs" variant="soft"><Variable /> Nova variável</Button></DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -141,7 +141,7 @@ export function TemplateEditor({ open, onOpenChange, template, onSaved, workspac
             </div>
             <Field label="Rodapé (opcional)"><Input value={d.footerText ?? ""} maxLength={60} onChange={(e) => setD({ ...d, footerText: e.target.value })} placeholder="Responda SAIR para não receber mais" /></Field>
             <div>
-              <p className="mb-1.5 text-xs font-medium text-slate-600">Botões (opcional)</p>
+              <p className="mb-1.5 text-xs font-medium text-foreground/75">Botões (opcional)</p>
               <div className="space-y-2">
                 {d.buttonsJson.map((b, i) => (
                   <div key={i} className="flex gap-2">
@@ -161,15 +161,15 @@ export function TemplateEditor({ open, onOpenChange, template, onSaved, workspac
           </div>
           <div className="space-y-3 lg:sticky lg:top-0">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-slate-600">Preview ao vivo</p>
+              <p className="text-xs font-semibold text-foreground/75">Preview ao vivo</p>
               <div className="inline-flex rounded-md bg-muted p-0.5 text-[11px]">
-                <button onClick={() => setPreviewName("sample")} className={cn("rounded px-2 py-0.5", previewName === "sample" && "bg-white shadow-sm")}>Com nome</button>
-                <button onClick={() => setPreviewName("empty")} className={cn("rounded px-2 py-0.5", previewName === "empty" && "bg-white shadow-sm")}>Sem nome</button>
+                <button onClick={() => setPreviewName("sample")} className={cn("rounded px-2 py-0.5", previewName === "sample" && "bg-card shadow-sm")}>Com nome</button>
+                <button onClick={() => setPreviewName("empty")} className={cn("rounded px-2 py-0.5", previewName === "empty" && "bg-card shadow-sm")}>Sem nome</button>
               </div>
             </div>
             <WhatsAppPreview headerType={d.headerType} headerContent={d.headerContent} body={rendered} footer={d.footerText} buttons={d.buttonsJson} businessName={workspaceName} />
             <p className="text-[11px] text-muted-foreground">No envio, cada variável é trocada pelos dados do destinatário. Se o contato não tiver nome, a variável e a vírgula/espaço sobrando são removidas automaticamente.</p>
-            <div className="rounded-lg bg-slate-50 p-3 text-xs">
+            <div className="rounded-lg bg-muted/60 p-3 text-xs">
               <p className="text-muted-foreground">Custo por mensagem entregue</p>
               <p className="text-lg font-semibold">{formatBRL(META_PRICING[d.category], { decimals: 4 })}</p>
             </div>

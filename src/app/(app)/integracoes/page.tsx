@@ -52,7 +52,7 @@ function ChannelDialog({ open, onOpenChange, provider, onSaved }: { open: boolea
               <Field label="WABA ID"><Input value={f.metaWabaId} onChange={s("metaWabaId")} /></Field>
               <Field label="Phone Number ID"><Input value={f.metaPhoneNumberId} onChange={s("metaPhoneNumberId")} /></Field>
               <Field label="Token de acesso permanente" className="sm:col-span-2" hint="Token de usuário do sistema com whatsapp_business_messaging e whatsapp_business_management. Use 'demo-…' para modo simulado."><Input type="password" value={f.metaAccessToken} onChange={s("metaAccessToken")} /></Field>
-              <p className="rounded-md bg-slate-50 p-3 text-xs text-muted-foreground sm:col-span-2">Configure o webhook no app da Meta: <code className="break-all">{typeof window !== "undefined" ? window.location.origin : ""}/api/webhooks/meta</code> com o token de verificação definido em <code>META_WEBHOOK_VERIFY_TOKEN</code> e assine o campo <strong>messages</strong>.</p>
+              <p className="rounded-md bg-muted/60 p-3 text-xs text-muted-foreground sm:col-span-2">Configure o webhook no app da Meta: <code className="break-all">{typeof window !== "undefined" ? window.location.origin : ""}/api/webhooks/meta</code> com o token de verificação definido em <code>META_WEBHOOK_VERIFY_TOKEN</code> e assine o campo <strong>messages</strong>.</p>
             </>
           ) : (
             <>
@@ -88,7 +88,7 @@ function ChannelsTable({ channels, onChanged, provider }: { channels: Channel[];
   if (!list.length) return <EmptyState icon={<Smartphone className="h-5 w-5" />} title="Nenhum número" description="Adicione o número da empresa ou dos corretores." />;
   const section = (title: string, items: Channel[]) => items.length > 0 && (
     <div>
-      <p className="border-b bg-slate-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
+      <p className="border-b bg-muted/60 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
       {items.map((c) => {
         const st = STATUS[c.status];
         return (
@@ -154,7 +154,7 @@ function IntegrationsList({ items, types, onChanged }: { items: Integration[]; t
             {i.type === "FACEBOOK_LEAD_ADS" && isManager && <Button size="xs" variant="outline" onClick={() => { setMapOpen(i); setMap(Object.entries((i.configJson.fieldMap ?? {}) as Record<string, string>).map(([src, dst]) => ({ src, dst }))); }}>Mapear campos</Button>}
             <Switch disabled={!isManager} checked={i.isEnabled} onCheckedChange={(v) => patch.mutate({ id: i.id, isEnabled: v })} />
           </div>
-          <div className="mt-3 flex items-center gap-2 rounded-md bg-slate-50 px-3 py-2">
+          <div className="mt-3 flex items-center gap-2 rounded-md bg-muted/60 px-3 py-2">
             <Link2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             <code className="flex-1 truncate text-[11px]">{i.webhookUrl}</code>
             <Button size="xs" variant="ghost" onClick={() => { navigator.clipboard.writeText(i.webhookUrl); toast.success("URL copiada"); }}><Copy /></Button>
@@ -215,19 +215,20 @@ export default function Integracoes() {
   const prov = tab === "qr" ? "EVOLUTION_QR" : "META_OFFICIAL";
   const scoped = all.filter((c) => c.provider === prov);
   return (
-    <div className="flex min-h-app">
-      <aside className="hidden w-60 shrink-0 border-r bg-white p-3 md:block">
-        {tabs.map((t) => (
-          <button key={t.key} onClick={() => setTab(t.key)} className={cn("flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-sm font-medium", tab === t.key ? "bg-primary/10 text-primary" : "text-slate-600 hover:bg-muted")}>
-            <t.icon className="h-4 w-4" /> {t.label}
-          </button>
-        ))}
-      </aside>
-      <div className="min-w-0 flex-1 px-4 py-6 md:px-6">
-        <Select value={tab} onChange={(e) => setTab(e.target.value as Tab)} className="mb-4 md:hidden">{tabs.map((t) => <option key={t.key} value={t.key}>{t.label}</option>)}</Select>
+    <div className="min-h-app">
+      <div className="sticky top-[var(--topbar-h)] z-20 border-b bg-background/85 px-4 backdrop-blur-xl md:px-8">
+        <nav aria-label="Tipos de integração" className="mx-auto flex max-w-[1400px] gap-1 overflow-x-auto py-2.5 scrollbar-thin">
+          {tabs.map((t) => (
+            <button key={t.key} onClick={() => setTab(t.key)} aria-current={tab === t.key ? "page" : undefined} className={cn("flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-[13px] font-bold transition-colors", tab === t.key ? "border-primary bg-primary text-primary-foreground" : "bg-card text-foreground/75 hover:border-primary/50 hover:text-foreground")}>
+              <t.icon className="h-4 w-4" /> {t.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+      <div className="mx-auto min-w-0 max-w-[1400px] px-4 py-6 md:px-8">
         {(tab === "oficial" || tab === "qr") && (
           <>
-            <PageHeader
+            <PageHeader eyebrow="Integrações"
               title={tab === "oficial" ? "WhatsApp Oficial (Cloud API)" : "WhatsApp App (QR Code)"}
               description={tab === "oficial" ? "Números conectados à API oficial da Meta: templates aprovados, janela de 24h e disparos sem risco de bloqueio." : "Conecte o WhatsApp dos corretores pelo QR Code (Evolution API). O gestor audita todas as conversas."}
               actions={isManager && <Button size="sm" onClick={() => setAdd(prov)}><Plus /> Adicionar número</Button>}
@@ -235,29 +236,29 @@ export default function Integracoes() {
             <div className="mb-5 grid grid-cols-3 gap-3">
               <Stat label="Números" value={scoped.length} />
               <Stat label="Conectados" value={scoped.filter((c) => c.status === "CONNECTED").length} />
-              <Stat label="Requerem atenção" value={scoped.filter((c) => c.status !== "CONNECTED").length} className={scoped.some((c) => c.status !== "CONNECTED") ? "border-amber-200 bg-amber-50/40" : undefined} />
+              <Stat label="Requerem atenção" value={scoped.filter((c) => c.status !== "CONNECTED").length} className={scoped.some((c) => c.status !== "CONNECTED") ? "border-amber-200 bg-amber-500/10" : undefined} />
             </div>
             <Card className="overflow-hidden"><ChannelsTable channels={all} provider={prov} onChanged={refresh} /></Card>
           </>
         )}
         {tab === "facebook" && (
           <>
-            <PageHeader title="Facebook Lead Ads" description="Formulários instantâneos do Facebook/Instagram viram contatos na hora, com distribuição pela roleta." />
+            <PageHeader eyebrow="Integrações" title="Facebook Lead Ads" description="Formulários instantâneos do Facebook/Instagram viram contatos na hora, com distribuição pela roleta." />
             <Card className="mb-4 p-4 text-xs text-muted-foreground">Na Meta, crie uma assinatura de webhook <strong>leadgen</strong> (ou use Zapier/Make) apontando para a URL da integração. O payload <code>field_data</code> é mapeado automaticamente.</Card>
             <IntegrationsList items={integrations ?? []} types={["FACEBOOK_LEAD_ADS"]} onChanged={refresh} />
           </>
         )}
         {tab === "google" && (
           <>
-            <PageHeader title="Google Ads" description="Receba os leads dos formulários de lead do Google Ads (webhook de extensão de formulário)." />
+            <PageHeader eyebrow="Integrações" title="Google Ads" description="Receba os leads dos formulários de lead do Google Ads (webhook de extensão de formulário)." />
             <Card className="mb-4 p-4 text-xs text-muted-foreground">No Google Ads › Recursos › Formulário de lead › Integração por webhook, cole a URL abaixo. Os campos <code>user_column_data</code> são lidos automaticamente.</Card>
             <IntegrationsList items={integrations ?? []} types={["GOOGLE_ADS"]} onChanged={refresh} />
           </>
         )}
         {tab === "portais" && (
           <>
-            <PageHeader title="Portais Imobiliários / Webhooks" description="Grupo OLX (ZAP + Viva Real), Chaves na Mão, Imovelweb ou qualquer sistema que envie JSON." />
-            <CardHeader className="mb-2 rounded-lg border bg-white" title="Formato aceito" description='POST JSON com { "name", "phone", "email", "message", "listing_id" } — ou o formato nativo de cada portal.' />
+            <PageHeader eyebrow="Integrações" title="Portais Imobiliários / Webhooks" description="Grupo OLX (ZAP + Viva Real), Chaves na Mão, Imovelweb ou qualquer sistema que envie JSON." />
+            <CardHeader className="mb-2 rounded-lg border bg-card" title="Formato aceito" description='POST JSON com { "name", "phone", "email", "message", "listing_id" } — ou o formato nativo de cada portal.' />
             <IntegrationsList items={integrations ?? []} types={["PORTAL_OLX", "PORTAL_CHAVES_NA_MAO", "PORTAL_IMOVELWEB", "CUSTOM_WEBHOOK"]} onChanged={refresh} />
           </>
         )}

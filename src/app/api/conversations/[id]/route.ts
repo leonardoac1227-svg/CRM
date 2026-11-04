@@ -48,7 +48,7 @@ export const PATCH = route<{ id: string }>(async ({ req, params, session }) => {
     return { ok: true };
   }
   if (d.aiActive !== undefined && d.aiActive !== conv.aiActive) {
-    // "✨ Qualificar com IA": liga/desliga o Téo nesta conversa em tempo real
+    // "✨ Qualificar com IA": liga/desliga a Zeni nesta conversa em tempo real
     const state = (conv.aiState ?? {}) as { step?: string | null };
     const restart = d.aiActive && (state.step === "DONE" || state.step === "HANDOFF");
     await prisma.conversation.update({

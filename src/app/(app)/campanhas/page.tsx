@@ -75,7 +75,7 @@ function CampaignDetail({ id, onClose }: { id: string | null; onClose: () => voi
             {(c.status === "DRAFT" || c.status === "SCHEDULED") && <Button onClick={() => send.mutate()} loading={send.isPending}><Send /> Enviar agora</Button>}
             <Card className="overflow-hidden">
               <table className="w-full text-xs">
-                <thead className="bg-slate-50 text-left text-muted-foreground"><tr><th className="px-3 py-2">Contato</th>{c.abTestEnabled && <th className="px-3 py-2">Var.</th>}<th className="px-3 py-2">Status</th><th className="px-3 py-2">Enviado</th></tr></thead>
+                <thead className="bg-muted/60 text-left text-muted-foreground"><tr><th className="px-3 py-2">Contato</th>{c.abTestEnabled && <th className="px-3 py-2">Var.</th>}<th className="px-3 py-2">Status</th><th className="px-3 py-2">Enviado</th></tr></thead>
                 <tbody>
                   {c.recipients.map((r) => (
                     <tr key={r.id} className="border-t" title={r.renderedBody ?? r.error ?? ""}>
@@ -121,8 +121,8 @@ function Campanhas() {
   const totals = (data ?? []).reduce((a, c) => ({ sent: a.sent + c.sentCount, replied: a.replied + c.repliedCount, cost: a.cost + (c.status === "COMPLETED" ? c.estimatedCost : 0) }), { sent: 0, replied: 0, cost: 0 });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <PageHeader title="Campanhas" description="Disparos oficiais pelo WhatsApp, segmentados por etapa do funil." actions={<Button size="sm" onClick={() => { setInitial(undefined); setOpen(true); }}><Plus /> Nova campanha</Button>} />
+    <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Crescer" icon={<Megaphone />} title="Campanhas" description="Disparos oficiais pelo WhatsApp, segmentados por etapa do funil." actions={<Button size="sm" onClick={() => { setInitial(undefined); setOpen(true); }}><Plus /> Nova campanha</Button>} />
       <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Stat label="Mensagens enviadas" value={totals.sent} />
         <Stat label="Respostas" value={totals.replied} hint={totals.sent ? `${formatPercent((totals.replied / totals.sent) * 100, 1)} de taxa de resposta` : undefined} />
@@ -131,12 +131,12 @@ function Campanhas() {
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[820px] text-sm">
-            <thead className="border-b bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <thead className="border-b bg-muted/60 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               <tr><th className="px-4 py-3">Campanha</th><th className="px-3 py-3">Status</th><th className="px-3 py-3">Modelo</th><th className="px-3 py-3 text-right">Destinatários</th><th className="px-3 py-3 text-right">Enviadas</th><th className="px-3 py-3 text-right">Respostas</th><th className="px-3 py-3 text-right">Custo</th><th className="px-3 py-3" /></tr>
             </thead>
             <tbody>
               {data?.map((c) => (
-                <tr key={c.id} onClick={() => setDetail(c.id)} className="cursor-pointer border-b last:border-0 hover:bg-slate-50">
+                <tr key={c.id} onClick={() => setDetail(c.id)} className="cursor-pointer border-b last:border-0 hover:bg-muted/60">
                   <td className="px-4 py-3">
                     <p className="font-medium">{c.name}</p>
                     <p className="text-[11px] text-muted-foreground">{c.channel?.name} · {formatDate(c.createdAt)}{c.routeRepliesToAi && " · ✨ IA"}{c.abTestEnabled && " · A/B"}</p>
@@ -149,7 +149,7 @@ function Campanhas() {
                   <td className="px-3 py-3 text-right">{c.totalRecipients}</td>
                   <td className="px-3 py-3 text-right">
                     {c.sentCount}
-                    {c.status === "SENDING" && c.totalRecipients > 0 && <div className="ml-auto mt-1 h-1 w-20 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-amber-500" style={{ width: `${(c.sentCount / c.totalRecipients) * 100}%` }} /></div>}
+                    {c.status === "SENDING" && c.totalRecipients > 0 && <div className="ml-auto mt-1 h-1 w-20 overflow-hidden rounded-full bg-muted"><div className="h-full bg-amber-500" style={{ width: `${(c.sentCount / c.totalRecipients) * 100}%` }} /></div>}
                   </td>
                   <td className="px-3 py-3 text-right">{c.repliedCount}</td>
                   <td className="px-3 py-3 text-right">{formatBRL(c.estimatedCost)}</td>

@@ -1,7 +1,8 @@
 "use client";
-import { useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Plus, CalendarDays } from "lucide-react";
 import { api, qs } from "@/lib/client";
 import { TASK_TYPE_COLORS, TASK_TYPE_LABELS } from "@/lib/constants";
 import { cn, formatDate } from "@/lib/utils";
@@ -20,7 +21,7 @@ function startOfWeek(d: Date) {
   return x;
 }
 
-export default function Agenda() {
+function Agenda() {
   const qc = useQueryClient();
   const { me } = useCan();
   const { data: team } = useTeam();
@@ -30,6 +31,10 @@ export default function Agenda() {
   const [userId, setUserId] = useState("");
   const [type, setType] = useState("");
   const [dialog, setDialog] = useState<{ task?: Task | null; date?: Date } | null>(null);
+  const sp = useSearchParams();
+  useEffect(() => {
+    if (sp.get("nova")) setDialog({ date: new Date() });
+  }, [sp]);
   const end = new Date(anchor.getTime() + 7 * 86400000);
   const { data: tasks } = useQuery({
     queryKey: ["tasks", view, anchor.toISOString(), userId, type],
@@ -58,12 +63,12 @@ export default function Agenda() {
   );
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-6">
-      <PageHeader title="Agenda" description="Visitas, ligações, follow-ups e documentação." actions={<Button size="sm" onClick={() => setDialog({})}><Plus /> Nova tarefa</Button>} />
+    <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Vender" icon={<CalendarDays />} title="Agenda" description="Visitas, ligações, follow-ups e documentação." actions={<Button size="sm" onClick={() => setDialog({})}><Plus /> Nova tarefa</Button>} />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="inline-flex rounded-lg bg-muted p-1 text-xs">
-          <button onClick={() => setView("semana")} className={cn("rounded-md px-3 py-1.5 font-medium", view === "semana" ? "bg-white shadow-sm" : "text-muted-foreground")}>Semana</button>
-          <button onClick={() => setView("lista")} className={cn("rounded-md px-3 py-1.5 font-medium", view === "lista" ? "bg-white shadow-sm" : "text-muted-foreground")}>Lista</button>
+          <button onClick={() => setView("semana")} className={cn("rounded-md px-3 py-1.5 font-medium", view === "semana" ? "bg-card shadow-sm" : "text-muted-foreground")}>Semana</button>
+          <button onClick={() => setView("lista")} className={cn("rounded-md px-3 py-1.5 font-medium", view === "lista" ? "bg-card shadow-sm" : "text-muted-foreground")}>Lista</button>
         </div>
         {view === "semana" && (
           <div className="flex items-center gap-1">
@@ -79,7 +84,7 @@ export default function Agenda() {
         </div>
       </div>
       {!!overdue?.length && (
-        <Card className="mb-4 border-red-200 bg-red-50/50 p-3">
+        <Card className="mb-4 border-red-200 bg-red-500/10 p-3">
           <p className="mb-2 text-xs font-semibold text-red-700">⚠️ {overdue.length} tarefa(s) atrasada(s)</p>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">{overdue.map((t) => <div key={t.id} className="w-56 shrink-0"><TaskChip t={t} /></div>)}</div>
         </Card>
@@ -89,9 +94,9 @@ export default function Agenda() {
           {days.map((d) => {
             const list = (tasks ?? []).filter((t) => new Date(t.dueDate).toDateString() === d.toDateString());
             return (
-              <div key={d.toISOString()} className={cn("min-h-[220px] rounded-lg border bg-white p-2", d.toDateString() === today && "border-primary ring-1 ring-primary/20")}>
+              <div key={d.toISOString()} className={cn("min-h-[220px] rounded-lg border bg-card p-2", d.toDateString() === today && "border-primary ring-1 ring-primary/20")}>
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-xs font-semibold capitalize">{d.toLocaleDateString("pt-BR", { weekday: "short" })} <span className={cn("ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full", d.toDateString() === today && "bg-primary text-white")}>{d.getDate()}</span></p>
+                  <p className="text-xs font-semibold capitalize">{d.toLocaleDateString("pt-BR", { weekday: "short" })} <span className={cn("ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full", d.toDateString() === today && "bg-primary text-primary-foreground")}>{d.getDate()}</span></p>
                   <button onClick={() => { const x = new Date(d); x.setHours(10, 0, 0, 0); setDialog({ date: x }); }} className="rounded p-0.5 text-muted-foreground hover:bg-muted"><Plus className="h-3.5 w-3.5" /></button>
                 </div>
                 <div className="space-y-1.5">{list.map((t) => <TaskChip key={t.id} t={t} />)}</div>
@@ -103,7 +108,7 @@ export default function Agenda() {
         <Card className="divide-y">
           {(tasks ?? []).map((t) => (
             <div key={t.id} className="flex items-center gap-3 px-4 py-3">
-              <button onClick={() => toggle.mutate(t)} className={t.isCompleted ? "text-success" : "text-slate-300 hover:text-slate-500"}><CheckCircle2 className="h-5 w-5" /></button>
+              <button onClick={() => toggle.mutate(t)} className={t.isCompleted ? "text-success" : "text-muted-foreground/60 hover:text-muted-foreground"}><CheckCircle2 className="h-5 w-5" /></button>
               <div className="min-w-0 flex-1 cursor-pointer" onClick={() => setDialog({ task: t })}>
                 <p className={cn("text-sm font-medium", t.isCompleted && "line-through text-muted-foreground")}>{t.title}</p>
                 <p className="text-xs text-muted-foreground">{formatDate(t.dueDate, true)} · {t.contact?.name ?? "Sem contato"} · {t.assignedTo?.name}</p>
@@ -117,5 +122,13 @@ export default function Agenda() {
       )}
       <TaskDialog open={!!dialog} onOpenChange={(o) => !o && setDialog(null)} task={dialog?.task} defaultDate={dialog?.date} onSaved={() => qc.invalidateQueries({ queryKey: ["tasks"] })} />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <Agenda />
+    </Suspense>
   );
 }

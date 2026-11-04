@@ -209,7 +209,7 @@ export async function ingestInbound(input: InboundInput) {
     },
   });
 
-  // Resposta a campanha? "Entregar ao Téo quem responder"
+  // Resposta a campanha? "Entregar à Zeni quem responder"
   const recipient = await prisma.campaignRecipient.findFirst({
     where: { contactId: contact.id, status: { in: ["SENT", "DELIVERED", "READ"] }, sentAt: { gte: new Date(Date.now() - 7 * 86400000) } },
     include: { campaign: true },
@@ -230,7 +230,7 @@ export async function ingestInbound(input: InboundInput) {
   let aiState: Prisma.InputJsonValue | undefined;
   if (aiEnabled && !state.step && (isNewConversation || isNewContact)) aiActive = true;
   if (aiEnabled && recipient?.campaign.routeRepliesToAi && !conv.aiActive) {
-    // Respondeu a um disparo: o Téo reassume, mantendo o que já foi coletado
+    // Respondeu a um disparo: a Zeni reassume, mantendo o que já foi coletado
     aiActive = true;
     aiState = { ...(conv.aiState as Record<string, unknown>), step: null, currentQuestionId: null } as Prisma.InputJsonValue;
   }

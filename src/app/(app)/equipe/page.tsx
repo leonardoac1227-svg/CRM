@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Crown, KeyRound, Plus, Shield, Shuffle, UserMinus, Users } from "lucide-react";
+import { Crown, KeyRound, Plus, Shield, Shuffle, UserMinus, Users, ShieldCheck } from "lucide-react";
 import { api } from "@/lib/client";
 import { DEFAULT_ASSISTANT_PERMISSIONS, MODULE_LABELS, ORIGIN_SHORT, ROLE_LABELS, type ModuleKey } from "@/lib/constants";
 import { cn, formatPhone, timeAgo } from "@/lib/utils";
@@ -16,7 +16,7 @@ import { Dialog, DialogBody, DialogContent, DialogFooter, Switch } from "@/compo
 type Roulette = { history: { id: string; title: string; createdAt: string; user: { name: string } | null; contact: { id: string; name: string | null; phone: string; origin: string } }[]; next: { id: string; name: string } | null };
 
 const ROLE_DESC: Record<string, string> = {
-  MANAGER: "Acesso total: vê todos os leads, conversas e números, configura o Téo e a equipe.",
+  MANAGER: "Acesso total: vê todos os leads, conversas e números, configura a Zeni e a equipe.",
   ASSISTANT: "Permissões granulares por módulo (definidas abaixo).",
   BROKER: "Acesso restrito aos próprios leads, conversas e agenda.",
 };
@@ -42,7 +42,7 @@ function PermissionsDialog({ user, onClose }: { user: TeamUser | null; onClose: 
               <label key={m} className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"><Checkbox checked={!!p[m]} onChange={(e) => setP({ ...p, [m]: e.target.checked })} /> {MODULE_LABELS[m]}</label>
             ))}
           </div>
-          <label className="mt-2 flex items-center justify-between rounded-md border bg-slate-50 px-3 py-2.5 text-sm">
+          <label className="mt-2 flex items-center justify-between rounded-md border bg-muted/60 px-3 py-2.5 text-sm">
             <span><strong>Ver leads de toda a equipe</strong><span className="block text-xs text-muted-foreground">Se desligado, vê apenas os leads atribuídos a ele.</span></span>
             <Switch checked={!!p.verTodosLeads} onCheckedChange={(v) => setP({ ...p, verTodosLeads: v })} />
           </label>
@@ -110,8 +110,8 @@ export default function Equipe() {
   const brokers = (team ?? []).filter((u) => u.role === "BROKER" && u.isActive);
   const onDuty = brokers.filter((b) => b.inRoulette);
   return (
-    <div className="mx-auto max-w-7xl space-y-5 px-4 py-6">
-      <PageHeader title="Equipe" description="Perfis de acesso (RBAC) e roleta de distribuição de leads." actions={isManager && <Button size="sm" onClick={() => setInvite(true)}><Plus /> Convidar membro</Button>} />
+    <div className="mx-auto max-w-[1400px] space-y-5 px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Configurar" icon={<ShieldCheck />} title="Equipe" description="Perfis de acesso (RBAC) e roleta de distribuição de leads." actions={isManager && <Button size="sm" onClick={() => setInvite(true)}><Plus /> Convidar membro</Button>} />
       <div className="grid gap-3 md:grid-cols-3">
         {(["MANAGER", "ASSISTANT", "BROKER"] as const).map((r) => (
           <Card key={r} className="p-4">
@@ -125,7 +125,7 @@ export default function Equipe() {
           <CardHeader title="Membros" />
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
-              <thead className="bg-slate-50 text-left text-[11px] uppercase text-muted-foreground"><tr><th className="px-4 py-2">Membro</th><th className="px-3 py-2">Perfil</th><th className="px-3 py-2 text-right">Leads</th><th className="px-3 py-2">Plantão</th><th className="px-3 py-2">Peso</th><th className="px-3 py-2" /></tr></thead>
+              <thead className="bg-muted/60 text-left text-[11px] uppercase text-muted-foreground"><tr><th className="px-4 py-2">Membro</th><th className="px-3 py-2">Perfil</th><th className="px-3 py-2 text-right">Leads</th><th className="px-3 py-2">Plantão</th><th className="px-3 py-2">Peso</th><th className="px-3 py-2" /></tr></thead>
               <tbody>
                 {team?.map((u) => (
                   <tr key={u.id} className={cn("border-t", !u.isActive && "opacity-50")}>
@@ -163,7 +163,7 @@ export default function Equipe() {
             </div>
             <div className="flex flex-wrap gap-1.5">{brokers.map((b) => <Badge key={b.id} tone={b.inRoulette ? "green" : "slate"}>{b.inRoulette ? "🟢" : "⏸️"} {b.name.split(" ")[0]} {b.lastAssignedAt && `· ${timeAgo(b.lastAssignedAt)}`}</Badge>)}</div>
             <div>
-              <p className="mb-2 text-xs font-semibold text-slate-600">Últimos leads distribuídos</p>
+              <p className="mb-2 text-xs font-semibold text-foreground/75">Últimos leads distribuídos</p>
               <div className="max-h-80 space-y-2 overflow-y-auto scrollbar-thin">
                 {roulette?.history.map((h) => (
                   <div key={h.id} className="flex items-center gap-2 text-xs">

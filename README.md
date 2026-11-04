@@ -1,9 +1,9 @@
-# Téo CRM — CRM Omnichannel com IA no WhatsApp, Campanhas Meta e ROI de SEO
+# Ápice — CRM Omnichannel com IA no WhatsApp, Campanhas Meta e ROI de SEO
 
 Plataforma SaaS **multi-tenant e white-label** (Agência de SEO → Empresas clientes) com:
 
 - **Atendimento omnichannel** no WhatsApp: API Oficial da Meta (Cloud API) **e** Evolution API (QR Code), com regra da janela de 24h, modelos aprovados, mídia, áudio gravado no navegador e respostas rápidas.
-- **Téo ✨**, assistente de IA que responde novos leads na hora, faz as perguntas de qualificação (com regras **Se der** × **Obrigatória**), responde dúvidas frequentes, recomenda imóveis do catálogo, gera um **dossiê estruturado** na ficha do contato e distribui o lead pela **roleta de corretores**.
+- **Zeni ✨**, assistente de IA que responde novos leads na hora, faz as perguntas de qualificação (com regras **Se der** × **Obrigatória**), responde dúvidas frequentes, recomenda imóveis do catálogo, gera um **dossiê estruturado** na ficha do contato e distribui o lead pela **roleta de corretores**.
 - **Funis** com visão de Análise (distribuição por etapa, matriz usuário × etapa, ranking de corretores) e **Kanban** com arrastar-e-soltar.
 - **Campanhas** com modelos oficiais da Meta, injetor de variáveis com fallback inteligente, segmentação por funil/etapa/corretor/origem/etiqueta, teste A/B, agendamento, limite de horário e **custo estimado** (Marketing R$ 0,3217 · Utilidade R$ 0,035).
 - **Rastreamento de SEO**: script `tracker.js` plug & play que detecta tráfego orgânico, guarda a página de entrada e injeta o protocolo `[Ref: #SEO-XXXX]` na mensagem do WhatsApp — o webhook vincula a conversa à página posicionada no Google.
@@ -27,8 +27,8 @@ O arquivo `render.yaml` cria tudo no plano gratuito do Render: o web service e u
 
 1. Crie uma conta em [render.com](https://render.com) entrando com o GitHub.
 2. **New → Blueprint** → escolha o repositório `CRM` (branch `claude/focused-heisenberg-wo4i29`) → **Apply**.
-3. Quando pedir `GEMINI_API_KEY`, cole uma chave gratuita do [Google AI Studio](https://aistudio.google.com/apikey) ou deixe em branco (o Téo usa o motor de regras).
-4. Aguarde o build (~5 min) e abra a URL `https://teo-crm-xxxx.onrender.com`. O banco é populado com os dados de demonstração no primeiro start.
+3. Quando pedir `GEMINI_API_KEY`, cole uma chave gratuita do [Google AI Studio](https://aistudio.google.com/apikey) ou deixe em branco (a Zeni usa o motor de regras).
+4. Aguarde o build (~5 min) e abra a URL `https://ia-crm-xxxx.onrender.com`. O banco é populado com os dados de demonstração no primeiro start.
 
 Limites do plano gratuito: o serviço "dorme" após 15 min sem acesso (o primeiro acesso depois disso leva ~1 min), o PostgreSQL gratuito expira em 30 dias e arquivos enviados no chat não são permanentes.
 
@@ -65,13 +65,13 @@ Com Docker: `docker compose up --build` (sobe Postgres + app). Rode o seed uma v
 | Corretor | `corretor@horizonte.com.br` / `marcio@horizonte.com.br` | Apenas os próprios leads, chats e agenda |
 | Agência SEO | `agencia@rankalto.com.br` | Alterna entre os workspaces (clientes) da agência |
 
-Com `DEMO_MODE=true`, o menu do avatar permite **trocar de perfil sem senha** e o Atendimento ganha o botão **“Simular mensagem do cliente”**, que passa pelo mesmo pipeline do webhook (lead novo → rastreio SEO → Téo → roleta).
+Com `DEMO_MODE=true`, o menu do avatar permite **trocar de perfil sem senha** e o Atendimento ganha o botão **“Simular mensagem do cliente”**, que passa pelo mesmo pipeline do webhook (lead novo → rastreio SEO → Zeni → roleta).
 
 ### Testar o tracker de ponta a ponta
 
 1. Acesse **Mais → Site & SEO** e clique em **“Testar em um site de exemplo”** (`/demo-site`).
 2. O site de exemplo carrega o `tracker.js`, detecta a origem (com `utm_medium=organic` simula o Google) e gera o protocolo.
-3. Clique em **Falar no WhatsApp → Simular envio para o CRM**: o lead aparece no Atendimento já atendido pelo Téo e vinculado à página do blog. O formulário lateral cria o lead com a mesma atribuição.
+3. Clique em **Falar no WhatsApp → Simular envio para o CRM**: o lead aparece no Atendimento já atendido pela Zeni e vinculado à página do blog. O formulário lateral cria o lead com a mesma atribuição.
 
 ## Variáveis de ambiente
 
@@ -83,7 +83,7 @@ Veja `.env.example`. As principais:
 | `JWT_SECRET` | Assinatura das sessões (obrigatório em produção, ≥ 32 caracteres) |
 | `APP_URL` | URL pública (usada no `tracker.js`, uploads e webhooks) |
 | `DEMO_MODE` | Troca de perfil sem senha e simulador de mensagens |
-| `OPENAI_API_KEY` / `GEMINI_API_KEY`, `AI_PROVIDER` | Liga o modo LLM do Téo, transcrição de áudio e análise de imagem |
+| `OPENAI_API_KEY` / `GEMINI_API_KEY`, `AI_PROVIDER` | Liga o modo LLM da Zeni, transcrição de áudio e análise de imagem |
 | `META_WEBHOOK_VERIFY_TOKEN`, `META_APP_SECRET` | Verificação e assinatura (`X-Hub-Signature-256`) do webhook da Meta |
 | `EVOLUTION_API_URL`, `EVOLUTION_API_KEY` | Evolution API padrão (cada número também pode ter a sua) |
 | `DISABLE_SCHEDULER`, `CRON_SECRET` | Agendador interno ou `POST /api/cron/tick` em ambientes serverless |
@@ -95,7 +95,7 @@ Canais com token iniciado por `demo` (ou Evolution sem URL/chave) operam em **mo
 ```
 server.ts                      Next + Socket.io + agendador (tick a cada 60 s)
 prisma/schema.prisma           Modelo multi-tenant completo
-prisma/seed.ts                 Workspace de demonstração (Horizonte Imóveis / Rank Alto SEO)
+prisma/seed.ts                 Workspace de demonstração (Horizonte Imóveis / CRAP Digital)
 src/middleware.ts              Proteção de rotas (JWT em cookie httpOnly)
 src/lib/
   auth.ts, session-token.ts    Sessão (jose/HS256), workspace ativo para agências
@@ -109,7 +109,7 @@ src/lib/
     llm.ts                     OpenAI/Gemini, Whisper e visão
   services/
     messaging.ts               Envio (janela de 24h), recebimento, vínculo [Ref: #SEO-XXXX]
-    ai-runner.ts               Orquestra o Téo na conversa, transbordo e timeout
+    ai-runner.ts               Orquestra a Zeni na conversa, transbordo e timeout
     distribution.ts            Roleta round-robin ponderada + aviso ao corretor no WhatsApp
     campaigns.ts               Segmentação, custo, envio em lotes, A/B, limite de horário
     analytics.ts               Funil, matriz, ranking, ROI de SEO
@@ -132,7 +132,7 @@ src/app/api/                   API REST
 | `POST /api/track/session · /event · /form` | Coleta do tracker (CORS aberto) |
 | `POST /api/cron/tick` | Agendador para serverless (Bearer `CRON_SECRET`) |
 
-### Motor do Téo
+### Motor da Zeni
 
 A cada mensagem recebida em uma conversa com a IA ativa:
 
@@ -141,4 +141,4 @@ A cada mensagem recebida em uma conversa com a IA ativa:
 3. **Modo regras** (sem chave ou em falha do LLM): extratores pt-BR reconhecem “uns 4 mil e quinhentos”, “carteira assinada”, “sim, 6 anos”, “com minha esposa” etc.; dúvidas frequentes são detectadas por palavras-chave; perguntas **Se der** seguem adiante quando o cliente muda de assunto e **Obrigatórias** insistem educadamente.
 4. Pedido de humano, fim do roteiro ou inatividade (`inactivityTimeoutHours`) disparam o transbordo: dossiê na ficha, mudança de etapa, atribuição (roleta / gestor / usuário fixo) e aviso ao corretor.
 
-O drawer **Téo → Automações → Atendimento no WhatsApp → Configurar** tem um simulador (“Testar conversa”) que roda o mesmo motor com a configuração ainda não salva.
+O drawer **Zeni → Automações → Atendimento no WhatsApp → Configurar** tem um simulador (“Testar conversa”) que roda o mesmo motor com a configuração ainda não salva.

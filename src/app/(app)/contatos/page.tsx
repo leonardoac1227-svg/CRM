@@ -39,6 +39,9 @@ function Contatos() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [importOpen, setImportOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  useEffect(() => {
+    if (sp.get("novo")) setCreateOpen(true);
+  }, [sp]);
 
   useEffect(() => { const t = setTimeout(() => { setDeb(q); setPage(1); }, 250); return () => clearTimeout(t); }, [q]);
   useEffect(() => { const id = sp.get("id"); if (id) openContact(id); }, [sp, openContact]);
@@ -68,8 +71,10 @@ function Contatos() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-6">
+    <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
       <PageHeader
+        eyebrow="Vender"
+        icon={<Users />}
         title="Contatos"
         description={`${data?.total ?? "…"} contatos${me?.seesOnlyOwn ? " na sua carteira" : ""}`}
         actions={
@@ -83,7 +88,7 @@ function Contatos() {
       <Card className="mb-4 flex flex-wrap items-center gap-2 p-3">
         <div className="relative min-w-[220px] flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome, telefone, e-mail ou #código" className="h-9 w-full rounded-md border bg-white pl-8 pr-3 text-sm outline-none focus:border-primary/50" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome, telefone, e-mail ou #código" className="h-9 w-full rounded-md border bg-card pl-8 pr-3 text-sm outline-none focus:border-primary/50" />
         </div>
         <Select value={stageId} onChange={(e) => { setStageId(e.target.value); setPage(1); }} className="w-auto min-w-[160px]">
           <option value="">Todas as etapas</option>
@@ -150,7 +155,7 @@ function Contatos() {
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-sm">
-            <thead className="border-b bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <thead className="border-b bg-muted/60 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="w-10 px-4 py-3"><Checkbox checked={allChecked} onChange={(e) => setSelected(e.target.checked ? new Set(items.map((c) => c.id)) : new Set())} /></th>
                 <th className="px-3 py-3">Contato</th>
@@ -166,7 +171,7 @@ function Contatos() {
             <tbody>
               {isLoading && Array.from({ length: 8 }).map((_, i) => <tr key={i} className="border-b"><td colSpan={9} className="px-4 py-3"><Skeleton className="h-8" /></td></tr>)}
               {items.map((c) => (
-                <tr key={c.id} onClick={() => openContact(c.id)} className={cn("cursor-pointer border-b transition-colors last:border-0 hover:bg-slate-50", selected.has(c.id) && "bg-primary/[0.03]")}>
+                <tr key={c.id} onClick={() => openContact(c.id)} className={cn("cursor-pointer border-b transition-colors last:border-0 hover:bg-muted/60", selected.has(c.id) && "bg-primary/[0.03]")}>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <Checkbox checked={selected.has(c.id)} onChange={(e) => { const n = new Set(selected); if (e.target.checked) n.add(c.id); else n.delete(c.id); setSelected(n); }} />
                   </td>
@@ -179,15 +184,15 @@ function Contatos() {
                       </div>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3 text-slate-600">{formatPhone(c.phone)}</td>
+                  <td className="whitespace-nowrap px-3 py-3 text-foreground/75">{formatPhone(c.phone)}</td>
                   <td className="px-3 py-3">{c.assignedTo ? <span className="flex items-center gap-2"><Avatar name={c.assignedTo.name} size={22} /> <span className="text-xs">{c.assignedTo.name}</span></span> : <span className="text-xs text-muted-foreground">Sem responsável</span>}</td>
                   <td className="px-3 py-3">
                     <p className="text-[11px] text-muted-foreground">{c.pipeline?.name}</p>
                     <p className="flex items-center gap-1.5 text-xs font-medium">{c.stage && <StageDot color={c.stage.color} />} {c.stage?.name ?? "—"}</p>
                   </td>
                   <td className="max-w-[220px] px-3 py-3"><OriginBadge origin={c.origin} page={c.seoLandingPage} /></td>
-                  <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-600">{formatDate(c.createdAt)}</td>
-                  <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-600">{timeAgo(c.lastInteractionAt)}</td>
+                  <td className="whitespace-nowrap px-3 py-3 text-xs text-foreground/75">{formatDate(c.createdAt)}</td>
+                  <td className="whitespace-nowrap px-3 py-3 text-xs text-foreground/75">{timeAgo(c.lastInteractionAt)}</td>
                   <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     <Button size="xs" variant="soft" asChild>
                       <Link href={c.conversations?.[0] ? `/atendimento?conversa=${c.conversations[0].id}` : `/atendimento?contato=${c.id}`}><MessageCircle /> Atender</Link>

@@ -30,8 +30,8 @@ export default function Modelos() {
     onError: (e: Error) => toast.error(e.message),
   });
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <PageHeader title="Modelos de mensagem" description="Modelos aprovados pela Meta para iniciar conversas e fazer disparos." actions={<Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus /> Novo modelo</Button>} />
+    <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Campanhas" icon={<FileText />} title="Modelos de mensagem" description="Modelos aprovados pela Meta para iniciar conversas e fazer disparos." actions={<Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus /> Novo modelo</Button>} />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {data?.map((t) => (
           <Card key={t.id} className="flex flex-col p-4">
@@ -43,7 +43,7 @@ export default function Modelos() {
               <Badge tone={t.category === "MARKETING" ? "violet" : "blue"}>{TEMPLATE_CATEGORY_LABELS[t.category]} · {formatBRL(META_PRICING[t.category], { decimals: 4 })}</Badge>
               <span>{t.channel?.name}</span>
             </div>
-            <p className="mt-3 line-clamp-4 flex-1 whitespace-pre-wrap rounded-md bg-slate-50 p-2.5 text-xs text-slate-700">{t.bodyText}</p>
+            <p className="mt-3 line-clamp-4 flex-1 whitespace-pre-wrap rounded-md bg-muted/60 p-2.5 text-xs text-foreground/90">{t.bodyText}</p>
             {t.rejectionReason && <p className="mt-2 text-xs text-red-600">Motivo: {t.rejectionReason}</p>}
             <div className="mt-3 flex items-center gap-2">
               <span className="mr-auto text-[11px] text-muted-foreground">{formatDate(t.createdAt)} · {t._count?.campaigns ?? 0} campanhas</span>

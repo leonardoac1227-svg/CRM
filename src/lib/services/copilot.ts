@@ -1,4 +1,4 @@
-// Copiloto interno do Téo: relatórios executivos gerados a partir dos dados reais do CRM.
+// Copiloto interno da Zeni: relatórios executivos gerados a partir dos dados reais do CRM.
 import type { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import type { Session } from "../auth";
@@ -134,7 +134,7 @@ async function campaignSuggestions(s: Session): Promise<CopilotReport> {
     { ...c(/visita/i), idea: "Reagendar visitas de quem faltou", tip: "Use um modelo de Utilidade (mais barato) lembrando a visita." },
     { ...c(/proposta/i), idea: "Destravar propostas paradas", tip: "Ofereça uma condição especial válida até o fim do mês." },
     { ...c(/fechado/i), idea: "Pedir 5 indicações para clientes que fecharam", tip: "Clientes satisfeitos indicam em média 2 novos leads." },
-    { ...c(/^lead$/i), idea: "Reengajar leads novos que não responderam", tip: "Marque 'Entregar ao Téo quem responder' para qualificar na hora." },
+    { ...c(/^lead$/i), idea: "Reengajar leads novos que não responderam", tip: "Marque 'Entregar à Zeni quem responder' para qualificar na hora." },
   ].filter((i) => i.stage);
   const md = [
     "Sugestões de campanha com base nas etapas do funil:",
@@ -211,10 +211,10 @@ export async function answerQuestion(s: Session, question: string, history: { ro
   if (llmAvailable()) {
     const data = await snapshot(s);
     const text = await llmText({
-      system: `Você é o Téo, copiloto de um CRM imobiliário. Responda em português, de forma executiva e objetiva, usando Markdown (tabelas quando útil). Use SOMENTE os dados fornecidos; se faltar dado, diga isso. Dados atuais do CRM (JSON): ${JSON.stringify(data)}${base ? `\n\nRelatório relacionado já calculado:\n${base.markdown}` : ""}`,
+      system: `Você é a Zeni, copiloto de um CRM imobiliário. Responda em português, de forma executiva e objetiva, usando Markdown (tabelas quando útil). Use SOMENTE os dados fornecidos; se faltar dado, diga isso. Dados atuais do CRM (JSON): ${JSON.stringify(data)}${base ? `\n\nRelatório relacionado já calculado:\n${base.markdown}` : ""}`,
       messages: [...history.slice(-8), { role: "user", content: question }],
     });
-    if (text) return { title: base?.title ?? "Resposta do Téo", markdown: text, actions: base?.actions ?? [] };
+    if (text) return { title: base?.title ?? "Resposta da Zeni", markdown: text, actions: base?.actions ?? [] };
   }
   if (base) return base;
   const d = await snapshot(s);
@@ -239,7 +239,7 @@ export async function answerQuestion(s: Session, question: string, history: { ro
   };
 }
 
-/** Pendências exibidas no menu lateral do Téo. */
+/** Pendências exibidas no menu lateral da Zeni. */
 export async function pendencies(s: Session) {
   const [unanswered, overdue, unassigned, attention, rejected] = await Promise.all([
     prisma.conversation.count({ where: { ...conversationScope(s), status: { in: ["UNREAD", "NEEDS_REPLY"] }, lastContactMessageAt: { lt: new Date(Date.now() - 30 * 60000) } } }),

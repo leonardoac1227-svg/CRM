@@ -83,7 +83,7 @@ export function TaskDialog({
             </Field>
           )}
           <Field label="Observações"><Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></Field>
-          {form.type === "VISIT" && <p className="rounded-md bg-sky-50 px-3 py-2 text-xs text-sky-800">Ao agendar uma visita, o lead avança automaticamente para a etapa “Visita agendada” e recebe lembrete do Téo (se a automação estiver ligada).</p>}
+          {form.type === "VISIT" && <p className="rounded-md bg-sky-50 px-3 py-2 text-xs text-sky-800">Ao agendar uma visita, o lead avança automaticamente para a etapa “Visita agendada” e recebe lembrete da Zeni (se a automação estiver ligada).</p>}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>

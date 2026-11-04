@@ -1,4 +1,4 @@
-// Extratores determinísticos (pt-BR) usados pelo motor do Téo sem LLM e como validação do LLM.
+// Extratores determinísticos (pt-BR) usados pelo motor da Zeni sem LLM e como validação do LLM.
 
 const WORD_NUMBERS: Record<string, number> = {
   um: 1, uma: 1, dois: 2, duas: 2, tres: 3, três: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, dez: 10,

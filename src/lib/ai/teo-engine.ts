@@ -1,5 +1,5 @@
 // =============================================================================
-//  Motor de qualificação do Téo ✨
+//  Motor de qualificação da Zeni ✨
 //  - Função pura (sem banco): usada no atendimento real e no simulador "Testar conversa".
 //  - Modo LLM (OpenAI/Gemini com Structured Outputs) + modo determinístico (regras pt-BR).
 //  - Regras de obrigatoriedade: "Se der" (segue adiante se o cliente pular/mudar de assunto)

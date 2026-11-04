@@ -67,7 +67,7 @@ function QualificationCard({ c, assistant }: { c: FullContact; assistant: string
           ["Perfil", c.employmentType ? EMPLOYMENT_LABELS[c.employmentType]?.split(" (")[0] : "—"],
           ["Interesse", c.interest ?? (c.dealValue ? `até ${formatBRL(c.dealValue, { compact: true })}` : "—")],
         ].map(([k, v]) => (
-          <div key={k} className="rounded-md bg-white/80 px-3 py-2 ring-1 ring-slate-200/70">
+          <div key={k} className="rounded-md bg-card/80 px-3 py-2 ring-1 ring-border/70">
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{k}</p>
             <p className="truncate text-sm font-semibold">{v}</p>
           </div>
@@ -76,7 +76,7 @@ function QualificationCard({ c, assistant }: { c: FullContact; assistant: string
       {c.aiQualificationSummary && (
         <details className="mt-3">
           <summary className="cursor-pointer text-xs font-medium text-primary">Ver relatório completo</summary>
-          <pre className="mt-2 whitespace-pre-wrap rounded-md bg-white p-3 font-sans text-xs leading-relaxed ring-1 ring-slate-200">{c.aiQualificationSummary}</pre>
+          <pre className="mt-2 whitespace-pre-wrap rounded-md bg-card p-3 font-sans text-xs leading-relaxed ring-1 ring-border">{c.aiQualificationSummary}</pre>
         </details>
       )}
     </div>
@@ -159,7 +159,7 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
 
   const pipeline = useMemo(() => pipelines?.find((p) => p.id === c?.pipelineId) ?? c?.pipeline ?? null, [pipelines, c]);
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const assistant = me?.assistantName ?? "Téo";
+  const assistant = me?.assistantName ?? "Zeni";
   const notes = c?.activities.filter((a) => a.type === "NOTE" || a.type === "INTERACTION") ?? [];
 
   return (
@@ -196,9 +196,9 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
 
             <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto md:grid-cols-[380px_1fr] md:overflow-hidden">
               {/* Coluna esquerda: dados cadastrais */}
-              <div className="space-y-4 border-r bg-slate-50/50 p-5 md:overflow-y-auto scrollbar-thin">
+              <div className="space-y-4 border-r bg-muted/40 p-5 md:overflow-y-auto scrollbar-thin">
                 <div>
-                  <p className="mb-1.5 text-xs font-medium text-slate-600">Etiquetas</p>
+                  <p className="mb-1.5 text-xs font-medium text-foreground/75">Etiquetas</p>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {c.tags.map((t) => <TagChip key={t} tag={t} onRemove={() => patch.mutate({ tags: c.tags.filter((x) => x !== t) })} />)}
                     <form
@@ -230,12 +230,12 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
                     </Select>
                   </Field>
                 </div>
-                <label className="flex items-center justify-between rounded-lg border bg-white px-3 py-2.5">
+                <label className="flex items-center justify-between rounded-lg border bg-card px-3 py-2.5">
                   <span className="flex items-center gap-2 text-sm font-medium"><Sparkles className="h-4 w-4 text-secondary" /> Qualificar com IA ({assistant})</span>
                   <Switch checked={c.aiQualificationEnabled} onCheckedChange={(v) => patch.mutate({ aiQualificationEnabled: v })} />
                 </label>
 
-                <div className="space-y-3 rounded-lg border bg-white p-4">
+                <div className="space-y-3 rounded-lg border bg-card p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dados cadastrais</p>
                   <Field label="Nome"><Input value={form.name ?? ""} onChange={set("name")} /></Field>
                   <div className="grid grid-cols-2 gap-3">
@@ -269,7 +269,7 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
                   </div>
                 </div>
 
-                <div className="space-y-3 rounded-lg border bg-white p-4">
+                <div className="space-y-3 rounded-lg border bg-card p-4">
                   <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Globe className="h-3.5 w-3.5" /> Origem & SEO</p>
                   <Field label="Origem">
                     <Select value={form.origin ?? "MANUAL"} onChange={set("origin")}>
@@ -283,7 +283,7 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
                   </div>
                   {c.seoReferrer && <p className="text-[11px] text-muted-foreground">Referência: {c.seoReferrer}</p>}
                 </div>
-                <div className="sticky bottom-0 -mx-5 -mb-5 flex justify-between gap-2 border-t bg-white/95 px-5 py-3 backdrop-blur">
+                <div className="sticky bottom-0 -mx-5 -mb-5 flex justify-between gap-2 border-t bg-card/95 px-5 py-3 backdrop-blur">
                   {isManager && (
                     <Button
                       variant="ghost"
@@ -339,12 +339,12 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
                       <ol className="relative space-y-4 border-l pl-5">
                         {c.activities.map((a) => (
                           <li key={a.id} className="relative">
-                            <span className={cn("absolute -left-[29px] flex h-6 w-6 items-center justify-center rounded-full border bg-white text-slate-500", a.type === "AI_QUALIFICATION" && "border-secondary/30 text-secondary", a.type === "STAGE_CHANGE" && "text-primary")}>
+                            <span className={cn("absolute -left-[29px] flex h-6 w-6 items-center justify-center rounded-full border bg-card text-muted-foreground", a.type === "AI_QUALIFICATION" && "border-secondary/30 text-secondary", a.type === "STAGE_CHANGE" && "text-primary")}>
                               {ACTIVITY_ICON[a.type]}
                             </span>
                             <p className="text-sm font-medium">{a.title}</p>
                             <p className="text-[11px] text-muted-foreground">{formatDate(a.createdAt, true)}{a.user ? ` · ${a.user.name}` : ""}</p>
-                            {a.body && <p className="mt-1 whitespace-pre-wrap rounded-md bg-slate-50 p-2 text-xs text-slate-700 ring-1 ring-slate-200/60">{a.body.length > 600 ? a.body.slice(0, 600) + "…" : a.body}</p>}
+                            {a.body && <p className="mt-1 whitespace-pre-wrap rounded-md bg-muted/60 p-2 text-xs text-foreground/90 ring-1 ring-border/60">{a.body.length > 600 ? a.body.slice(0, 600) + "…" : a.body}</p>}
                           </li>
                         ))}
                         {!c.activities.length && <p className="text-xs text-muted-foreground">Sem histórico ainda.</p>}
@@ -362,7 +362,7 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
                             <span className="text-xs text-muted-foreground">{timeAgo(cv.lastMessageAt)}</span>
                           </div>
                           {cv.messages.slice().reverse().map((m) => (
-                            <p key={m.id} className={cn("mt-1 truncate text-xs", m.senderType === "CONTACT" ? "text-slate-700" : "text-primary")}>{m.senderType === "CONTACT" ? "Cliente: " : m.senderType === "AI_AGENT" ? `${assistant}: ` : "Equipe: "}{m.content}</p>
+                            <p key={m.id} className={cn("mt-1 truncate text-xs", m.senderType === "CONTACT" ? "text-foreground/90" : "text-primary")}>{m.senderType === "CONTACT" ? "Cliente: " : m.senderType === "AI_AGENT" ? `${assistant}: ` : "Equipe: "}{m.content}</p>
                           ))}
                         </Link>
                       ))}
@@ -376,7 +376,7 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
                         <div className="flex justify-end"><Button size="sm" type="submit" loading={addActivity.isPending}>Salvar anotação</Button></div>
                       </form>
                       {notes.map((a) => (
-                        <div key={a.id} className="rounded-lg border bg-amber-50/40 p-3">
+                        <div key={a.id} className="rounded-lg border bg-amber-500/10 p-3">
                           <p className="text-[11px] text-muted-foreground">{a.title} · {formatDate(a.createdAt, true)} · {a.user?.name}</p>
                           <p className="mt-1 whitespace-pre-wrap text-sm">{a.body}</p>
                         </div>
@@ -389,7 +389,7 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
                       <Button size="sm" variant="outline" onClick={() => setTaskOpen(true)}><Plus /> Nova tarefa</Button>
                       {c.tasks.map((t) => (
                         <div key={t.id} className="flex items-center gap-3 rounded-lg border p-3">
-                          <button onClick={() => toggleTask.mutate(t)} className={t.isCompleted ? "text-success" : "text-slate-300 hover:text-slate-500"}>
+                          <button onClick={() => toggleTask.mutate(t)} className={t.isCompleted ? "text-success" : "text-muted-foreground/60 hover:text-muted-foreground"}>
                             <CheckCircle2 className="h-5 w-5" />
                           </button>
                           <div className="min-w-0 flex-1">
@@ -437,7 +437,7 @@ export function ContactDrawer({ contactId, onClose }: { contactId: string | null
 
                   {tab === "imoveis" && (
                     <div className="grid gap-3 sm:grid-cols-2">
-                      {!c.interestedItems.length && <EmptyState className="sm:col-span-2" icon={<Home className="h-5 w-5" />} title="Nenhum imóvel vinculado" description={`Quando o ${assistant} recomendar imóveis do catálogo, eles aparecem aqui.`} />}
+                      {!c.interestedItems.length && <EmptyState className="sm:col-span-2" icon={<Home className="h-5 w-5" />} title="Nenhum imóvel vinculado" description={`Quando a ${assistant} recomendar imóveis do catálogo, eles aparecem aqui.`} />}
                       {c.interestedItems.map((i) => (
                         <div key={i.id} className="overflow-hidden rounded-lg border">
                           {/* eslint-disable-next-line @next/next/no-img-element */}

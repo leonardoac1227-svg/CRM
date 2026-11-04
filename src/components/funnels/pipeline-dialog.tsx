@@ -47,7 +47,7 @@ export function PipelineDialog({ open, onOpenChange, pipeline, onSaved }: { open
         <DialogBody className="space-y-4">
           <Field label="Nome do funil"><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Funil de locação" /></Field>
           <div>
-            <p className="mb-2 text-xs font-medium text-slate-600">Etapas</p>
+            <p className="mb-2 text-xs font-medium text-foreground/75">Etapas</p>
             <div className="space-y-2">
               {stages.map((s, i) => (
                 <div key={i} className="flex items-center gap-2">

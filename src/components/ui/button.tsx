@@ -5,26 +5,26 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-white shadow-sm hover:bg-primary/90",
-        secondary: "bg-secondary text-white shadow-sm hover:bg-secondary/90",
-        outline: "border bg-white text-foreground shadow-sm hover:bg-muted",
+        default: "bg-primary text-primary-foreground shadow-sm shadow-primary/20 hover:brightness-110",
+        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:brightness-110",
+        outline: "border bg-card text-foreground shadow-sm hover:border-primary/50 hover:bg-muted",
         ghost: "text-foreground hover:bg-muted",
-        soft: "bg-primary/10 text-primary hover:bg-primary/15",
+        soft: "bg-primary/10 text-primary hover:bg-primary/20 dark:text-secondary",
         destructive: "bg-destructive text-white hover:bg-destructive/90",
         success: "bg-success text-white hover:bg-success/90",
-        ai: "bg-gradient-to-r from-primary to-secondary text-white shadow-sm hover:opacity-95",
+        ai: "bg-gradient-to-br from-secondary to-primary text-primary-foreground shadow-md shadow-primary/25 hover:brightness-110",
         link: "text-primary underline-offset-4 hover:underline px-0",
       },
       size: {
-        default: "h-9 px-4",
+        default: "h-10 px-4",
         sm: "h-8 px-3 text-xs",
         xs: "h-7 px-2 text-xs",
-        lg: "h-10 px-5",
-        icon: "h-9 w-9",
+        lg: "h-11 px-6 text-[15px]",
+        icon: "h-10 w-10",
         "icon-sm": "h-8 w-8",
       },
     },

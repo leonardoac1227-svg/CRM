@@ -1,4 +1,4 @@
-// Automações do Téo executadas pelo agendador (server.ts chama /api/cron/tick a cada minuto).
+// Automações da Zeni executadas pelo agendador (server.ts chama /api/cron/tick a cada minuto).
 import type { AutomationType } from "@prisma/client";
 import { prisma } from "../prisma";
 import { firstName, formatDate } from "../utils";
@@ -23,7 +23,7 @@ async function messageContact(contactId: string, text: string, label: string) {
   if (!conv?.channel) return false;
   if (conv.channel.provider === "META_OFFICIAL" && !windowOpen(conv)) return false;
   const cfg = await prisma.aiAssistantConfig.findUnique({ where: { workspaceId: conv.workspaceId } });
-  await sendOutboundText({ conversationId: conv.id, text, senderType: "AI_AGENT", senderName: `IA: ${cfg?.assistantName ?? "Téo"} • ${label}` });
+  await sendOutboundText({ conversationId: conv.id, text, senderType: "AI_AGENT", senderName: `IA: ${cfg?.assistantName ?? "Zeni"} • ${label}` });
   return true;
 }
 

@@ -20,7 +20,7 @@ export const GET = route(async ({ session }) => {
     BROKER_FOLLOWUP: `${followups} pendente${followups === 1 ? "" : "s"}`,
   };
   return {
-    assistantName: cfg?.assistantName ?? "Téo",
+    assistantName: cfg?.assistantName ?? "Zeni",
     assistantActive: cfg?.isActive ?? false,
     items: AUTOMATION_DEFS.map((def) => {
       const rule = rules.find((r) => r.type === def.type);

@@ -4,6 +4,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,14 +26,14 @@ export function DialogContent({
   const sizes = { sm: "max-w-md", md: "max-w-lg", lg: "max-w-3xl", xl: "max-w-5xl", full: "max-w-[96vw]" };
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[1px] data-[state=open]:animate-fade-in" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-fade-in" />
       <DialogPrimitive.Content
-        className={cn("fixed left-1/2 top-1/2 z-50 flex max-h-[92vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-white shadow-2xl focus:outline-none", sizes[size], className)}
+        className={cn("fixed left-1/2 top-1/2 z-50 flex max-h-[92vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border bg-popover shadow-2xl focus:outline-none", sizes[size], className)}
         {...props}
       >
         {(title || description) && (
           <div className="border-b px-5 py-4 pr-12">
-            {title && <DialogPrimitive.Title className="text-base font-semibold">{title}</DialogPrimitive.Title>}
+            {title && <DialogPrimitive.Title className="text-base font-bold">{title}</DialogPrimitive.Title>}
             {description && <DialogPrimitive.Description className="mt-0.5 text-xs text-muted-foreground">{description}</DialogPrimitive.Description>}
           </div>
         )}
@@ -53,7 +54,7 @@ export function DialogBody({ className, ...props }: React.HTMLAttributes<HTMLDiv
 }
 
 export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex items-center justify-end gap-2 border-t bg-slate-50/60 px-5 py-3", className)} {...props} />;
+  return <div className={cn("flex items-center justify-end gap-2 border-t bg-muted/40 px-5 py-3", className)} {...props} />;
 }
 
 export function SheetContent({
@@ -65,8 +66,8 @@ export function SheetContent({
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { title?: React.ReactNode; width?: string }) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-900/30 data-[state=open]:animate-fade-in" />
-      <DialogPrimitive.Content className={cn("fixed inset-y-0 right-0 z-50 flex w-full flex-col bg-white shadow-2xl animate-slide-in-right focus:outline-none", width, className)} {...props}>
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-fade-in" />
+      <DialogPrimitive.Content className={cn("fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l bg-popover shadow-2xl animate-slide-in-right focus:outline-none", width, className)} {...props}>
         <DialogPrimitive.Title className={title ? "border-b px-5 py-4 pr-12 text-base font-semibold" : "sr-only"}>{title ?? "Painel"}</DialogPrimitive.Title>
         {children}
         <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
@@ -85,7 +86,7 @@ export const DropdownMenuGroup = DropdownPrimitive.Group;
 export function DropdownMenuContent({ className, align = "start", ...props }: React.ComponentPropsWithoutRef<typeof DropdownPrimitive.Content>) {
   return (
     <DropdownPrimitive.Portal>
-      <DropdownPrimitive.Content align={align} sideOffset={6} className={cn("z-50 min-w-[12rem] overflow-hidden rounded-lg border bg-white p-1 shadow-lg animate-fade-in", className)} {...props} />
+      <DropdownPrimitive.Content align={align} sideOffset={6} className={cn("z-50 min-w-[12rem] overflow-hidden rounded-xl border bg-popover p-1.5 shadow-xl animate-fade-in", className)} {...props} />
     </DropdownPrimitive.Portal>
   );
 }
@@ -113,7 +114,7 @@ export const PopoverTrigger = PopoverPrimitive.Trigger;
 export function PopoverContent({ className, align = "end", ...props }: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>) {
   return (
     <PopoverPrimitive.Portal>
-      <PopoverPrimitive.Content align={align} sideOffset={8} className={cn("z-50 w-80 rounded-lg border bg-white shadow-lg outline-none animate-fade-in", className)} {...props} />
+      <PopoverPrimitive.Content align={align} sideOffset={8} className={cn("z-50 w-80 rounded-xl border bg-popover shadow-xl outline-none animate-fade-in", className)} {...props} />
     </PopoverPrimitive.Portal>
   );
 }
@@ -122,10 +123,10 @@ export function PopoverContent({ className, align = "end", ...props }: React.Com
 export function Switch({ className, ...props }: React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>) {
   return (
     <SwitchPrimitive.Root
-      className={cn("peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-success", className)}
+      className={cn("peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-success", className)}
       {...props}
     >
-      <SwitchPrimitive.Thumb className="pointer-events-none block h-4 w-4 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0" />
+      <SwitchPrimitive.Thumb className="pointer-events-none block h-4 w-4 rounded-full bg-card shadow transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0" />
     </SwitchPrimitive.Root>
   );
 }
@@ -138,7 +139,7 @@ export function TabsList({ className, ...props }: React.ComponentPropsWithoutRef
 export function TabsTrigger({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>) {
   return (
     <TabsPrimitive.Trigger
-      className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:text-foreground data-[state=active]:bg-white data-[state=active]:text-foreground data-[state=active]:shadow-sm", className)}
+      className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm", className)}
       {...props}
     />
   );
@@ -161,5 +162,20 @@ export function UnderlineTabs<T extends string>({ value, onChange, items, classN
         </button>
       ))}
     </div>
+  );
+}
+
+export function Tooltip({ content, children, side = "top" }: { content: React.ReactNode; children: React.ReactNode; side?: "top" | "right" | "bottom" | "left" }) {
+  return (
+    <TooltipPrimitive.Provider delayDuration={150}>
+      <TooltipPrimitive.Root>
+        <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Portal>
+          <TooltipPrimitive.Content side={side} sideOffset={10} className="z-[60] rounded-lg border border-white/10 bg-[#0B0F19] px-2.5 py-1.5 text-xs font-semibold text-white shadow-xl animate-fade-in">
+            {content}
+          </TooltipPrimitive.Content>
+        </TooltipPrimitive.Portal>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
   );
 }

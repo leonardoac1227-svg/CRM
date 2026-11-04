@@ -60,13 +60,13 @@ export function KanbanView({ pipelineId, filters, q }: { pipelineId: string; fil
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex h-[calc(100vh-var(--topbar-h)-170px)] min-h-[480px] gap-3 overflow-x-auto pb-3 scrollbar-thin">
         {cols.map((col) => (
-          <div key={col.stage.id} className="flex w-72 shrink-0 flex-col rounded-xl bg-slate-100/80">
+          <div key={col.stage.id} className="flex w-72 shrink-0 flex-col rounded-xl bg-muted/80">
             <div className="px-3 pb-2 pt-3">
               <div className="flex items-center justify-between">
                 <p className="flex items-center gap-2 text-sm font-semibold"><span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: col.stage.color }} /> {col.stage.name}</p>
-                <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600">{col.cards.length}</span>
+                <span className="rounded-full bg-card px-2 py-0.5 text-[11px] font-semibold text-foreground/75">{col.cards.length}</span>
               </div>
-              <p className="mt-0.5 text-xs font-medium text-slate-500">{formatBRL(col.total)}</p>
+              <p className="mt-0.5 text-xs font-medium text-muted-foreground">{formatBRL(col.total)}</p>
               <div className="mt-2 h-1 rounded-full" style={{ backgroundColor: col.stage.color }} />
             </div>
             <Droppable droppableId={col.stage.id}>
@@ -82,7 +82,7 @@ export function KanbanView({ pipelineId, filters, q }: { pipelineId: string; fil
                             {...dp.draggableProps}
                             {...dp.dragHandleProps}
                             onClick={() => openContact(c.id)}
-                            className={cn("cursor-pointer rounded-lg border bg-white p-3 shadow-sm transition-shadow hover:shadow-md", ds.isDragging && "rotate-1 shadow-xl ring-2 ring-primary/30")}
+                            className={cn("cursor-pointer rounded-lg border bg-card p-3 shadow-sm transition-shadow hover:shadow-md", ds.isDragging && "rotate-1 shadow-xl ring-2 ring-primary/30")}
                           >
                             <div className="flex items-start justify-between gap-2">
                               <p className="text-sm font-semibold leading-tight">{c.name ?? "Sem nome"}</p>
@@ -90,9 +90,9 @@ export function KanbanView({ pipelineId, filters, q }: { pipelineId: string; fil
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground">{formatPhone(c.phone)}</p>
                             <div className="mt-2"><OriginBadge origin={c.origin} page={c.seoLandingPage} /></div>
-                            {c.dealValue ? <p className="mt-2 text-sm font-semibold text-slate-800">{formatBRL(c.dealValue)}</p> : null}
+                            {c.dealValue ? <p className="mt-2 text-sm font-semibold text-foreground/90">{formatBRL(c.dealValue)}</p> : null}
                             <div className="mt-2.5 flex items-center justify-between border-t pt-2">
-                              <span className="flex min-w-0 items-center gap-1.5 text-[11px] text-slate-600">
+                              <span className="flex min-w-0 items-center gap-1.5 text-[11px] text-foreground/75">
                                 {c.assignedTo ? <><Avatar name={c.assignedTo.name} size={18} /> <span className="truncate">{c.assignedTo.name.split(" ")[0]}</span></> : <span className="italic text-muted-foreground">Sem responsável</span>}
                               </span>
                               <span className="flex items-center gap-2">

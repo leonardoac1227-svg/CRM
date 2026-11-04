@@ -62,8 +62,8 @@ export function NewConversationDialog({ open, onOpenChange, channels, onCreated 
             </Select>
           </Field>
           <div className="flex gap-1 rounded-lg bg-muted p-1 text-xs">
-            <button onClick={() => setMode("existing")} className={`flex-1 rounded-md py-1.5 font-medium ${mode === "existing" ? "bg-white shadow-sm" : "text-muted-foreground"}`}>Contato existente</button>
-            <button onClick={() => setMode("new")} className={`flex-1 rounded-md py-1.5 font-medium ${mode === "new" ? "bg-white shadow-sm" : "text-muted-foreground"}`}>Novo número</button>
+            <button onClick={() => setMode("existing")} className={`flex-1 rounded-md py-1.5 font-medium ${mode === "existing" ? "bg-card shadow-sm" : "text-muted-foreground"}`}>Contato existente</button>
+            <button onClick={() => setMode("new")} className={`flex-1 rounded-md py-1.5 font-medium ${mode === "new" ? "bg-card shadow-sm" : "text-muted-foreground"}`}>Novo número</button>
           </div>
           {mode === "existing" ? (
             <Field label="Contato"><ContactPicker value={contact} onChange={setContact} /></Field>

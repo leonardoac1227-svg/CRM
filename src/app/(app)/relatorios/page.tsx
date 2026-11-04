@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bot, Clock, MessageSquare, Target, TrendingUp, Trophy, Users, XCircle } from "lucide-react";
+import { Bot, Clock, MessageSquare, Target, TrendingUp, Trophy, Users, XCircle, BarChart3 } from "lucide-react";
 import { api } from "@/lib/client";
 import { ORIGIN_LABELS } from "@/lib/constants";
 import { formatBRL, formatPercent } from "@/lib/utils";
@@ -29,8 +29,8 @@ export default function Relatorios() {
   const maxOrigin = Math.max(1, ...(data?.byOrigin.map((o) => o.leads) ?? [1]));
   const totalMsgs = data?.messages.reduce((a, m) => a + m.count, 0) ?? 0;
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <PageHeader title="Relatórios" description={`Visão geral de ${me?.workspace.name ?? ""}`} actions={<Select value={days} onChange={(e) => setDays(e.target.value)} className="w-auto"><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option></Select>} />
+    <div className="mx-auto max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
+      <PageHeader eyebrow="Crescer" icon={<BarChart3 />} title="Relatórios" description={`Visão geral de ${me?.workspace.name ?? ""}`} actions={<Select value={days} onChange={(e) => setDays(e.target.value)} className="w-auto"><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option></Select>} />
       {!data ? <Skeleton className="h-96" /> : (
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -67,7 +67,7 @@ export default function Relatorios() {
             <Card className="overflow-hidden lg:col-span-2">
               <CardHeader title="Campanhas no período" />
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-left text-[11px] uppercase text-muted-foreground"><tr><th className="px-4 py-2">Campanha</th><th className="px-3 py-2 text-right">Enviadas</th><th className="px-3 py-2 text-right">Respostas</th><th className="px-3 py-2 text-right">Taxa</th><th className="px-4 py-2 text-right">Custo</th></tr></thead>
+                <thead className="bg-muted/60 text-left text-[11px] uppercase text-muted-foreground"><tr><th className="px-4 py-2">Campanha</th><th className="px-3 py-2 text-right">Enviadas</th><th className="px-3 py-2 text-right">Respostas</th><th className="px-3 py-2 text-right">Taxa</th><th className="px-4 py-2 text-right">Custo</th></tr></thead>
                 <tbody>
                   {data.campaigns.map((c) => <tr key={c.id} className="border-t"><td className="px-4 py-2">{c.name}</td><td className="px-3 py-2 text-right">{c.sentCount}</td><td className="px-3 py-2 text-right">{c.repliedCount}</td><td className="px-3 py-2 text-right">{formatPercent(c.sentCount ? (c.repliedCount / c.sentCount) * 100 : 0, 1)}</td><td className="px-4 py-2 text-right">{formatBRL(c.estimatedCost)}</td></tr>)}
                   {!data.campaigns.length && <tr><td colSpan={5} className="px-4 py-6 text-center text-xs text-muted-foreground">Nenhuma campanha no período.</td></tr>}
