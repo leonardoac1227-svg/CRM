@@ -1,5 +1,5 @@
 // Armazenamento de arquivos enviados no chat.
-// Com SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY, usa o Supabase Storage (permanente e com link público,
+// Com SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (ou a chave anon com política de upload no bucket), usa o Supabase Storage (permanente e com link público,
 // exigido pela Meta/Evolution para enviar mídia). Sem eles, grava em disco local (some a cada deploy no Render).
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -26,8 +26,8 @@ async function ensureBucket(sb: { url: string; key: string }) {
     headers: { Authorization: `Bearer ${sb.key}`, apikey: sb.key, "Content-Type": "application/json" },
     body: JSON.stringify({ id: BUCKET, name: BUCKET, public: true, file_size_limit: 25 * 1024 * 1024 }),
   });
-  // 200 = criado; 400/409 = já existe
-  if (!r.ok && r.status !== 400 && r.status !== 409) throw new Error(`Supabase Storage: não foi possível criar o bucket (${r.status})`);
+  // 200 = criado; 400/409 = já existe; 401/403 = chave sem permissão de criar (bucket criado no painel)
+  if (!r.ok && ![400, 401, 403, 409].includes(r.status)) throw new Error(`Supabase Storage: não foi possível criar o bucket (${r.status})`);
   bucketReady = true;
 }
 
@@ -44,7 +44,7 @@ export async function saveUpload(workspaceId: string, file: { name: string; type
     await ensureBucket(sb);
     const r = await fetch(`${sb.url}/storage/v1/object/${BUCKET}/${key}`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${sb.key}`, apikey: sb.key, "Content-Type": file.type || "application/octet-stream", "x-upsert": "true" },
+      headers: { Authorization: `Bearer ${sb.key}`, apikey: sb.key, "Content-Type": file.type || "application/octet-stream" },
       body: new Uint8Array(file.bytes),
     });
     if (!r.ok) throw new Error(`Supabase Storage recusou o arquivo (${r.status}): ${(await r.text()).slice(0, 200)}`);
